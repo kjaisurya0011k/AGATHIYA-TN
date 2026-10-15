@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { UserAvatar } from '../components/UserAvatar';
 import {
   Calendar,
   Clock,
@@ -148,9 +149,15 @@ export function MentorDashboard() {
       {/* 1. Header Hero Banner */}
       <div className="card mentor-profile-banner" style={{ marginBottom: '2rem' }}>
         <div className="mentor-banner-left">
-          <div className="mentor-avatar-lg">
-            {profile?.full_name ? profile.full_name.charAt(0) : 'M'}
-          </div>
+          <UserAvatar
+            name={profile?.full_name || 'Mentor'}
+            avatarPath={profile?.avatar_path}
+            avatarUrl={profile?.avatar_url || user?.user_metadata?.avatar_url}
+            avatarUpdatedAt={profile?.avatar_updated_at}
+            role="mentor"
+            size={72}
+            fontSize="1.75rem"
+          />
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
               <span className={`badge ${isProfileApproved ? 'badge-green' : 'badge-purple'}`}>

@@ -15,6 +15,7 @@ import {
   XCircle,
   Tag
 } from 'lucide-react';
+import { UserAvatar } from './UserAvatar';
 
 export function SessionCard({ session }) {
   const { lang, t } = useLanguage();
@@ -133,10 +134,15 @@ export function SessionCard({ session }) {
         )}
 
         {/* Mentor Info */}
-        <div className="session-mentor" style={{ marginBottom: '0.85rem' }}>
-          <div className="mentor-avatar">
-            {mentorName.charAt(0)}
-          </div>
+        <div className="session-mentor" style={{ marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <UserAvatar
+            name={mentorName}
+            avatarPath={session.mentor_avatar_path || (session.mentor_id ? `${session.mentor_id}/avatar.webp` : null)}
+            avatarUrl={session.mentor_avatar_url || session.mentor_avatar || null}
+            avatarUpdatedAt={session.mentor_avatar_updated_at || session.updated_at}
+            role="mentor"
+            size={38}
+          />
           <div className="mentor-details">
             <h4 className="mentor-name">{mentorName}</h4>
             <p className="mentor-role" style={{ fontSize: '0.78rem' }}>{mentorRole}</p>

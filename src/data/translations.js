@@ -574,6 +574,27 @@ export const translations = {
       publicShowcaseSubtitle: "கிராமப்புற மற்றும் சிறுநகர மாணவர்கள் வென்ற தேசிய ஹேக்கத்தான்கள், மருத்துவ இடஒதுக்கீடு வெற்றிகள் மற்றும் புதிய கண்டுபிடிப்புகள்.",
       viewGallery: "படங்களைக் காண்க",
       closeGallery: "மூடு"
+    },
+
+    avatar: {
+      changePhoto: "புகைப்படத்தை மாற்று",
+      removePhoto: "புகைப்படத்தை நீக்கு",
+      cropTitle: "புகைப்படத்தை அமைத்தல்",
+      cropInstruction: "உங்கள் முகத்தை வட்டத்திற்குள் பொருந்தும் வகையில் நகர்த்தி, பெரிதாக்கவும்.",
+      zoom: "பெரிதாக்கு",
+      savePhoto: "புகைப்படத்தை சேமி",
+      cancel: "ரத்து செய்",
+      uploading: "செயலாக்கம் & பதிவேற்றம்...",
+      successUpload: "சுயவிவர புகைப்படம் வெற்றிகரமாக புதுப்பிக்கப்பட்டது!",
+      successRemove: "சுயவிவர புகைப்படம் நீக்கப்பட்டது.",
+      confirmRemove: "உங்கள் சுயவிவர புகைப்படத்தை நிச்சயமாக அகற்ற விரும்புகிறீர்களா?",
+      invalidType: "JPG, PNG அல்லது WEBP வடிவப் படங்கள் மட்டுமே அனுமதிக்கப்படும்.",
+      fileTooLarge: "தயவுசெய்து 5 MB-க்கும் குறைவான புகைப்படத்தைத் தேர்ந்தெடுக்கவும்.",
+      errorUpload: "புகைப்படத்தை பதிவேற்றுவதில் தோல்வி. மீண்டும் முயற்சிக்கவும்.",
+      retry: "மீண்டும் முயற்சி",
+      privacyNoteStudent: "உங்கள் தெளிவான புகைப்படத்தைப் பயன்படுத்தவும். மற்றவர்களின் புகைப்படங்களை பதிவேற்ற வேண்டாம். மாணவர் புகைப்படங்கள் உங்களுக்கும் EEE-TN நிர்வாகிகளுக்கும் மட்டுமே தெரியும்.",
+      privacyNoteMentor: "உங்கள் தெளிவான புகைப்படத்தைப் பயன்படுத்தவும். மற்றவர்களின் புகைப்படங்களை பதிவேற்ற வேண்டாம். உங்கள் புகைப்படமானது நீங்கள் நடத்தும் அமர்வுகளில் மாணவர்களுக்குக் காட்டப்படும்.",
+      privacyNoteAdmin: "உங்கள் தெளிவான புகைப்படத்தைப் பயன்படுத்தவும். மற்றவர்களின் புகைப்படங்களை பதிவேற்ற வேண்டாம். நிர்வாகி புகைப்படங்கள் அங்கீகரிக்கப்பட்ட ஊழியர்களுக்கு மட்டுமே தெரியும்."
     }
   },
 
@@ -1151,6 +1172,27 @@ export const translations = {
       publicShowcaseSubtitle: "Celebrating remarkable milestones of rural and government school students across Tamil Nadu in hackathons, medical quotas, and scientific innovations.",
       viewGallery: "View Photo Gallery",
       closeGallery: "Close Gallery"
+    },
+
+    avatar: {
+      changePhoto: "Change photo",
+      removePhoto: "Remove photo",
+      cropTitle: "Crop & Adjust Photo",
+      cropInstruction: "Drag to position and use the slider to zoom your face within the circle.",
+      zoom: "Zoom",
+      savePhoto: "Save Photo",
+      cancel: "Cancel",
+      uploading: "Processing & Uploading...",
+      successUpload: "Profile photo updated successfully!",
+      successRemove: "Profile photo removed.",
+      confirmRemove: "Are you sure you want to remove your profile photo?",
+      invalidType: "Only JPG, PNG or WEBP images are supported.",
+      fileTooLarge: "Please select a photo smaller than 5 MB.",
+      errorUpload: "Failed to upload photo. Please retry.",
+      retry: "Retry",
+      privacyNoteStudent: "Use a clear photo of yourself. Don't upload photos of other people. Student photos are visible only to you and EEE-TN admins.",
+      privacyNoteMentor: "Use a clear photo of yourself. Don't upload photos of other people. Your photo is shown to students on your sessions.",
+      privacyNoteAdmin: "Use a clear photo of yourself. Don't upload photos of other people. Admin photos are visible only to authorized platform staff."
     }
   }
 };

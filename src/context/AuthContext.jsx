@@ -11,6 +11,9 @@ const STORAGE_KEY_MENTOR_SESSIONS = 'eee_tn_mentor_sessions_v1';
 const STORAGE_KEY_ACHIEVEMENTS = 'eee_tn_achievements_v1';
 const STORAGE_KEY_ADMIN_USERS = 'eee_tn_admin_users_v1';
 
+// In-memory cache for avatar signed URLs (1-hour expiry)
+const avatarUrlCache = new Map();
+
 const INITIAL_ACHIEVEMENTS = [
   {
     id: 'ach-1',
@@ -119,6 +122,7 @@ const INITIAL_ADMIN_USERS = [
     full_name: 'EEE-TN Platform Administrator',
     email: 'director.admin@eeetn.org',
     role: 'admin',
+    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
     created_at: '2026-05-10T08:00:00Z'
   },
   {
@@ -126,6 +130,7 @@ const INITIAL_ADMIN_USERS = [
     full_name: 'Er. K. Senthil Nathan',
     email: 'senthil.mentor@eeetn.org',
     role: 'mentor',
+    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
     created_at: '2026-06-01T09:30:00Z'
   },
   {
@@ -133,6 +138,7 @@ const INITIAL_ADMIN_USERS = [
     full_name: 'Dr. Priya Anbarasan',
     email: 'priya.medical@eeetn.org',
     role: 'mentor',
+    avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
     created_at: '2026-06-15T11:00:00Z'
   },
   {
@@ -156,6 +162,7 @@ const INITIAL_MENTOR_SESSIONS = [
     id: 'sess-101',
     mentor_id: 'demo-mentor-id',
     mentor_name: 'Er. K. Senthil Nathan',
+    mentor_avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
     mentor_headline: 'Senior Lead Systems Engineer @ Zoho Corporation',
     title_en: 'TNEA Counseling 2026: Strategy for Top 50 Engineering Colleges',
     title_ta: 'TNEA கலந்தாய்வு 2026: சிறந்த 50 பொறியியல் கல்லூரிகளைத் தேர்ந்தெடுப்பது எப்படி?',
@@ -767,7 +774,8 @@ export function AuthProvider({ children }) {
           full_name: 'Er. K. Senthil Nathan',
           role: 'mentor',
           district: 'Coimbatore',
-          designation: 'Senior Lead Systems Engineer'
+          designation: 'Senior Lead Systems Engineer',
+          avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80'
         },
         mentorDetails: {
           id: 'demo-mentor-id',
@@ -793,7 +801,8 @@ export function AuthProvider({ children }) {
           email: 'director.admin@eeetn.org',
           full_name: 'EEE-TN Platform Administrator',
           role: 'admin',
-          district: 'Chennai'
+          district: 'Chennai',
+          avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'
         },
         adminDetails: {
           id: 'demo-admin-id',
@@ -804,6 +813,13 @@ export function AuthProvider({ children }) {
     };
 
     const selected = demoConfigs[roleType] || demoConfigs.student;
+
+    // Check if user has an uploaded custom avatar in local storage
+    const customAvatar = localStorage.getItem(`eee_tn_avatar_${selected.user.id}`);
+    if (customAvatar) {
+      selected.profile.avatar_path = `${selected.user.id}/avatar.webp`;
+      selected.profile.avatar_updated_at = new Date().toISOString();
+    }
     setSession({ user: selected.user, access_token: 'demo_token' });
     setUser(selected.user);
     setProfile(selected.profile);
@@ -1894,6 +1910,172 @@ export function AuthProvider({ children }) {
     };
   };
 
+  // -------------------------------------------------------------
+  // Profile Photo & Private Avatars Bucket Storage Methods
+  // -------------------------------------------------------------
+  const getAvatarSignedUrl = async (avatarPath, avatarUpdatedAt) => {
+    if (!avatarPath) return null;
+
+    const cacheKey = `${avatarPath}:${avatarUpdatedAt || ''}`;
+    const cached = avatarUrlCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now() + 60000) {
+      return cached.url;
+    }
+
+    // Check localStorage fallback for demo/offline avatars
+    const userId = avatarPath.split('/')[0];
+    const localDataUrl = localStorage.getItem(`eee_tn_avatar_${userId}`);
+    if (localDataUrl) {
+      avatarUrlCache.set(cacheKey, { url: localDataUrl, expiresAt: Date.now() + 3500 * 1000 });
+      return localDataUrl;
+    }
+
+    try {
+      if (supabase?.storage?.from) {
+        const { data, error } = await supabase.storage
+          .from('avatars')
+          .createSignedUrl(avatarPath, 3600); // 1-hour expiry
+
+        if (!error && data?.signedUrl) {
+          avatarUrlCache.set(cacheKey, { url: data.signedUrl, expiresAt: Date.now() + 3500 * 1000 });
+          return data.signedUrl;
+        }
+      }
+    } catch (err) {
+      console.warn('Error creating avatar signed url:', err);
+    }
+
+    return null;
+  };
+
+  const uploadUserAvatar = async (fileBlob) => {
+    if (!user) throw new Error('User must be authenticated to upload an avatar.');
+
+    const filePath = `${user.id}/avatar.webp`;
+    const nowIso = new Date().toISOString();
+
+    // 1. Read as Data URL for instant, reliable local rendering
+    const localDataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('Failed to read image blob'));
+      reader.readAsDataURL(fileBlob);
+    });
+
+    try {
+      // 2. Upload to private Supabase Storage bucket 'avatars'
+      if (supabase?.storage?.from) {
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, fileBlob, {
+            upsert: true,
+            contentType: 'image/webp'
+          });
+
+        if (uploadError) {
+          console.warn('Supabase storage upload note (using offline fallback if mock):', uploadError);
+        }
+      }
+
+      // 3. Update public.profiles row
+      if (supabase?.from) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            avatar_path: filePath,
+            avatar_updated_at: nowIso
+          })
+          .eq('id', user.id);
+
+        if (profileError) {
+          console.warn('Profiles update note:', profileError);
+        }
+      }
+    } catch (err) {
+      console.warn('Network upload exception, maintaining local persistence:', err);
+    }
+
+    // Persist to local storage & in-memory cache
+    localStorage.setItem(`eee_tn_avatar_${user.id}`, localDataUrl);
+    avatarUrlCache.set(`${filePath}:${nowIso}`, {
+      url: localDataUrl,
+      expiresAt: Date.now() + 3500 * 1000
+    });
+
+    // Update state
+    setProfile((prev) => ({
+      ...prev,
+      avatar_path: filePath,
+      avatar_updated_at: nowIso
+    }));
+
+    // Update stored demo session if active
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_USER);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.profile) {
+          parsed.profile.avatar_path = filePath;
+          parsed.profile.avatar_updated_at = nowIso;
+          localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(parsed));
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    return { success: true, path: filePath };
+  };
+
+  const removeUserAvatar = async () => {
+    if (!user) return;
+    const filePath = `${user.id}/avatar.webp`;
+    const nowIso = new Date().toISOString();
+
+    try {
+      if (supabase?.storage?.from) {
+        await supabase.storage.from('avatars').remove([filePath]);
+      }
+      if (supabase?.from) {
+        await supabase
+          .from('profiles')
+          .update({
+            avatar_path: null,
+            avatar_updated_at: nowIso
+          })
+          .eq('id', user.id);
+      }
+    } catch (err) {
+      console.warn('Supabase remove note:', err);
+    }
+
+    localStorage.removeItem(`eee_tn_avatar_${user.id}`);
+    avatarUrlCache.delete(`${filePath}:${profile?.avatar_updated_at || ''}`);
+
+    setProfile((prev) => ({
+      ...prev,
+      avatar_path: null,
+      avatar_updated_at: nowIso
+    }));
+
+    // Update stored demo session if active
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_USER);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.profile) {
+          parsed.profile.avatar_path = null;
+          parsed.profile.avatar_updated_at = nowIso;
+          localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(parsed));
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    return { success: true };
+  };
+
   const userRole = profile?.role || (user ? 'student' : null);
 
   return (
@@ -1955,7 +2137,10 @@ export function AuthProvider({ children }) {
         adminUsers,
         fetchAdminUsers,
         adminSetUserRole,
-        fetchAdminDashboardStats
+        fetchAdminDashboardStats,
+        getAvatarSignedUrl,
+        uploadUserAvatar,
+        removeUserAvatar
       }}
     >
       {children}

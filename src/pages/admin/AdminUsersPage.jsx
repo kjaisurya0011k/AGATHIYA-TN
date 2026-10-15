@@ -18,6 +18,7 @@ import {
   AlertTriangle,
   GraduationCap
 } from 'lucide-react';
+import { UserAvatar } from '../../components/UserAvatar';
 
 export function AdminUsersPage() {
   const { lang, t } = useLanguage();
@@ -305,10 +306,16 @@ export function AdminUsersPage() {
                   return (
                     <tr key={u.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                       <td style={{ padding: '0.85rem 0.75rem', fontWeight: 700, color: 'var(--navy-900)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#ede9fe', color: '#6d28d9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.8rem' }}>
-                            {(u.full_name || 'U').charAt(0).toUpperCase()}
-                          </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                          <UserAvatar
+                            name={u.full_name || 'TN User'}
+                            avatarPath={u.avatar_path}
+                            avatarUrl={u.avatar_url}
+                            avatarUpdatedAt={u.avatar_updated_at}
+                            role={u.role}
+                            size={32}
+                            forStaffOnly={true}
+                          />
                           <div>
                             <div>{u.full_name || 'TN User'}</div>
                             {isCaller && (

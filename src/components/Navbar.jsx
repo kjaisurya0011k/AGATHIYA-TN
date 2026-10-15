@@ -22,6 +22,7 @@ import {
   Users
 } from 'lucide-react';
 import { BrandIdentity } from './BrandIdentity';
+import { UserAvatar } from './UserAvatar';
 
 export function Navbar() {
   const { lang, toggleLanguage, t } = useLanguage();
@@ -199,19 +200,14 @@ export function Navbar() {
                 className="user-profile-trigger"
                 aria-expanded={userDropdownOpen}
               >
-                <div className="user-avatar">
-                  {user.user_metadata?.avatar_url || user.user_metadata?.picture ? (
-                    <img
-                      src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
-                      alt=""
-                      className="nav-avatar-img"
-                    />
-                  ) : (
-                    profile?.full_name
-                      ? profile.full_name.charAt(0).toUpperCase()
-                      : (user.email ? user.email.charAt(0).toUpperCase() : 'U')
-                  )}
-                </div>
+                <UserAvatar
+                  name={profile?.full_name || user?.user_metadata?.full_name || user?.email || 'User'}
+                  avatarPath={profile?.avatar_path}
+                  avatarUrl={user.user_metadata?.avatar_url || user.user_metadata?.picture || profile?.avatar_url}
+                  avatarUpdatedAt={profile?.avatar_updated_at}
+                  role={userRole}
+                  size={34}
+                />
 
                 <div className="user-meta desktop-only">
                   <span className="user-name">
@@ -228,16 +224,25 @@ export function Navbar() {
 
               {userDropdownOpen && (
                 <div className="user-dropdown-menu">
-                  <div className="dropdown-header">
-                    <p className="dropdown-user-name">
-                      {profile?.full_name || 'Student'}
-                    </p>
-
-                    <p className="dropdown-user-email">
-                      {profile?.email || user.email}
-                    </p>
-
-                    <span className={`role-pill role-${userRole || 'student'}`}>
+                  <div className="dropdown-header" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.45rem', padding: '1rem' }}>
+                    <UserAvatar
+                      name={profile?.full_name || user?.user_metadata?.full_name || user?.email || 'User'}
+                      avatarPath={profile?.avatar_path}
+                      avatarUrl={user.user_metadata?.avatar_url || user.user_metadata?.picture || profile?.avatar_url}
+                      avatarUpdatedAt={profile?.avatar_updated_at}
+                      role={userRole}
+                      size={52}
+                      fontSize="1.1rem"
+                    />
+                    <div>
+                      <p className="dropdown-user-name" style={{ margin: 0, fontWeight: 700 }}>
+                        {profile?.full_name || 'Student'}
+                      </p>
+                      <p className="dropdown-user-email" style={{ margin: '0.15rem 0 0', fontSize: '0.75rem', color: '#64748b' }}>
+                        {profile?.email || user.email}
+                      </p>
+                    </div>
+                    <span className={`role-pill role-${userRole || 'student'}`} style={{ marginTop: '0.2rem' }}>
                       {(userRole || 'student').toUpperCase()}
                     </span>
                   </div>
@@ -336,6 +341,25 @@ export function Navbar() {
 
             {user ? (
               <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: '#f8fafc', borderRadius: 'var(--radius-md)', marginBottom: '0.85rem', border: '1px solid #e2e8f0' }}>
+                  <UserAvatar
+                    name={profile?.full_name || user?.user_metadata?.full_name || user?.email || 'User'}
+                    avatarPath={profile?.avatar_path}
+                    avatarUrl={user.user_metadata?.avatar_url || user.user_metadata?.picture || profile?.avatar_url}
+                    avatarUpdatedAt={profile?.avatar_updated_at}
+                    role={userRole}
+                    size={38}
+                  />
+                  <div style={{ overflow: 'hidden' }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--navy-900)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                      {profile?.full_name || 'Student'}
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748b', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                      {profile?.email || user.email}
+                    </div>
+                  </div>
+                </div>
+
                 <Link
                   to="/profile"
                   className="btn btn-primary"

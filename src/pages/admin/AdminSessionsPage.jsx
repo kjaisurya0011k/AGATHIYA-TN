@@ -23,6 +23,7 @@ import {
   Save,
   CheckCheck
 } from 'lucide-react';
+import { UserAvatar } from '../../components/UserAvatar';
 
 export function AdminSessionsPage() {
   const { lang, t } = useLanguage();
@@ -415,7 +416,17 @@ export function AdminSessionsPage() {
                         )}
                       </td>
                       <td style={{ padding: '0.85rem 0.75rem', color: '#334155', fontWeight: 600 }}>
-                        {s.mentor_name || 'Verified Mentor'}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+                          <UserAvatar
+                            name={s.mentor_name || 'Verified Mentor'}
+                            avatarPath={s.mentor_avatar_path || (s.mentor_id ? `${s.mentor_id}/avatar.webp` : null)}
+                            avatarUrl={s.mentor_avatar_url || s.mentor_avatar || null}
+                            avatarUpdatedAt={s.mentor_avatar_updated_at || s.updated_at}
+                            role="mentor"
+                            size={28}
+                          />
+                          <span>{s.mentor_name || 'Verified Mentor'}</span>
+                        </div>
                       </td>
                       <td style={{ padding: '0.85rem 0.75rem', color: '#64748b' }}>
                         {s.session_date || s.date} <br />
@@ -496,8 +507,18 @@ export function AdminSessionsPage() {
                 <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--navy-900)', margin: 0 }}>
                   {(isTamil && selectedSession.title_ta ? selectedSession.title_ta : selectedSession.title_en) || selectedSession.title_en}
                 </h2>
-                <div style={{ fontSize: '0.825rem', color: '#475569', marginTop: '0.2rem' }}>
-                  {isTamil ? 'வழிகாட்டி: ' : 'Mentor: '} <strong>{selectedSession.mentor_name || 'Verified Mentor'}</strong>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginTop: '0.35rem' }}>
+                  <UserAvatar
+                    name={selectedSession.mentor_name || 'Verified Mentor'}
+                    avatarPath={selectedSession.mentor_avatar_path || (selectedSession.mentor_id ? `${selectedSession.mentor_id}/avatar.webp` : null)}
+                    avatarUrl={selectedSession.mentor_avatar_url || selectedSession.mentor_avatar || null}
+                    avatarUpdatedAt={selectedSession.mentor_avatar_updated_at || selectedSession.updated_at}
+                    role="mentor"
+                    size={24}
+                  />
+                  <span style={{ fontSize: '0.825rem', color: '#475569' }}>
+                    {isTamil ? 'வழிகாட்டி: ' : 'Mentor: '} <strong>{selectedSession.mentor_name || 'Verified Mentor'}</strong>
+                  </span>
                 </div>
               </div>
 

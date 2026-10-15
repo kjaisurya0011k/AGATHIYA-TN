@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { AvatarUploader } from '../components/AvatarUploader';
 import {
   TN_DISTRICTS,
   STUDENT_STATUS_OPTIONS,
@@ -823,13 +824,7 @@ export function ProfilePage() {
         {/* HEADER CARD: Avatar, Name, Read-only Role Badge, Email */}
         <div className="profile-header-card card">
           <div className="profile-header-left">
-            <div className="profile-avatar-large">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt={fullNameDisplay} className="profile-img-large" />
-              ) : (
-                <span>{userInitials}</span>
-              )}
-            </div>
+            <AvatarUploader size={84} userRole={userRole} />
 
             <div className="profile-intro-text">
               <div className="profile-name-row">
