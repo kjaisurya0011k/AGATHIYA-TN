@@ -5240,6 +5240,169 @@ textarea:focus-visible {
   margin-bottom: 1.25rem;
 }
 
+/* ==========================================================================
+   Profile Tabs & Form Layout
+   ========================================================================== */
+.profile-tabs-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #FFFFFF;
+  padding: 0.4rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.profile-tabs-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.profile-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.15rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.profile-tab-btn:hover {
+  color: var(--navy-900);
+  background: var(--navy-50);
+}
+
+.profile-tab-btn.active {
+  background: var(--navy-900);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 6, 102, 0.2);
+}
+
+.profile-tab-btn.active svg {
+  color: var(--cyan-600);
+}
+
+.profile-form-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.profile-save-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-top: 1rem;
+}
+
+.unsaved-warning-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #b45309;
+  background: #fef3c7;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  border: 1px solid #fde68a;
+}
+
+.role-readonly-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.25rem;
+}
+
+/* ==========================================================================
+   Sign-in & Email Management Styles
+   ========================================================================== */
+.signin-methods-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 1.25rem 0;
+}
+
+.signin-method-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: #FFFFFF;
+  transition: all var(--transition-fast);
+}
+
+.signin-method-card:hover {
+  border-color: var(--cyan-600);
+}
+
+.method-info-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.method-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--navy-50);
+  flex-shrink: 0;
+}
+
+.method-details strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--navy-900);
+}
+
+.method-details span {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.method-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.method-active-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #166534;
+  background: #dcfce7;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+}
+
 /* Mobile responsive rules */
 @media (max-width: 900px) {
   .eee-hero-layout {
@@ -6147,3 +6310,170 @@ textarea:focus-visible {
   padding: 0 0.5rem;
   max-width: 360px;
 }
+
+/* ==========================================================================
+   Phase 3: Mentor Profile & Admin Review Center Styles
+   ========================================================================== */
+
+/* Mentor Status Badges */
+.mentor-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.22rem 0.7rem;
+  border-radius: 9999px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.mentor-status-badge.status-approved {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.mentor-status-badge.status-pending_review {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.mentor-status-badge.status-needs_changes {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.mentor-status-badge.status-draft {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+/* Mentor Admin Review Note Callout */
+.mentor-review-note-callout {
+  background: #fef2f2;
+  border-left: 4px solid #ef4444;
+  padding: 0.85rem 1.15rem;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.mentor-review-note-callout.needs-attention {
+  background: #fff1f2;
+  border-left-color: #e11d48;
+}
+
+/* Interactive Tag Toggle Pills (Expertise & Languages) */
+.tag-toggle-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1.5px solid var(--border-subtle);
+  background: #ffffff;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tag-toggle-pill:hover {
+  border-color: var(--purple-700);
+  color: var(--purple-700);
+  background: #faf5ff;
+}
+
+.tag-toggle-pill.selected,
+.tag-toggle-pill.active {
+  background: var(--purple-700);
+  border-color: var(--purple-700);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(109, 40, 217, 0.25);
+}
+
+/* Bio Character Counter */
+.char-counter {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: color 0.15s ease;
+}
+
+.char-counter.limit-near {
+  color: #dc2626 !important;
+  font-weight: 700;
+}
+
+/* Admin Mentors Filter Tabs */
+.filter-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--border-subtle);
+  background: #ffffff;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-pill-btn:hover {
+  border-color: var(--navy-900);
+  color: var(--navy-900);
+}
+
+.filter-pill-btn.active {
+  background: var(--navy-900);
+  color: #ffffff;
+  border-color: var(--navy-900);
+  box-shadow: 0 2px 8px rgba(0, 6, 102, 0.2);
+}
+
+.count-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.1rem 0.5rem;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  color: var(--navy-900);
+  transition: all var(--transition-fast);
+}
+
+.filter-pill-btn.active .count-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Mentor Review Applicant Card */
+.mentor-review-card {
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.mentor-review-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive adjustments across 360px, 768px, and 1280px */
+@media (max-width: 640px) {
+  .mentor-status-banner-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .save-bar-actions {
+    width: 100%;
+  }
+
+  .save-bar-actions button {
+    flex: 1;
+    justify-content: center;
+  }
+}

@@ -14,6 +14,7 @@ import { MentorDashboard } from './pages/MentorDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { AuthCallback } from './pages/AuthCallback';
 import { ProfilePage } from './pages/ProfilePage';
+import { AdminMentorsPage } from './pages/AdminMentorsPage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { OnboardingModal } from './components/OnboardingModal';
@@ -132,6 +133,16 @@ export function App() {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Mentor Review Page */}
+          <Route
+            path="/admin/mentors"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminMentorsPage />
               </ProtectedRoute>
             }
           />

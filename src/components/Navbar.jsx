@@ -14,7 +14,8 @@ import {
   X,
   LayoutDashboard,
   ShieldCheck,
-  GraduationCap
+  GraduationCap,
+  UserCheck
 } from 'lucide-react';
 import { BrandIdentity } from './BrandIdentity';
 

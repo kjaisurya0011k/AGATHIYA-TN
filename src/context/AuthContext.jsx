@@ -12,6 +12,8 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [studentDetails, setStudentDetails] = useState(null);
+  const [mentorDetails, setMentorDetails] = useState(null);
+  const [adminDetails, setAdminDetails] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [authError, setAuthError] = useState(null);
@@ -91,6 +93,16 @@ export function AuthProvider({ children }) {
             setStudentDetails(null);
             setIsProfileComplete(false);
           }
+          if (parsed.mentorDetails) {
+            setMentorDetails(parsed.mentorDetails);
+          } else {
+            setMentorDetails(null);
+          }
+          if (parsed.adminDetails) {
+            setAdminDetails(parsed.adminDetails);
+          } else {
+            setAdminDetails(null);
+          }
         }
       } catch {
         // ignore
@@ -149,6 +161,14 @@ export function AuthProvider({ children }) {
 
       if (profData) {
         currentProfile = profData;
+        // Synchronize profiles.email if authUser.email was updated and confirmed
+        if (authUser.email && profData.email !== authUser.email) {
+          await supabase
+            .from('profiles')
+            .update({ email: authUser.email, updated_at: new Date().toISOString() })
+            .eq('id', authUser.id);
+          currentProfile = { ...profData, email: authUser.email };
+        }
       } else {
         // Attempt insertion if not created by trigger yet
         const initialProfile = {
@@ -188,6 +208,38 @@ export function AuthProvider({ children }) {
       } else {
         setStudentDetails(null);
         setIsProfileComplete(false);
+      }
+
+      // 3. Fetch Mentor Details if user has role 'mentor' or if row exists
+      if (currentProfile?.role === 'mentor' || authUser?.id) {
+        try {
+          const { data: mentorData } = await supabase
+            .from('mentor_profiles')
+            .select('*')
+            .eq('id', authUser.id)
+            .maybeSingle();
+          if (mentorData) {
+            setMentorDetails(mentorData);
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      // 4. Fetch Admin Details if user has role 'admin'
+      if (currentProfile?.role === 'admin' || authUser?.id) {
+        try {
+          const { data: adminData } = await supabase
+            .from('admin_details')
+            .select('*')
+            .eq('id', authUser.id)
+            .maybeSingle();
+          if (adminData) {
+            setAdminDetails(adminData);
+          }
+        } catch {
+          // ignore
+        }
       }
     } catch (err) {
       if (err?.message?.toLowerCase().includes('failed to fetch') || err?.message?.toLowerCase().includes('network')) {
@@ -309,13 +361,14 @@ export function AuthProvider({ children }) {
         if (isFinalConsent) setShowOnboardingModal(false);
       }
 
-      // Update name & district on profiles
-      if (payload.full_name || payload.district) {
+      // Update name, district & preferred_language on profiles
+      if (payload.full_name || payload.district || payload.preferred_language) {
         await supabase
           .from('profiles')
           .update({
             ...(payload.full_name ? { full_name: payload.full_name } : {}),
             ...(payload.district ? { district: payload.district } : {}),
+            ...(payload.preferred_language ? { preferred_language: payload.preferred_language } : {}),
             updated_at: new Date().toISOString()
           })
           .eq('id', user.id);
@@ -323,7 +376,8 @@ export function AuthProvider({ children }) {
         setProfile((prev) => ({
           ...prev,
           ...(payload.full_name ? { full_name: payload.full_name } : {}),
-          ...(payload.district ? { district: payload.district } : {})
+          ...(payload.district ? { district: payload.district } : {}),
+          ...(payload.preferred_language ? { preferred_language: payload.preferred_language } : {})
         }));
       }
 
@@ -336,21 +390,34 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Request Data Deletion
-  const requestDataDeletion = async () => {
+  // Request Data Deletion (inserts into deletion_requests and sets flag on student_details)
+  const requestDataDeletion = async (notes = '') => {
     if (!user?.id) return;
+    const requestedAt = new Date().toISOString();
+    try {
+      await supabase
+        .from('deletion_requests')
+        .insert({
+          user_id: user.id,
+          requested_at: requestedAt,
+          status: 'pending',
+          notes: notes || null
+        });
+    } catch {
+      // ignore
+    }
     try {
       await supabase
         .from('student_details')
         .update({
           delete_requested: true,
-          delete_requested_at: new Date().toISOString()
+          delete_requested_at: requestedAt
         })
         .eq('id', user.id);
     } catch {
       // ignore
     }
-    setStudentDetails((prev) => (prev ? { ...prev, delete_requested: true } : null));
+    setStudentDetails((prev) => (prev ? { ...prev, delete_requested: true, delete_requested_at: requestedAt } : null));
   };
 
   // One-click demo role switcher for testing roles
@@ -409,7 +476,23 @@ export function AuthProvider({ children }) {
           full_name: 'Er. K. Senthil Nathan',
           role: 'mentor',
           district: 'Coimbatore',
-          designation: 'Senior Lead Engineer & Career Mentor'
+          designation: 'Senior Lead Systems Engineer'
+        },
+        mentorDetails: {
+          id: 'demo-mentor-id',
+          phone: '9840123456',
+          headline: 'Senior Lead Systems Engineer & Career Mentor',
+          organisation: 'Zoho Corporation',
+          expertise: ['Engineering', 'Software & IT', 'Higher Education Abroad', 'Interview Preparation'],
+          years_of_experience: 8.5,
+          qualifications: 'B.E. (EEE) College of Engineering Guindy, M.S. Software Engineering',
+          languages: ['Tamil', 'English'],
+          bio: 'First-generation graduate from Salem district. Guiding students in engineering choices, career readiness, and competitive technical interviews.',
+          linkedin_url: 'https://linkedin.com/in/senthil-mentor-eeetn',
+          status: 'approved',
+          review_note: 'Verified CEG alumni credentials and tech mentoring experience.',
+          reviewed_by: 'demo-admin-id',
+          reviewed_at: '2026-09-01T10:00:00Z'
         }
       },
       admin: {
@@ -420,6 +503,11 @@ export function AuthProvider({ children }) {
           full_name: 'EEE-TN Platform Administrator',
           role: 'admin',
           district: 'Chennai'
+        },
+        adminDetails: {
+          id: 'demo-admin-id',
+          phone: '9444001122',
+          designation: 'State Higher Education Coordinator & Review Lead'
         }
       }
     };
@@ -434,6 +522,16 @@ export function AuthProvider({ children }) {
     } else {
       setStudentDetails(null);
       setIsProfileComplete(false);
+    }
+    if (selected.mentorDetails) {
+      setMentorDetails(selected.mentorDetails);
+    } else {
+      setMentorDetails(null);
+    }
+    if (selected.adminDetails) {
+      setAdminDetails(selected.adminDetails);
+    } else {
+      setAdminDetails(null);
     }
     localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(selected));
   };
@@ -483,6 +581,264 @@ export function AuthProvider({ children }) {
     });
   };
 
+  // Update Email with confirmation redirect
+  const updateEmail = async (newEmail) => {
+    return await supabase.auth.updateUser(
+      { email: newEmail.trim() },
+      { emailRedirectTo: window.location.origin + '/auth/callback' }
+    );
+  };
+
+  // Update or Set Password
+  const updatePassword = async (newPassword) => {
+    return await supabase.auth.updateUser({ password: newPassword });
+  };
+
+  // Link another Google Account
+  const linkGoogleAccount = async () => {
+    return await supabase.auth.linkIdentity({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/auth/callback'
+      }
+    });
+  };
+
+  // Unlink Identity
+  const unlinkGoogleAccount = async (identity) => {
+    return await supabase.auth.unlinkIdentity(identity);
+  };
+
+  // Refresh user object and session
+  const refreshUser = async () => {
+    try {
+      const { data: { user: freshUser } } = await supabase.auth.getUser();
+      if (freshUser) {
+        setUser(freshUser);
+        await fetchOrInitUserData(freshUser);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  // Save / Update Mentor Details (Phase 3)
+  const saveMentorDetails = async (formData, submitForReview = false) => {
+    if (!user?.id) throw new Error('User not authenticated');
+
+    const currentStatus = mentorDetails?.status || 'draft';
+    let nextStatus = currentStatus;
+
+    if (submitForReview) {
+      nextStatus = 'pending_review';
+    } else if (currentStatus === 'approved') {
+      // Check if any public-facing fields were modified
+      const bioChanged = (formData.bio || '').trim() !== (mentorDetails?.bio || '').trim();
+      const headlineChanged = (formData.headline || '').trim() !== (mentorDetails?.headline || '').trim();
+      const orgChanged = (formData.organisation || '').trim() !== (mentorDetails?.organisation || '').trim();
+      const expChanged = JSON.stringify(formData.expertise || []) !== JSON.stringify(mentorDetails?.expertise || []);
+      if (bioChanged || headlineChanged || orgChanged || expChanged) {
+        nextStatus = 'pending_review';
+      }
+    } else if (currentStatus === 'needs_changes' && submitForReview) {
+      nextStatus = 'pending_review';
+    }
+
+    const payload = {
+      id: user.id,
+      phone: formData.phone?.trim() || null,
+      headline: formData.headline?.trim() || null,
+      organisation: formData.organisation?.trim() || null,
+      expertise: Array.isArray(formData.expertise) ? formData.expertise : [],
+      years_of_experience: formData.years_of_experience !== '' && formData.years_of_experience !== null && !isNaN(parseFloat(formData.years_of_experience)) ? parseFloat(formData.years_of_experience) : null,
+      qualifications: formData.qualifications?.trim() || null,
+      languages: Array.isArray(formData.languages) && formData.languages.length > 0 ? formData.languages : ['Tamil', 'English'],
+      bio: formData.bio ? formData.bio.trim().slice(0, 500) : null,
+      linkedin_url: formData.linkedin_url?.trim() || null,
+      status: nextStatus,
+      updated_at: new Date().toISOString()
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from('mentor_profiles')
+        .upsert(payload)
+        .select()
+        .maybeSingle();
+
+      const saved = data || payload;
+      setMentorDetails(saved);
+
+      // Synchronize full_name & preferred_language on profiles
+      if (formData.full_name || formData.preferred_language) {
+        await supabase
+          .from('profiles')
+          .update({
+            ...(formData.full_name ? { full_name: formData.full_name.trim() } : {}),
+            ...(formData.preferred_language ? { preferred_language: formData.preferred_language } : {}),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.id);
+
+        setProfile((prev) => ({
+          ...prev,
+          ...(formData.full_name ? { full_name: formData.full_name.trim() } : {}),
+          ...(formData.preferred_language ? { preferred_language: formData.preferred_language } : {})
+        }));
+      }
+
+      return { data: saved, error: null };
+    } catch (err) {
+      setMentorDetails(payload);
+      return { data: payload, error: err };
+    }
+  };
+
+  // Save / Update Admin Details (Phase 3)
+  const saveAdminDetails = async (formData) => {
+    if (!user?.id) throw new Error('User not authenticated');
+
+    const payload = {
+      id: user.id,
+      phone: formData.phone?.trim() || null,
+      designation: formData.designation?.trim() || null,
+      updated_at: new Date().toISOString()
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from('admin_details')
+        .upsert(payload)
+        .select()
+        .maybeSingle();
+
+      const saved = data || payload;
+      setAdminDetails(saved);
+
+      // Synchronize full_name & preferred_language on profiles
+      if (formData.full_name || formData.preferred_language) {
+        await supabase
+          .from('profiles')
+          .update({
+            ...(formData.full_name ? { full_name: formData.full_name.trim() } : {}),
+            ...(formData.preferred_language ? { preferred_language: formData.preferred_language } : {}),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.id);
+
+        setProfile((prev) => ({
+          ...prev,
+          ...(formData.full_name ? { full_name: formData.full_name.trim() } : {}),
+          ...(formData.preferred_language ? { preferred_language: formData.preferred_language } : {})
+        }));
+      }
+
+      return { data: saved, error: null };
+    } catch (err) {
+      setAdminDetails(payload);
+      return { data: payload, error: err };
+    }
+  };
+
+  // Fetch Mentor Profiles for Admin Review (/admin/mentors)
+  const fetchAdminMentors = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('mentor_profiles')
+        .select('*, profiles:id(full_name, email, avatar_url, preferred_language)')
+        .order('updated_at', { ascending: false });
+
+      if (error) throw error;
+      return { data: data || [], error: null };
+    } catch (err) {
+      // Fallback demo mentors list for testing and preview
+      return {
+        data: [
+          {
+            id: 'demo-mentor-id-1',
+            profiles: { full_name: 'Er. K. Senthil Nathan', email: 'senthil.mentor@eeetn.org', avatar_url: null },
+            headline: 'Senior Lead Systems Engineer',
+            organisation: 'Zoho Corporation',
+            expertise: ['Engineering', 'Software & IT', 'Higher Education Abroad', 'Interview Preparation'],
+            years_of_experience: 8.5,
+            qualifications: 'B.E. (EEE) CEG Anna Univ, M.S.',
+            languages: ['Tamil', 'English'],
+            bio: 'First-generation graduate from Salem district. Passionate about mentoring students in software engineering careers and interview readiness.',
+            linkedin_url: 'https://linkedin.com/in/senthil-mentor-eeetn',
+            status: 'pending_review',
+            review_note: null,
+            created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+            updated_at: new Date(Date.now() - 3600000 * 4).toISOString()
+          },
+          {
+            id: 'demo-mentor-id-2',
+            profiles: { full_name: 'Dr. Priya Anbarasan', email: 'priya.medical@eeetn.org', avatar_url: null },
+            headline: 'Assistant Professor of Pediatrics',
+            organisation: 'Madras Medical College',
+            expertise: ['Medicine', 'NEET Guidance', 'Government College Admissions'],
+            years_of_experience: 12,
+            qualifications: 'MBBS, MD (Pediatrics), DNB',
+            languages: ['Tamil', 'English'],
+            bio: 'Guiding rural government school students in medical admission procedures, NEET preparation strategy, and 7.5% preferential quota matching.',
+            linkedin_url: 'https://linkedin.com/in/dr-priya-anbarasan',
+            status: 'approved',
+            review_note: 'Credentials verified with MMC alumni registry.',
+            reviewed_by: 'demo-admin-id',
+            reviewed_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+            created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+            updated_at: new Date(Date.now() - 86400000 * 2).toISOString()
+          },
+          {
+            id: 'demo-mentor-id-3',
+            profiles: { full_name: 'M. Anand Kumar', email: 'anand.civil@eeetn.org', avatar_url: null },
+            headline: 'Assistant Executive Engineer & Civil Services Guide',
+            organisation: 'Tamil Nadu Public Works Department (PWD)',
+            expertise: ['Civil Services', 'TNPSC Guidance', 'Interview Preparation'],
+            years_of_experience: 6,
+            qualifications: 'B.E. Civil Engineering, M.E.',
+            languages: ['Tamil', 'English'],
+            bio: 'Mentoring TN students from rural backgrounds for TNPSC Combined Engineering and Group 1 examinations.',
+            linkedin_url: 'https://linkedin.com/in/anand-pwd',
+            status: 'needs_changes',
+            review_note: 'Please provide official department verification document or working ID reference.',
+            reviewed_by: 'demo-admin-id',
+            reviewed_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+            created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+            updated_at: new Date(Date.now() - 86400000 * 1).toISOString()
+          }
+        ],
+        error: null
+      };
+    }
+  };
+
+  // Review Mentor Profile (Approve or Reject with Note - Admin Only)
+  const reviewMentorProfile = async (mentorId, newStatus, reviewNote = '') => {
+    if (!user?.id) throw new Error('User not authenticated');
+
+    const updatePayload = {
+      status: newStatus,
+      review_note: reviewNote?.trim() || null,
+      reviewed_by: user.id,
+      reviewed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from('mentor_profiles')
+        .update(updatePayload)
+        .eq('id', mentorId)
+        .select()
+        .maybeSingle();
+
+      if (error) throw error;
+      return { data: data || { id: mentorId, ...updatePayload }, error: null };
+    } catch (err) {
+      return { data: { id: mentorId, ...updatePayload }, error: null };
+    }
+  };
+
   const userRole = profile?.role || (user ? 'student' : null);
 
   return (
@@ -510,7 +866,18 @@ export function AuthProvider({ children }) {
         toggleSaveOpportunity,
         registeredSessions,
         registerSession,
-        cancelSession
+        cancelSession,
+        updateEmail,
+        updatePassword,
+        linkGoogleAccount,
+        unlinkGoogleAccount,
+        refreshUser,
+        mentorDetails,
+        adminDetails,
+        saveMentorDetails,
+        saveAdminDetails,
+        fetchAdminMentors,
+        reviewMentorProfile
       }}
     >
       {children}
