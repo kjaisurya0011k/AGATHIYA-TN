@@ -11,6 +11,7 @@ import { streamsData } from '../data/guidanceData';
 import { OpportunityCard } from '../components/OpportunityCard';
 import { SessionCard } from '../components/SessionCard';
 import { CutoffCalculator } from '../components/CutoffCalculator';
+import { BrandIdentity } from '../components/BrandIdentity';
 
 import heroStudents from '../assets/eee-tn-students.png';
 
@@ -46,6 +47,9 @@ export function HomePage() {
 
           {/* Hero Text */}
           <div className="eee-hero-content">
+
+            {/* Hero Brand Block */}
+            <BrandIdentity variant="hero" />
 
             <span className="eee-hero-badge">
               <GraduationCap size={15} />
@@ -104,38 +108,27 @@ export function HomePage() {
             </div>
           </div>
 
-          {/* Student Image with Soft Teal Blend */}
-          <div className="eee-hero-visual" aria-hidden="true">
-
-            <div className="eee-hero-glow" />
-
+          {/* Right Column: Restored Original Student Visual with Floating Card */}
+          <div className="eee-hero-visual">
+            <div className="eee-hero-glow" aria-hidden="true" />
             <img
               src={heroStudents}
-              alt=""
+              alt={lang === 'ta' ? 'அறிவிப்பு பலகையைப் பார்க்கும் தமிழ்நாடு மாணவர்கள்' : 'Tamil Nadu students exploring higher education opportunities'}
               className="eee-hero-photo"
+              loading="eager"
             />
-
-            {/* Floating Image Caption */}
             <div className="eee-photo-note">
-
               <div className="eee-photo-note-icon">
-                <GraduationCap size={22} />
+                <Compass size={22} />
               </div>
-
               <div>
                 <strong>
-                  {lang === 'ta'
-                    ? 'உங்கள் எதிர்காலம், உங்கள் தேர்வு'
-                    : 'Your Future, Your Choice'}
+                  {t.hero.cardTitle || (lang === 'ta' ? 'உங்கள் எதிர்காலம், உங்கள் தேர்வு.' : 'Your Future, Your Choice.')}
                 </strong>
-
                 <p>
-                  {lang === 'ta'
-                    ? 'சரியான தகவலுடன் அடுத்த படியைத் தேர்ந்தெடுங்கள்.'
-                    : 'Make your next move with confidence.'}
+                  {t.hero.cardSubtitle || (lang === 'ta' ? 'நம்பிக்கையுடன் அடுத்த அடியை எடுத்து வையுங்கள்.' : 'Make your next move with confidence.')}
                 </p>
               </div>
-
             </div>
           </div>
 

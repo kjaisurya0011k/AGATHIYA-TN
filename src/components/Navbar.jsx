@@ -16,10 +16,11 @@ import {
   ShieldCheck,
   GraduationCap
 } from 'lucide-react';
+import { BrandIdentity } from './BrandIdentity';
 
 export function Navbar() {
   const { lang, toggleLanguage } = useLanguage();
-  const { user, profile, userRole, signOut } = useAuth();
+  const { user, profile, userRole, signOut, signInWithGoogle } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -45,7 +46,7 @@ export function Navbar() {
     await signOut();
     setUserDropdownOpen(false);
     setMobileMenuOpen(false);
-    navigate('/');
+    navigate('/login');
   };
 
   const closeMenus = () => {
@@ -71,7 +72,7 @@ export function Navbar() {
 
         {/* Brand */}
         <Link
-          to="/"
+          to={user ? "/home" : "/login"}
           className="brand-logo"
           onClick={closeMenus}
         >
@@ -79,15 +80,7 @@ export function Navbar() {
             <GraduationCap size={22} color="#FFFFFF" />
           </div>
 
-          <div className="brand-text">
-            <div className="brand-name">
-              EEE<span className="brand-highlight">-TN</span>
-            </div>
-
-            <div className="brand-sub">
-              {labels.brandSubtitle}
-            </div>
-          </div>
+          <BrandIdentity variant="header" />
         </Link>
 
         {/* Desktop Navigation */}
@@ -96,8 +89,7 @@ export function Navbar() {
           aria-label="Main Navigation"
         >
           <NavLink
-            to="/"
-            end
+            to="/home"
             className={navLinkClass}
           >
             {labels.home}
@@ -155,16 +147,24 @@ export function Navbar() {
                 aria-expanded={userDropdownOpen}
               >
                 <div className="user-avatar">
-                  {profile?.full_name
-                    ? profile.full_name.charAt(0).toUpperCase()
-                    : 'U'}
+                  {user.user_metadata?.avatar_url || user.user_metadata?.picture ? (
+                    <img
+                      src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
+                      alt=""
+                      className="nav-avatar-img"
+                    />
+                  ) : (
+                    profile?.full_name
+                      ? profile.full_name.charAt(0).toUpperCase()
+                      : (user.email ? user.email.charAt(0).toUpperCase() : 'U')
+                  )}
                 </div>
 
                 <div className="user-meta desktop-only">
                   <span className="user-name">
                     {profile?.full_name
                       ? profile.full_name.split(' ')[0]
-                      : 'User'}
+                      : (user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'User')}
                   </span>
 
                   <span className={`role-badge role-${userRole || 'student'}`}>
@@ -190,6 +190,15 @@ export function Navbar() {
                   </div>
 
                   <div className="dropdown-divider" />
+
+                  <Link
+                    to="/profile"
+                    className="dropdown-item"
+                    onClick={closeMenus}
+                  >
+                    <UserCheck size={16} />
+                    <span>{isTamil ? 'என் சுயவிவரம்' : 'My Profile'}</span>
+                  </Link>
 
                   <Link
                     to={getDashboardPath()}
@@ -234,13 +243,16 @@ export function Navbar() {
               )}
             </div>
           ) : (
-            <Link
-              to="/login"
+            <button
+              type="button"
+              onClick={signInWithGoogle}
               className="btn btn-sm btn-primary login-btn"
+              aria-label={labels.signIn}
+              title={labels.signIn}
             >
               <LogIn size={15} />
-              <span>{labels.signIn}</span>
-            </Link>
+              <span className="login-btn-text">{labels.signIn}</span>
+            </button>
           )}
 
           {/* Mobile Menu Toggle */}
@@ -268,8 +280,7 @@ export function Navbar() {
         >
           <div className="mobile-nav-links">
             <NavLink
-              to="/"
-              end
+              to="/home"
               className={mobileLinkClass}
               onClick={closeMenus}
             >
@@ -341,31 +352,45 @@ export function Navbar() {
             </button>
 
             {user ? (
+              <>
+                <Link
+                  to="/profile"
+                  className="btn btn-primary"
+                  style={{ width: '100%', marginBottom: '0.65rem' }}
+                  onClick={closeMenus}
+                >
+                  <UserCheck size={16} />
+                  <span>{isTamil ? 'என் சுயவிவரம்' : 'My Profile'}</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="btn btn-outline"
+                  style={{
+                    width: '100%',
+                    color: '#dc2626',
+                    borderColor: '#fca5a5'
+                  }}
+                >
+                  <LogOut size={16} />
+                  <span>{labels.signOut}</span>
+                </button>
+              </>
+            ) : (
               <button
                 type="button"
-                onClick={handleSignOut}
-                className="btn btn-outline"
-                style={{
-                  width: '100%',
-                  color: '#dc2626',
-                  borderColor: '#fca5a5'
+                onClick={() => {
+                  closeMenus();
+                  signInWithGoogle();
                 }}
-              >
-                <LogOut size={16} />
-                <span>{labels.signOut}</span>
-              </button>
-            ) : (
-              <Link
-                to="/login"
                 className="btn btn-primary"
                 style={{ width: '100%' }}
-                onClick={closeMenus}
               >
                 <LogIn size={16} />
                 <span>
                   {isTamil ? 'Google மூலம் உள்நுழைய' : 'Sign in with Google'}
                 </span>
-              </Link>
+              </button>
             )}
           </div>
         </div>
