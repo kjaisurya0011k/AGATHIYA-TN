@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -13,241 +13,367 @@ import {
   Lock,
   Mail,
   UserCheck,
-  UserCog
+  UserCog,
+  Calendar,
+  AlertTriangle,
+  GraduationCap
 } from 'lucide-react';
 
 export function AdminUsersPage() {
   const { lang, t } = useLanguage();
-  const { user } = useAuth();
-  const isTamil = lang === 'ta';
+  const { user, fetchAdminUsers, adminSetUserRole, adminUsers } = useAuth();
 
+  const isTamil = lang === 'ta';
+  const admLang = t?.adminHub || {};
+
+  const [usersList, setUsersList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
-  const [roleChangeNotice, setRoleChangeNotice] = useState(null);
+  const [actionSuccess, setActionSuccess] = useState(null);
+  const [actionError, setActionError] = useState(null);
 
-  // Mock users for Phase 1 visual demonstration
-  const [userList, setUserList] = useState([
-    {
-      id: 'u-1',
-      full_name: 'EEE-TN Platform Administrator',
-      email: 'director.admin@eeetn.org',
-      role: 'admin',
-      created_at: '2026-05-10',
-      isCurrentCaller: true
-    },
-    {
-      id: 'u-2',
-      full_name: 'Er. K. Senthil Nathan',
-      email: 'senthil.mentor@eeetn.org',
-      role: 'mentor',
-      created_at: '2026-06-01',
-      isCurrentCaller: false
-    },
-    {
-      id: 'u-3',
-      full_name: 'Dr. Priya Anbarasan',
-      email: 'priya.medical@eeetn.org',
-      role: 'mentor',
-      created_at: '2026-06-15',
-      isCurrentCaller: false
-    },
-    {
-      id: 'u-4',
-      full_name: 'K. Muthu Kumar',
-      email: 'muthu.student@eeetn.org',
-      role: 'student',
-      created_at: '2026-07-01',
-      isCurrentCaller: false
-    },
-    {
-      id: 'u-5',
-      full_name: 'S. Anitha',
-      email: 'anitha.new@eeetn.org',
-      role: 'student',
-      created_at: '2026-07-04',
-      isCurrentCaller: false
+  useEffect(() => {
+    let isMounted = true;
+    async function loadUsers() {
+      try {
+        if (fetchAdminUsers) {
+          const res = await fetchAdminUsers();
+          if (isMounted && res?.data) {
+            setUsersList(res.data);
+          }
+        }
+      } catch (err) {
+        console.error('Error loading users:', err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
     }
-  ]);
+    loadUsers();
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchAdminUsers, adminUsers]);
 
-  const handleRoleChange = (targetUser, newRole) => {
-    if (targetUser.isCurrentCaller) {
-      alert(isTamil ? 'பாதுகாப்பு விதி: நீங்கள் உங்கள் சொந்த பங்கை மாற்ற முடியாது.' : 'Security Rule: You cannot modify your own administrative role.');
+  const callerId = user?.id || 'demo-admin-id';
+
+  // Handle Role Change
+  const handleRoleChange = async (targetUser, newRole) => {
+    setActionError(null);
+    setActionSuccess(null);
+
+    // Rule 1: Cannot change own role
+    if (targetUser.id === callerId) {
+      alert(admLang.selfRoleChangeForbidden || (isTamil ? 'பாதுகாப்புக் கொள்கை: உங்கள் சொந்த நிர்வாகி பாத்திரத்தை நீங்கள் மாற்ற முடியாது.' : 'Security Policy: You cannot modify your own administrative role.'));
       return;
     }
-    const confirmed = window.confirm(
-      isTamil
-        ? `"${targetUser.full_name}" என்பவரின் பங்கை "${newRole}" ஆக மாற்ற விரும்புகிறீர்களா?`
-        : `Are you sure you want to change the role of "${targetUser.full_name}" to "${newRole}"?`
-    );
+
+    // Rule 2: Cannot remove last admin
+    if (targetUser.role === 'admin' && newRole !== 'admin') {
+      const remainingAdmins = usersList.filter((u) => u.id !== targetUser.id && u.role === 'admin');
+      if (remainingAdmins.length === 0) {
+        alert(admLang.lastAdminRemovalForbidden || (isTamil ? 'பாதுகாப்புக் கொள்கை: தளத்தின் கடைசி நிர்வாகியை நீக்கவோ அல்லது பாத்திரம் மாற்றவோ முடியாது.' : 'Security Policy: Cannot demote or remove the last remaining administrator.'));
+        return;
+      }
+    }
+
+    const confirmMsg = (admLang.confirmChangeRole || 'Are you sure you want to change the role of "{name}" to "{role}"?')
+      .replace('{name}', targetUser.full_name || targetUser.email)
+      .replace('{role}', newRole);
+
+    const confirmed = window.confirm(confirmMsg);
     if (!confirmed) return;
 
-    setUserList((prev) =>
-      prev.map((u) => (u.id === targetUser.id ? { ...u, role: newRole } : u))
-    );
-    setRoleChangeNotice(
-      isTamil
-        ? `"${targetUser.full_name}" பங்கு வெற்றிகரமாக "${newRole}" ஆக புதுப்பிக்கப்பட்டது (முன்னோட்டம்).`
-        : `Role for "${targetUser.full_name}" updated to "${newRole}" (Preview).`
-    );
-    setTimeout(() => setRoleChangeNotice(null), 4000);
+    try {
+      if (adminSetUserRole) {
+        await adminSetUserRole(targetUser.id, newRole);
+      }
+      setUsersList((prev) =>
+        prev.map((u) => (u.id === targetUser.id ? { ...u, role: newRole } : u))
+      );
+      const successMsg = (admLang.roleChangeSuccess || 'Role for "{name}" updated to "{role}" successfully!')
+        .replace('{name}', targetUser.full_name || targetUser.email)
+        .replace('{role}', newRole);
+
+      setActionSuccess(successMsg);
+      setTimeout(() => setActionSuccess(null), 3500);
+    } catch (err) {
+      setActionError(err.message || 'Error updating user role');
+      setTimeout(() => setActionError(null), 4000);
+    }
   };
 
-  const filteredUsers = userList.filter((u) => {
-    const matchesRole = roleFilter === 'all' || u.role === roleFilter;
-    const matchesSearch =
-      !searchQuery.trim() ||
-      u.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesRole && matchesSearch;
-  });
+  const filteredUsers = useMemo(() => {
+    return usersList.filter((u) => {
+      if (roleFilter !== 'all' && u.role !== roleFilter) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const name = (u.full_name || '').toLowerCase();
+        const email = (u.email || '').toLowerCase();
+        if (!name.includes(q) && !email.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [usersList, roleFilter, searchQuery]);
+
+  const counts = {
+    all: usersList.length,
+    student: usersList.filter((u) => u.role === 'student').length,
+    mentor: usersList.filter((u) => u.role === 'mentor').length,
+    admin: usersList.filter((u) => u.role === 'admin').length
+  };
+
+  const getRoleBadge = (role) => {
+    switch (role) {
+      case 'admin':
+        return <span className="badge badge-navy" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Admin</span>;
+      case 'mentor':
+        return <span className="badge badge-cyan" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Mentor</span>;
+      case 'student':
+        return <span className="badge badge-purple" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Student</span>;
+      default:
+        return <span className="badge badge-gray">{role}</span>;
+    }
+  };
 
   return (
-    <div className="container" style={{ padding: '2.5rem 1rem 5rem' }}>
-      {/* Back button */}
+    <div className="container" style={{ padding: '2rem 1rem 5rem', maxWidth: '1240px', margin: '0 auto' }}>
+      {/* Back Button */}
       <div style={{ marginBottom: '1.25rem' }}>
         <Link
           to="/admin"
           className="btn btn-outline"
-          style={{ padding: '0.35rem 0.75rem', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+          style={{ padding: '0.35rem 0.75rem', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600 }}
         >
           <ArrowLeft size={14} />
-          <span>{isTamil ? 'நிர்வாக டாஷ்போர்டுக்குத் திரும்பு' : 'Back to Admin Dashboard'}</span>
+          <span>{isTamil ? 'நிர்வாக கட்டுப்பாட்டு மையத்திற்குத் திரும்பு' : 'Back to Admin Control Center'}</span>
         </Link>
       </div>
 
       {/* Header Banner */}
-      <div className="card" style={{ padding: '2rem', marginBottom: '1.75rem', borderLeft: '4px solid var(--cyan-700)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'var(--cyan-50)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Users size={22} color="var(--cyan-700)" />
+      <div className="card" style={{ padding: '2rem', marginBottom: '1.75rem', borderLeft: '4px solid #0f172a', background: '#FFFFFF', borderRadius: 'var(--radius-lg)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Users size={22} color="#0f172a" />
           </div>
           <div>
             <h1 style={{ fontSize: '1.65rem', fontWeight: 800, margin: 0, color: 'var(--navy-900)' }}>
-              {t?.placeholders?.adminUsersTitle || (isTamil ? 'பயனர்கள் & பங்கு மேலாண்மை' : 'User Directory & Role Management')}
+              {admLang.usersTitle || (isTamil ? 'தள பயனர்கள் & அணுகல் மேலாண்மை' : 'Platform Users & Role Administration')}
             </h1>
-            <p style={{ margin: '0.2rem 0 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-              {t?.placeholders?.adminUsersDesc || (isTamil ? 'தளத்தின் மாணவர்கள், வழிகாட்டிகள் மற்றும் நிர்வாகிகளின் கணக்குகளைப் பாதுகாப்பாக நிர்வகிக்கவும்.' : 'Search platform users and manage access roles securely.')}
+            <p style={{ margin: '0.2rem 0 0', fontSize: '0.885rem', color: '#64748b' }}>
+              {admLang.usersSubtitle ||
+                (isTamil
+                  ? 'மாணவர்கள், வழிகாட்டிகள் மற்றும் நிர்வாகிகளின் கணக்குகள் மற்றும் அனுமதி நிலைகள்.'
+                  : 'Manage student, mentor, and administrator accounts and enforce role permissions securely.')}
             </p>
           </div>
         </div>
-
-        {/* Strict Student Privacy Banner */}
-        <div style={{ marginTop: '1rem', padding: '0.85rem 1.15rem', borderRadius: 'var(--radius-md)', background: '#F8FAFC', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <Lock size={16} color="var(--navy-900)" />
-          <span style={{ fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
-            <strong>{isTamil ? 'மாணவர் தனியுரிமை கொள்கை:' : 'Student Privacy Guard:'}</strong>{' '}
-            {isTamil
-              ? 'மாணவர்களின் கைபேசி எண், சமூகப் பிரிவு, மதிப்பெண்கள் அல்லது வருமான விவரங்கள் ஒருபோதும் இங்கு காட்சிப்படுத்தப்படாது.'
-              : 'Students’ phone numbers, community category, academic marks, and family income are strictly confidential and never displayed in this directory.'}
-          </span>
-        </div>
       </div>
 
-      {roleChangeNotice && (
-        <div className="modal-alert-success" style={{ marginBottom: '1.5rem', padding: '1rem' }}>
-          <CheckCircle2 size={18} />
-          <span>{roleChangeNotice}</span>
+      {/* Toast Feedback */}
+      {actionSuccess && (
+        <div className="session-toast" style={{ marginBottom: '1.5rem', background: '#f0fdf4', color: '#166534', border: '1px solid #86efac', padding: '0.75rem 1rem', borderRadius: '8px' }}>
+          ✓ {actionSuccess}
+        </div>
+      )}
+      {actionError && (
+        <div className="session-toast" style={{ marginBottom: '1.5rem', background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', padding: '0.75rem 1rem', borderRadius: '8px' }}>
+          ⚠️ {actionError}
         </div>
       )}
 
-      {/* Filter and Search Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {['all', 'student', 'mentor', 'admin'].map((role) => (
-            <button
-              key={role}
-              type="button"
-              onClick={() => setRoleFilter(role)}
-              className={`filter-pill-btn ${roleFilter === role ? 'active' : ''}`}
-            >
-              <span>{role === 'all' ? (isTamil ? 'அனைத்தும்' : 'All') : role.toUpperCase()}</span>
-              <span className="count-badge">
-                {role === 'all' ? userList.length : userList.filter((u) => u.role === role).length}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        <div style={{ position: 'relative', width: '280px' }}>
-          <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-          <input
-            type="text"
-            className="form-input"
-            style={{ paddingLeft: '2.4rem' }}
-            placeholder={isTamil ? 'பெயர் அல்லது மின்னஞ்சல் தேடுக...' : 'Search by name or email...'}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+      {/* Student Privacy Shield Notice */}
+      <div
+        className="card"
+        style={{
+          padding: '1rem 1.25rem',
+          background: '#f8fafc',
+          borderLeft: '4px solid #00a6bf',
+          borderRadius: 'var(--radius-md)',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '0.65rem'
+        }}
+      >
+        <ShieldCheck size={20} color="#008394" style={{ flexShrink: 0, marginTop: '0.15rem' }} />
+        <div>
+          <strong style={{ fontSize: '0.85rem', color: '#0f172a' }}>
+            {isTamil ? 'நிர்வாக மாணவர் தனியுரிமை பாதுகாப்பு:' : 'Administrator Student Privacy Shield:'}
+          </strong>
+          <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: '#475569', lineHeight: 1.5 }}>
+            {admLang.privacyShieldUsersNote ||
+              (isTamil
+                ? 'பயனரின் பெயர், மின்னஞ்சல் மற்றும் பதிவு செய்யப்பட்ட தேதி மட்டுமே காட்டப்படும். மாணவர்களின் தொலைபேசி எண்கள், கட்-ஆஃப் மதிப்பெண்கள், சமூகம் அல்லது வருமான விவரங்கள் இங்கே காட்டப்படாது.'
+                : 'Only basic identification (name, email, role, joined date) is displayed. Personal student information (phone numbers, community category, cut-off marks, or family income) is strictly masked to preserve data privacy.')}
+          </p>
         </div>
       </div>
 
-      {/* Users Table Card */}
-      <div className="card" style={{ padding: '0', overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.88rem' }}>
-          <thead>
-            <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--border-subtle)', color: 'var(--navy-900)' }}>
-              <th style={{ padding: '1rem 1.25rem' }}>{isTamil ? 'பயனர் பெயர்' : 'User'}</th>
-              <th style={{ padding: '1rem 1.25rem' }}>{isTamil ? 'மின்னஞ்சல்' : 'Email'}</th>
-              <th style={{ padding: '1rem 1.25rem' }}>{isTamil ? 'தற்போதைய பங்கு' : 'Role'}</th>
-              <th style={{ padding: '1rem 1.25rem' }}>{isTamil ? 'சேர்ந்த தேதி' : 'Joined Date'}</th>
-              <th style={{ padding: '1rem 1.25rem', textAlign: 'right' }}>{isTamil ? 'பங்கு மாற்றம்' : 'Action'}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.map((u) => (
-              <tr key={u.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                <td style={{ padding: '1rem 1.25rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div className="user-avatar" style={{ width: '34px', height: '34px', fontSize: '0.85rem' }}>
-                      {u.full_name.charAt(0)}
-                    </div>
-                    <div>
-                      <strong style={{ color: 'var(--navy-900)', display: 'block' }}>{u.full_name}</strong>
-                      {u.isCurrentCaller && (
-                        <span style={{ fontSize: '0.72rem', color: 'var(--cyan-700)', fontWeight: 600 }}>
-                          ({isTamil ? 'நீங்கள்' : 'Current Session'})
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </td>
+      {/* Filter Tabs & Search Bar */}
+      <div className="card" style={{ padding: '1.25rem', marginBottom: '1.5rem', background: '#FFFFFF', borderRadius: 'var(--radius-md)' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          {/* Role Filter Tabs */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+            <button
+              type="button"
+              className={`tab-btn ${roleFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setRoleFilter('all')}
+              style={{ fontSize: '0.825rem', padding: '0.35rem 0.8rem' }}
+            >
+              <span>{admLang.filterRoleAll || (isTamil ? 'அனைத்து பாத்திரங்களும்' : 'All Roles')} ({counts.all})</span>
+            </button>
 
-                <td style={{ padding: '1rem 1.25rem', color: 'var(--text-secondary)' }}>
-                  {u.email}
-                </td>
+            <button
+              type="button"
+              className={`tab-btn ${roleFilter === 'student' ? 'active' : ''}`}
+              onClick={() => setRoleFilter('student')}
+              style={{ fontSize: '0.825rem', padding: '0.35rem 0.8rem' }}
+            >
+              <GraduationCap size={13} />
+              <span>{admLang.filterRoleStudent || (isTamil ? 'மாணவர்கள்' : 'Students')} ({counts.student})</span>
+            </button>
 
-                <td style={{ padding: '1rem 1.25rem' }}>
-                  <span className={`role-pill role-${u.role}`}>
-                    {u.role.toUpperCase()}
-                  </span>
-                </td>
+            <button
+              type="button"
+              className={`tab-btn ${roleFilter === 'mentor' ? 'active' : ''}`}
+              onClick={() => setRoleFilter('mentor')}
+              style={{ fontSize: '0.825rem', padding: '0.35rem 0.8rem' }}
+            >
+              <UserCheck size={13} />
+              <span>{admLang.filterRoleMentor || (isTamil ? 'வழிகாட்டிகள்' : 'Mentors')} ({counts.mentor})</span>
+            </button>
 
-                <td style={{ padding: '1rem 1.25rem', color: 'var(--text-muted)' }}>
-                  {u.created_at}
-                </td>
+            <button
+              type="button"
+              className={`tab-btn ${roleFilter === 'admin' ? 'active' : ''}`}
+              onClick={() => setRoleFilter('admin')}
+              style={{ fontSize: '0.825rem', padding: '0.35rem 0.8rem' }}
+            >
+              <Lock size={13} />
+              <span>{admLang.filterRoleAdmin || (isTamil ? 'நிர்வாகிகள்' : 'Admins')} ({counts.admin})</span>
+            </button>
+          </div>
 
-                <td style={{ padding: '1rem 1.25rem', textAlign: 'right' }}>
-                  {u.isCurrentCaller ? (
-                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                      {isTamil ? 'மாற்ற முடியாது' : 'Locked (Self)'}
-                    </span>
-                  ) : (
-                    <select
-                      className="form-select"
-                      style={{ maxWidth: '140px', padding: '0.35rem 0.65rem', fontSize: '0.82rem' }}
-                      value={u.role}
-                      onChange={(e) => handleRoleChange(u, e.target.value)}
-                    >
-                      <option value="student">Student</option>
-                      <option value="mentor">Mentor</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          {/* Search Box */}
+          <div style={{ flex: '0 1 300px', minWidth: '220px', position: 'relative' }}>
+            <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            <input
+              type="text"
+              className="form-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={admLang.searchUserPlaceholder || (isTamil ? 'பெயர் அல்லது மின்னஞ்சல் வாரியாகத் தேடு...' : 'Search by name or email...')}
+              style={{ width: '100%', paddingLeft: '2.25rem', height: '38px', fontSize: '0.85rem' }}
+            />
+          </div>
+        </div>
+
+        {/* Users Table */}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
+            <div className="spinner" style={{ margin: '0 auto 1rem auto' }} />
+            <p>{isTamil ? 'பயனர்கள் ஏற்றப்படுகின்றனர்...' : 'Loading user accounts...'}</p>
+          </div>
+        ) : filteredUsers.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
+            <Users size={40} color="#94a3b8" style={{ margin: '0 auto 0.75rem auto' }} />
+            <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--navy-900)' }}>
+              {isTamil ? 'பயனர்கள் யாரும் கிடைக்கவில்லை' : 'No users match this filter'}
+            </div>
+            <p style={{ fontSize: '0.825rem', marginTop: '0.25rem' }}>
+              {isTamil ? 'தேடல் வார்த்தையை மாற்றவும்.' : 'Try changing your search term.'}
+            </p>
+          </div>
+        ) : (
+          <div className="table-responsive" style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
+                  <th style={{ padding: '0.75rem' }}>{admLang.colName || (isTamil ? 'பயனர் பெயர்' : 'User Name')}</th>
+                  <th style={{ padding: '0.75rem' }}>{admLang.colEmail || (isTamil ? 'மின்னஞ்சல்' : 'Email')}</th>
+                  <th style={{ padding: '0.75rem' }}>{admLang.colRole || (isTamil ? 'தற்போதைய பாத்திரம்' : 'Current Role')}</th>
+                  <th style={{ padding: '0.75rem' }}>{admLang.colJoinedDate || (isTamil ? 'இணைந்த தேதி' : 'Joined Date')}</th>
+                  <th style={{ padding: '0.75rem', textAlign: 'right' }}>{admLang.colActions || (isTamil ? 'பாத்திரம் மாற்று' : 'Assign Role')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsers.map((u) => {
+                  const isCaller = u.id === callerId;
+                  const joinedDate = u.created_at ? u.created_at.split('T')[0] : '2026-06-01';
+
+                  return (
+                    <tr key={u.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '0.85rem 0.75rem', fontWeight: 700, color: 'var(--navy-900)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#ede9fe', color: '#6d28d9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.8rem' }}>
+                            {(u.full_name || 'U').charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div>{u.full_name || 'TN User'}</div>
+                            {isCaller && (
+                              <span style={{ fontSize: '0.7rem', color: '#008394', fontWeight: 600 }}>
+                                ({isTamil ? 'நீங்கள்' : 'Current Account'})
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: '0.85rem 0.75rem', color: '#475569' }}>
+                        {u.email || 'user@eeetn.org'}
+                      </td>
+                      <td style={{ padding: '0.85rem 0.75rem' }}>
+                        {getRoleBadge(u.role)}
+                      </td>
+                      <td style={{ padding: '0.85rem 0.75rem', color: '#64748b' }}>
+                        {joinedDate}
+                      </td>
+                      <td style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
+                        {isCaller ? (
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontStyle: 'italic' }}>
+                            {isTamil ? 'பாதுகாக்கப்பட்டது' : 'Caller Role Locked'}
+                          </span>
+                        ) : (
+                          <select
+                            className="form-input"
+                            value={u.role}
+                            onChange={(e) => handleRoleChange(u, e.target.value)}
+                            style={{
+                              fontSize: '0.78rem',
+                              padding: '0.25rem 0.5rem',
+                              height: '32px',
+                              borderRadius: '4px',
+                              border: '1px solid #cbd5e1',
+                              cursor: 'pointer',
+                              fontWeight: 600
+                            }}
+                          >
+                            <option value="student">{admLang.roleStudent || 'Student'}</option>
+                            <option value="mentor">{admLang.roleMentor || 'Mentor'}</option>
+                            <option value="admin">{admLang.roleAdmin || 'Admin'}</option>
+                          </select>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Security Policies Footer Note */}
+      <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.8rem', color: '#64748b' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+          <Lock size={14} color="#008394" />
+          <span>{isTamil ? 'பங்கு மேலாண்மை பாதுகாப்பு விதிகள் (admin_set_role)' : 'admin_set_role Security Function Rules:'}</span>
+        </div>
+        <ul style={{ margin: 0, paddingLeft: '1.25rem', lineHeight: 1.55 }}>
+          <li>{isTamil ? 'நிர்வாக பாத்திர மாற்றங்கள் Supabase security-definer செயல்பாடு மூலம் மட்டுமே செயல்படுத்தப்படும்.' : 'Role updates are governed exclusively by the admin_set_role security-definer function.'}</li>
+          <li>{isTamil ? 'நிர்வாகிகள் தங்கள் சொந்த கணக்கின் பாத்திரத்தை மாற்ற இயலாது.' : 'Administrators cannot change their own account role.'}</li>
+          <li>{isTamil ? 'தளத்தில் குறைந்தது ஒரு நிர்வாகி இருக்க வேண்டும் என்ற விதி கண்டிப்பாக அமலில் உள்ளது.' : 'Demoting or removing the last remaining administrator is strictly forbidden.'}</li>
+        </ul>
       </div>
     </div>
   );

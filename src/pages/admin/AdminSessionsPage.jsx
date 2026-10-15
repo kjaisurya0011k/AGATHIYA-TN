@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -16,243 +16,957 @@ import {
   CreditCard,
   ExternalLink,
   Edit,
-  ShieldCheck
+  ShieldCheck,
+  XCircle,
+  AlertTriangle,
+  Video,
+  Save,
+  CheckCheck
 } from 'lucide-react';
 
 export function AdminSessionsPage() {
   const { lang, t } = useLanguage();
+  const {
+    adminFetchAllSessions,
+    adminReviewSession,
+    adminUpdateSession,
+    adminUpdateRegistrationPayment,
+    mentorSessions
+  } = useAuth();
+
   const isTamil = lang === 'ta';
+  const admLang = t?.adminHub || {};
 
   const [activeFilter, setActiveFilter] = useState('pending');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSession, setSelectedSession] = useState(null);
+  const [modalTab, setModalTab] = useState('edit'); // 'edit' | 'registrations'
   const [actionSuccess, setActionSuccess] = useState(null);
+  const [actionError, setActionError] = useState(null);
 
-  // Mock sessions for Phase 1 visual demonstration
-  const [sessions, setSessions] = useState([
-    {
-      id: 'sess-p1',
-      title: 'TNAU தமிழ்நாடு வேளாண் பல்கலைக்கழக சேர்க்கை & கலந்தாய்வு வழிகாட்டல்',
-      mentor_name: 'Dr. M. Sangeetha (TNAU Alumnus)',
-      mentor_role: 'Agriculture Scientist',
-      date: '2026-07-22',
-      time: '11:00 AM - 12:30 PM',
-      topic: 'Agriculture Counseling',
-      price: 0,
-      capacity: 100,
-      registeredCount: 38,
-      status: 'pending',
-      meeting_link: 'https://meet.google.com/tnau-agri-guide'
-    },
-    {
-      id: 'sess-p2',
-      title: 'சட்டப் படிப்புகள் (5-Year B.A. LL.B) அரசு சட்டக்கல்லூரி சேர்க்கை',
-      mentor_name: 'Adv. S. Ramanathan',
-      mentor_role: 'Madras High Court Advocate',
-      date: '2026-07-25',
-      time: '03:00 PM - 04:30 PM',
-      topic: 'Law Admissions',
-      price: 0,
-      capacity: 75,
-      registeredCount: 22,
-      status: 'pending',
-      meeting_link: 'https://meet.google.com/law-counseling-tn'
-    },
-    {
-      id: 'sess-p3',
-      title: 'Anna University Campus Placements & Core Engineering Career Roadmap',
-      mentor_name: 'Er. K. Senthil Nathan',
-      mentor_role: 'Senior Systems Engineer @ Zoho',
-      date: '2026-07-15',
-      time: '10:00 AM - 11:30 AM',
-      topic: 'Core Engineering',
-      price: 0,
-      capacity: 150,
-      registeredCount: 88,
-      status: 'approved',
-      meeting_link: 'https://meet.google.com/anna-univ-core'
+  // Rejection note
+  const [rejectNote, setRejectNote] = useState('');
+  const [showRejectInput, setShowRejectInput] = useState(false);
+
+  // Edit form state
+  const [editFormData, setEditFormData] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
+
+  // When a session is selected, populate the edit form
+  const handleOpenSession = (sess) => {
+    setSelectedSession(sess);
+    setModalTab('edit');
+    setShowRejectInput(false);
+    setRejectNote(sess.admin_note || '');
+    setEditFormData({
+      title_en: sess.title_en || '',
+      title_ta: sess.title_ta || '',
+      description_en: sess.description_en || '',
+      description_ta: sess.description_ta || '',
+      topic: sess.topic || 'Engineering & TNEA',
+      target_audience: sess.target_audience || 'Both',
+      language: sess.language || 'Tamil & English',
+      session_date: sess.session_date || sess.date || '',
+      start_time: sess.start_time || '10:00',
+      end_time: sess.end_time || '11:30',
+      capacity: sess.capacity || sess.seats_total || 100,
+      price_inr: sess.price_inr !== undefined ? sess.price_inr : sess.price || 0,
+      meeting_link: sess.meeting_link || sess.session_links?.meeting_link || ''
+    });
+  };
+
+  const handleCloseModal = () => {
+    setSelectedSession(null);
+    setShowRejectInput(false);
+    setRejectNote('');
+  };
+
+  // 1. Approve Session
+  const handleApprove = async () => {
+    if (!selectedSession) return;
+    try {
+      if (adminReviewSession) {
+        await adminReviewSession(selectedSession.id, 'approved', 'Approved by administrator');
+      }
+      setActionSuccess(admLang.sessionApprovedToast || (isTamil ? 'அமர்வு அங்கீகரிக்கப்பட்டு மாணவர் பக்கத்தில் வெளியிடப்பட்டது!' : 'Session approved and published to live catalogue!'));
+      handleCloseModal();
+      setTimeout(() => setActionSuccess(null), 3500);
+    } catch (err) {
+      setActionError(err.message || 'Error approving session');
+      setTimeout(() => setActionError(null), 3500);
     }
-  ]);
+  };
+
+  // 2. Reject / Request Changes with Required Note
+  const handleReject = async () => {
+    if (!selectedSession) return;
+    if (!rejectNote.trim()) {
+      alert(admLang.rejectNoteRequired || (isTamil ? 'திருத்தம் கோரி அனுப்பும்போது அதற்கான காரணத்தை குறிப்பில் எழுதுவது கட்டாயமாகும்.' : 'A revision note is strictly required when requesting changes.'));
+      return;
+    }
+    try {
+      if (adminReviewSession) {
+        await adminReviewSession(selectedSession.id, 'needs_changes', rejectNote.trim());
+      }
+      setActionSuccess(admLang.sessionRejectedToast || (isTamil ? 'அமர்வுக்கான திருத்தக் குறிப்பு வழிகாட்டிக்கு வெற்றிகரமாக அனுப்பப்பட்டது.' : 'Session sent back to mentor with review notes.'));
+      handleCloseModal();
+      setTimeout(() => setActionSuccess(null), 3500);
+    } catch (err) {
+      setActionError(err.message || 'Error declining session');
+      setTimeout(() => setActionError(null), 3500);
+    }
+  };
+
+  // 3. Cancel Session
+  const handleCancelSession = async () => {
+    if (!selectedSession) return;
+    const confirmCancel = window.confirm(
+      isTamil ? 'இந்த அமர்வை நிச்சயமாக ரத்து செய்ய விரும்புகிறீர்களா?' : 'Are you sure you want to cancel this session?'
+    );
+    if (!confirmCancel) return;
+
+    try {
+      if (adminReviewSession) {
+        await adminReviewSession(selectedSession.id, 'cancelled', 'Cancelled by administrator');
+      }
+      setActionSuccess(admLang.sessionCancelledToast || (isTamil ? 'அமர்வு ரத்து செய்யப்பட்டது.' : 'Session cancelled.'));
+      handleCloseModal();
+      setTimeout(() => setActionSuccess(null), 3500);
+    } catch (err) {
+      setActionError(err.message || 'Error cancelling session');
+      setTimeout(() => setActionError(null), 3500);
+    }
+  };
+
+  // 4. Mark Completed
+  const handleMarkCompleted = async () => {
+    if (!selectedSession) return;
+    try {
+      if (adminReviewSession) {
+        await adminReviewSession(selectedSession.id, 'completed', 'Marked completed');
+      }
+      setActionSuccess(isTamil ? 'அமர்வு நிறைவடைந்ததாகக் குறிக்கப்பட்டது.' : 'Session marked as completed.');
+      handleCloseModal();
+      setTimeout(() => setActionSuccess(null), 3500);
+    } catch (err) {
+      setActionError(err.message || 'Error updating session');
+      setTimeout(() => setActionError(null), 3500);
+    }
+  };
+
+  // 5. Admin Save Edits to Session
+  const handleSaveEdits = async (e) => {
+    e.preventDefault();
+    if (!selectedSession) return;
+    setIsSaving(true);
+    try {
+      if (adminUpdateSession) {
+        await adminUpdateSession(
+          selectedSession.id,
+          {
+            title_en: editFormData.title_en,
+            title_ta: editFormData.title_ta,
+            description_en: editFormData.description_en,
+            description_ta: editFormData.description_ta,
+            topic: editFormData.topic,
+            target_audience: editFormData.target_audience,
+            language: editFormData.language,
+            session_date: editFormData.session_date,
+            start_time: editFormData.start_time,
+            end_time: editFormData.end_time,
+            capacity: parseInt(editFormData.capacity, 10) || 100,
+            price_inr: parseFloat(editFormData.price_inr) || 0
+          },
+          editFormData.meeting_link
+        );
+      }
+      setActionSuccess(admLang.sessionUpdatedToast || (isTamil ? 'அமர்வு விவரங்கள் நிர்வாகியால் புதுப்பிக்கப்பட்டன.' : 'Session updated by administrator.'));
+      setTimeout(() => setActionSuccess(null), 3500);
+    } catch (err) {
+      setActionError(err.message || 'Error updating session fields');
+      setTimeout(() => setActionError(null), 3500);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // 6. Toggle Payment Status for Student Registration
+  const handleTogglePayment = async (regId, currentPayment) => {
+    if (!selectedSession) return;
+    const newStatus = currentPayment === 'paid' ? 'pending' : 'paid';
+    if (adminUpdateRegistrationPayment) {
+      await adminUpdateRegistrationPayment(selectedSession.id, regId, newStatus);
+      // Update selectedSession registrations locally
+      setSelectedSession((prev) => {
+        if (!prev) return prev;
+        const regs = (prev.registrations || []).map((r) =>
+          r.id === regId ? { ...r, payment_status: newStatus } : r
+        );
+        return { ...prev, registrations: regs };
+      });
+    }
+  };
+
+  // Filtered Sessions List
+  const filteredSessions = useMemo(() => {
+    return mentorSessions.filter((s) => {
+      // Status filter
+      if (activeFilter !== 'all' && s.status !== activeFilter) {
+        return false;
+      }
+      // Search
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const titleEn = s.title_en?.toLowerCase() || '';
+        const titleTa = s.title_ta?.toLowerCase() || '';
+        const mentor = (s.mentor_name || '').toLowerCase();
+        const topic = (s.topic || '').toLowerCase();
+        if (!titleEn.includes(q) && !titleTa.includes(q) && !mentor.includes(q) && !topic.includes(q)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [mentorSessions, activeFilter, searchQuery]);
 
   const counts = {
-    pending: sessions.filter((s) => s.status === 'pending').length,
-    approved: sessions.filter((s) => s.status === 'approved').length,
-    all: sessions.length
+    pending: mentorSessions.filter((s) => s.status === 'pending').length,
+    approved: mentorSessions.filter((s) => s.status === 'approved').length,
+    needs_changes: mentorSessions.filter((s) => s.status === 'needs_changes').length,
+    cancelled: mentorSessions.filter((s) => s.status === 'cancelled').length,
+    completed: mentorSessions.filter((s) => s.status === 'completed').length,
+    all: mentorSessions.length
   };
 
-  const handleApprove = (id) => {
-    setSessions((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, status: 'approved' } : s))
-    );
-    setActionSuccess(isTamil ? 'அமர்வு அங்கீகரிக்கப்பட்டு மாணவர் பக்கத்தில் வெளியிடப்பட்டது!' : 'Session approved and published to students catalogue!');
-    setTimeout(() => setActionSuccess(null), 3000);
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'approved':
+        return <span className="badge badge-green">{isTamil ? 'அங்கீகரிக்கப்பட்டது' : 'Approved'}</span>;
+      case 'pending':
+        return <span className="badge badge-amber">{isTamil ? 'ஒப்புதலுக்கு காத்திருக்கிறது' : 'Pending Review'}</span>;
+      case 'needs_changes':
+        return <span className="badge badge-purple">{isTamil ? 'திருத்தம் கோரப்பட்டது' : 'Needs Changes'}</span>;
+      case 'cancelled':
+        return <span className="badge badge-red">{isTamil ? 'ரத்து செய்யப்பட்டது' : 'Cancelled'}</span>;
+      case 'completed':
+        return <span className="badge badge-navy">{isTamil ? 'நிறைவடைந்தது' : 'Completed'}</span>;
+      default:
+        return <span className="badge badge-gray">{status}</span>;
+    }
   };
-
-  const handleReject = (id) => {
-    setSessions((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, status: 'rejected' } : s))
-    );
-    setActionSuccess(isTamil ? 'அமர்வுக்கான திருத்தக் குறிப்பு வழிகாட்டிக்கு அனுப்பப்பட்டது.' : 'Session sent back for revisions.');
-    setTimeout(() => setActionSuccess(null), 3000);
-  };
-
-  const filteredSessions = sessions.filter((s) => {
-    const matchesFilter = activeFilter === 'all' || s.status === activeFilter;
-    const matchesSearch =
-      !searchQuery.trim() ||
-      s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.mentor_name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
 
   return (
-    <div className="container" style={{ padding: '2.5rem 1rem 5rem' }}>
-      {/* Back button */}
+    <div className="container" style={{ padding: '2rem 1rem 5rem', maxWidth: '1240px', margin: '0 auto' }}>
+      {/* Back to Admin Dashboard */}
       <div style={{ marginBottom: '1.25rem' }}>
         <Link
           to="/admin"
           className="btn btn-outline"
-          style={{ padding: '0.35rem 0.75rem', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+          style={{ padding: '0.35rem 0.75rem', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600 }}
         >
           <ArrowLeft size={14} />
-          <span>{isTamil ? 'நிர்வாக டாஷ்போர்டுக்குத் திரும்பு' : 'Back to Admin Dashboard'}</span>
+          <span>{isTamil ? 'நிர்வாக கட்டுப்பாட்டு மையத்திற்குத் திரும்பு' : 'Back to Admin Control Center'}</span>
         </Link>
       </div>
 
       {/* Header Banner */}
-      <div className="card" style={{ padding: '2rem', marginBottom: '1.75rem', borderLeft: '4px solid var(--navy-900)' }}>
+      <div className="card" style={{ padding: '2rem', marginBottom: '1.75rem', borderLeft: '4px solid #f59e0b', background: '#FFFFFF', borderRadius: 'var(--radius-lg)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'var(--navy-50)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Clock size={22} color="var(--navy-900)" />
+          <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Clock size={20} color="#b45309" />
           </div>
           <div>
             <h1 style={{ fontSize: '1.65rem', fontWeight: 800, margin: 0, color: 'var(--navy-900)' }}>
-              {t?.placeholders?.adminSessionsTitle || (isTamil ? 'வழிகாட்டல் அமர்வுகள் மதிப்பாய்வு' : 'Sessions Review Queue')}
+              {admLang.sessionsReviewTitle || (isTamil ? 'வழிகாட்டி அமர்வுகள் மதிப்பாய்வு & ஒப்புதல்' : 'Sessions Review & Approval Queue')}
             </h1>
-            <p style={{ margin: '0.2rem 0 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-              {t?.placeholders?.adminSessionsDesc || (isTamil ? 'வழிகாட்டிகள் சமர்ப்பித்த அமர்வுகளை மதிப்பாய்வு செய்து அங்கீகரிக்கவும்.' : 'Review, approve, or request revisions on mentor session proposals.')}
+            <p style={{ margin: '0.2rem 0 0', fontSize: '0.885rem', color: '#64748b' }}>
+              {admLang.sessionsReviewSubtitle ||
+                (isTamil
+                  ? 'வழிகாட்டிகளின் அமர்வுகளை ஆய்வு செய்து, தேவைப்படின் மாற்றங்களைச் செய்து அங்கீகரிக்கவும்.'
+                  : 'Inspect incoming mentor proposals, edit any fields, approve for live student catalogue, or request revisions.')}
             </p>
           </div>
         </div>
-
-        {/* Phase Notice */}
-        <div className="modal-alert-success" style={{ background: 'rgba(0, 166, 191, 0.08)', borderColor: 'rgba(0, 166, 191, 0.3)', color: 'var(--navy-900)', marginTop: '1rem', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)' }}>
-          <CheckCircle2 size={16} color="var(--cyan-700)" />
-          <span style={{ fontSize: '0.825rem' }}>
-            <strong>{isTamil ? 'கட்டம் 1 நிலை:' : 'Phase 1 Status:'}</strong>{' '}
-            {t?.placeholders?.phaseNotice || (isTamil ? 'இந்த பகுதி கட்டம் 4-ல் முழுமையான தரவுத்தள கட்டுப்பாடுகளுடன் இயக்கப்படும்.' : 'This review queue will connect to real database RLS and triggers in Phase 4.')}
-          </span>
-        </div>
       </div>
 
+      {/* Toast Feedback */}
       {actionSuccess && (
-        <div className="modal-alert-success" style={{ marginBottom: '1.5rem', padding: '1rem' }}>
-          <CheckCircle2 size={18} />
-          <span>{actionSuccess}</span>
+        <div className="session-toast" style={{ marginBottom: '1.5rem', background: '#f0fdf4', color: '#166534', border: '1px solid #86efac', padding: '0.75rem 1rem', borderRadius: '8px' }}>
+          ✓ {actionSuccess}
+        </div>
+      )}
+      {actionError && (
+        <div className="session-toast" style={{ marginBottom: '1.5rem', background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', padding: '0.75rem 1rem', borderRadius: '8px' }}>
+          ⚠️ {actionError}
         </div>
       )}
 
-      {/* Filter and Search Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            onClick={() => setActiveFilter('pending')}
-            className={`filter-pill-btn ${activeFilter === 'pending' ? 'active' : ''}`}
-          >
-            <span>{isTamil ? 'மதிப்பாய்வு தேவை' : 'Pending Review'}</span>
-            <span className="count-badge">{counts.pending}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveFilter('approved')}
-            className={`filter-pill-btn ${activeFilter === 'approved' ? 'active' : ''}`}
-          >
-            <span>{isTamil ? 'அங்கீகரிக்கப்பட்டவை' : 'Approved'}</span>
-            <span className="count-badge">{counts.approved}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveFilter('all')}
-            className={`filter-pill-btn ${activeFilter === 'all' ? 'active' : ''}`}
-          >
-            <span>{isTamil ? 'அனைத்தும்' : 'All'}</span>
-            <span className="count-badge">{counts.all}</span>
-          </button>
-        </div>
+      {/* Filter Tabs & Search Bar */}
+      <div className="card" style={{ padding: '1.25rem', marginBottom: '1.5rem', background: '#FFFFFF', borderRadius: 'var(--radius-md)' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          {/* Status Tabs */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+            <button
+              type="button"
+              className={`tab-btn ${activeFilter === 'pending' ? 'active' : ''}`}
+              onClick={() => setActiveFilter('pending')}
+              style={{ fontSize: '0.825rem', padding: '0.4rem 0.8rem' }}
+            >
+              <Clock size={14} />
+              <span>{admLang.filterPending || (isTamil ? 'ஒப்புதலுக்கு நிலுவை' : 'Pending')} ({counts.pending})</span>
+            </button>
 
-        <div style={{ position: 'relative', width: '280px' }}>
-          <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-          <input
-            type="text"
-            className="form-input"
-            style={{ paddingLeft: '2.4rem' }}
-            placeholder={isTamil ? 'அமர்வு / வழிகாட்டி தேடுக...' : 'Search session or mentor...'}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-      </div>
+            <button
+              type="button"
+              className={`tab-btn ${activeFilter === 'approved' ? 'active' : ''}`}
+              onClick={() => setActiveFilter('approved')}
+              style={{ fontSize: '0.825rem', padding: '0.4rem 0.8rem' }}
+            >
+              <CheckCircle2 size={14} />
+              <span>{admLang.filterApproved || (isTamil ? 'அங்கீகரிக்கப்பட்டவை' : 'Approved')} ({counts.approved})</span>
+            </button>
 
-      {/* Sessions List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-        {filteredSessions.map((session) => (
-          <div key={session.id} className="card" style={{ padding: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
-              <div>
-                <span className={`mentor-status-badge status-${session.status === 'approved' ? 'approved' : 'pending_review'}`} style={{ marginBottom: '0.5rem' }}>
-                  {session.status === 'approved' ? <CheckCircle2 size={12} /> : <Clock size={12} />}
-                  <span>{session.status === 'approved' ? (isTamil ? 'அங்கீகரிக்கப்பட்டது' : 'Approved') : (isTamil ? 'மதிப்பாய்வில்' : 'Pending Review')}</span>
-                </span>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--navy-900)', margin: '0.35rem 0' }}>
-                  {session.title}
-                </h3>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  {isTamil ? 'வழிகாட்டி: ' : 'Proposed by: '}<strong>{session.mentor_name}</strong> • {session.topic}
-                </p>
-              </div>
+            <button
+              type="button"
+              className={`tab-btn ${activeFilter === 'needs_changes' ? 'active' : ''}`}
+              onClick={() => setActiveFilter('needs_changes')}
+              style={{ fontSize: '0.825rem', padding: '0.4rem 0.8rem' }}
+            >
+              <AlertTriangle size={14} />
+              <span>{admLang.filterNeedsChanges || (isTamil ? 'திருத்தம் கோரப்பட்டவை' : 'Needs Changes')} ({counts.needs_changes})</span>
+            </button>
 
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                {session.status === 'pending' && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => handleReject(session.id)}
-                      className="btn btn-outline"
-                      style={{ color: '#dc2626', borderColor: '#fca5a5', padding: '0.4rem 0.85rem', fontSize: '0.85rem' }}
-                    >
-                      <X size={15} />
-                      <span>{isTamil ? 'மாற்றங்களைக் கோரு' : 'Request Changes'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleApprove(session.id)}
-                      className="btn btn-primary"
-                      style={{ background: '#166534', borderColor: '#166534', padding: '0.4rem 0.85rem', fontSize: '0.85rem' }}
-                    >
-                      <Check size={15} />
-                      <span>{isTamil ? 'அங்கீகரி' : 'Approve Session'}</span>
-                    </button>
-                  </>
-                )}
-                {session.status === 'approved' && (
-                  <span style={{ fontSize: '0.825rem', color: '#166534', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <CheckCircle2 size={16} />
-                    <span>{isTamil ? 'மாணவர்களுக்குக் காட்டப்படுகிறது' : 'Live on Students Sessions Page'}</span>
-                  </span>
-                )}
-              </div>
-            </div>
+            <button
+              type="button"
+              className={`tab-btn ${activeFilter === 'completed' ? 'active' : ''}`}
+              onClick={() => setActiveFilter('completed')}
+              style={{ fontSize: '0.825rem', padding: '0.4rem 0.8rem' }}
+            >
+              <CheckCheck size={14} />
+              <span>{admLang.filterCompleted || (isTamil ? 'நிறைவடைந்தவை' : 'Completed')} ({counts.completed})</span>
+            </button>
 
-            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.825rem', color: 'var(--text-secondary)', background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)' }}>
-              <span>📅 {session.date}</span>
-              <span>⏰ {session.time}</span>
-              <span>👥 {session.registeredCount} / {session.capacity} {isTamil ? 'மாணவர்கள்' : 'Students'}</span>
-              <span>🔗 {session.meeting_link}</span>
-            </div>
+            <button
+              type="button"
+              className={`tab-btn ${activeFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setActiveFilter('all')}
+              style={{ fontSize: '0.825rem', padding: '0.4rem 0.8rem' }}
+            >
+              <span>{admLang.filterAll || (isTamil ? 'அனைத்தும்' : 'All')} ({counts.all})</span>
+            </button>
           </div>
-        ))}
+
+          {/* Search Box */}
+          <div style={{ flex: '0 1 300px', minWidth: '220px', position: 'relative' }}>
+            <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            <input
+              type="text"
+              className="form-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={isTamil ? 'தலைப்பு, வழிகாட்டி வாரியாகத் தேடு...' : 'Search title, mentor, or topic...'}
+              style={{ width: '100%', paddingLeft: '2.25rem', height: '38px', fontSize: '0.85rem' }}
+            />
+          </div>
+        </div>
+
+        {/* Sessions Table */}
+        {filteredSessions.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
+            <FileText size={40} color="#94a3b8" style={{ margin: '0 auto 0.75rem auto' }} />
+            <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--navy-900)' }}>
+              {isTamil ? 'இந்த வடிகட்டலில் அமர்வுகள் எதுவும் இல்லை' : 'No sessions match this filter'}
+            </div>
+            <p style={{ fontSize: '0.825rem', marginTop: '0.25rem' }}>
+              {isTamil ? 'வேறு வடிகட்டலைத் தேர்ந்தெடுக்கவும்.' : 'Try changing your status filter or search query.'}
+            </p>
+          </div>
+        ) : (
+          <div className="table-responsive" style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#475569', background: '#f8fafc' }}>
+                  <th style={{ padding: '0.75rem' }}>{isTamil ? 'அமர்வு தலைப்பு' : 'Session Title'}</th>
+                  <th style={{ padding: '0.75rem' }}>{isTamil ? 'வழிகாட்டி' : 'Mentor'}</th>
+                  <th style={{ padding: '0.75rem' }}>{isTamil ? 'தேதி & நேரம்' : 'Schedule'}</th>
+                  <th style={{ padding: '0.75rem' }}>{isTamil ? 'கட்டணம்' : 'Fee'}</th>
+                  <th style={{ padding: '0.75rem' }}>{isTamil ? 'இருக்கைகள்' : 'Seats / Regs'}</th>
+                  <th style={{ padding: '0.75rem' }}>{isTamil ? 'நிலை' : 'Status'}</th>
+                  <th style={{ padding: '0.75rem', textAlign: 'right' }}>{isTamil ? 'நடவடிக்கை' : 'Actions'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSessions.map((s) => {
+                  const title = (isTamil && s.title_ta ? s.title_ta : s.title_en) || s.title_en;
+                  const price = s.price_inr !== undefined ? s.price_inr : s.price || 0;
+                  const registeredCount = s.registrations?.length || s.seats_booked || 0;
+                  const capacity = s.capacity || s.seats_total || 100;
+
+                  return (
+                    <tr key={s.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '0.85rem 0.75rem', maxWidth: '280px' }}>
+                        <div style={{ fontWeight: 700, color: 'var(--navy-900)', marginBottom: '0.15rem' }}>
+                          {title}
+                        </div>
+                        {s.topic && (
+                          <span style={{ fontSize: '0.72rem', color: '#008394', background: 'rgba(0,166,191,0.1)', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>
+                            {s.topic}
+                          </span>
+                        )}
+                      </td>
+                      <td style={{ padding: '0.85rem 0.75rem', color: '#334155', fontWeight: 600 }}>
+                        {s.mentor_name || 'Verified Mentor'}
+                      </td>
+                      <td style={{ padding: '0.85rem 0.75rem', color: '#64748b' }}>
+                        {s.session_date || s.date} <br />
+                        <span style={{ fontSize: '0.78rem' }}>{s.start_time || '10:00'} - {s.end_time || '11:30'}</span>
+                      </td>
+                      <td style={{ padding: '0.85rem 0.75rem' }}>
+                        {price === 0 ? (
+                          <span className="badge badge-green" style={{ fontSize: '0.72rem' }}>Free</span>
+                        ) : (
+                          <span className="badge badge-purple" style={{ fontSize: '0.72rem' }}>₹{price}</span>
+                        )}
+                      </td>
+                      <td style={{ padding: '0.85rem 0.75rem', color: '#475569' }}>
+                        <strong>{registeredCount}</strong> / {capacity}
+                      </td>
+                      <td style={{ padding: '0.85rem 0.75rem' }}>
+                        {getStatusBadge(s.status)}
+                      </td>
+                      <td style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenSession(s)}
+                          className="btn btn-sm btn-primary"
+                          style={{ fontSize: '0.78rem', padding: '0.35rem 0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                        >
+                          <Edit size={13} />
+                          <span>{admLang.btnEditSession || (isTamil ? 'மதிப்பாய்வு & திருத்து' : 'Review & Edit')}</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
+      {/* REVIEW & EDIT MODAL */}
+      {selectedSession && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(15, 23, 42, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '1rem'
+          }}
+        >
+          <div
+            className="card"
+            style={{
+              width: '100%',
+              maxWidth: '820px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              background: '#FFFFFF',
+              borderRadius: 'var(--radius-lg)',
+              padding: '1.75rem',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748b' }}>
+                    {isTamil ? 'அமர்வு நிர்வாக பார்வை' : 'Session Administration Portal'}
+                  </span>
+                  {getStatusBadge(selectedSession.status)}
+                </div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--navy-900)', margin: 0 }}>
+                  {(isTamil && selectedSession.title_ta ? selectedSession.title_ta : selectedSession.title_en) || selectedSession.title_en}
+                </h2>
+                <div style={{ fontSize: '0.825rem', color: '#475569', marginTop: '0.2rem' }}>
+                  {isTamil ? 'வழிகாட்டி: ' : 'Mentor: '} <strong>{selectedSession.mentor_name || 'Verified Mentor'}</strong>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
+                aria-label="Close dialog"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Tabs: Edit Details | Registrations */}
+            <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid #e2e8f0', marginBottom: '1.25rem' }}>
+              <button
+                type="button"
+                onClick={() => setModalTab('edit')}
+                style={{
+                  padding: '0.5rem 1rem',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  borderBottom: modalTab === 'edit' ? '2px solid var(--navy-900)' : '2px solid transparent',
+                  color: modalTab === 'edit' ? 'var(--navy-900)' : '#64748b',
+                  background: 'none',
+                  borderTop: 'none',
+                  borderLeft: 'none',
+                  borderRight: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                {admLang.btnEditSession || (isTamil ? 'அமர்வு விவரங்களைத் திருத்து' : 'Session Details & Edit')}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setModalTab('registrations')}
+                style={{
+                  padding: '0.5rem 1rem',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  borderBottom: modalTab === 'registrations' ? '2px solid var(--navy-900)' : '2px solid transparent',
+                  color: modalTab === 'registrations' ? 'var(--navy-900)' : '#64748b',
+                  background: 'none',
+                  borderTop: 'none',
+                  borderLeft: 'none',
+                  borderRight: 'none',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem'
+                }}
+              >
+                <Users size={14} />
+                <span>{admLang.registrationsTabTitle || (isTamil ? 'பதிவு செய்த மாணவர்கள்' : 'Student Registrations')} ({selectedSession.registrations?.length || 0})</span>
+              </button>
+            </div>
+
+            {/* TAB 1: EDIT SESSION DETAILS */}
+            {modalTab === 'edit' && (
+              <div>
+                {/* Admin Action Bar (Approve, Reject, Cancel, Complete) */}
+                <div
+                  style={{
+                    padding: '1rem',
+                    background: '#f8fafc',
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0',
+                    marginBottom: '1.5rem',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    alignItems: 'center',
+                    gap: '0.65rem',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--navy-900)' }}>
+                    {isTamil ? 'நிர்வாக நடவடிக்கைகள்:' : 'Administrator Actions:'}
+                  </span>
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    {selectedSession.status !== 'approved' && (
+                      <button
+                        type="button"
+                        onClick={handleApprove}
+                        className="btn btn-sm btn-primary"
+                        style={{ background: '#16a34a', borderColor: '#16a34a', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                      >
+                        <Check size={14} />
+                        <span>{admLang.btnApprove || (isTamil ? 'அமர்வை அங்கீகரி' : 'Approve Session')}</span>
+                      </button>
+                    )}
+
+                    {selectedSession.status !== 'needs_changes' && (
+                      <button
+                        type="button"
+                        onClick={() => setShowRejectInput(!showRejectInput)}
+                        className="btn btn-sm btn-outline"
+                        style={{ color: '#b45309', borderColor: '#fde68a', background: '#fffbeb', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                      >
+                        <AlertTriangle size={14} />
+                        <span>{admLang.btnRejectWithNote || (isTamil ? 'திருத்தம் கோரு' : 'Request Changes')}</span>
+                      </button>
+                    )}
+
+                    {selectedSession.status !== 'completed' && (
+                      <button
+                        type="button"
+                        onClick={handleMarkCompleted}
+                        className="btn btn-sm btn-outline"
+                        style={{ fontSize: '0.8rem' }}
+                      >
+                        {admLang.btnMarkCompleted || (isTamil ? 'நிறைவடைந்தது' : 'Mark Completed')}
+                      </button>
+                    )}
+
+                    {selectedSession.status !== 'cancelled' && (
+                      <button
+                        type="button"
+                        onClick={handleCancelSession}
+                        className="btn btn-sm btn-outline"
+                        style={{ color: '#b91c1c', borderColor: '#fecaca', fontSize: '0.8rem' }}
+                      >
+                        {admLang.btnCancelSession || (isTamil ? 'ரத்துசெய்' : 'Cancel Session')}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Reject Note Input Panel if toggled */}
+                {showRejectInput && (
+                  <div style={{ padding: '1rem', background: '#fffbeb', border: '1.5px solid #fde68a', borderRadius: '8px', marginBottom: '1.5rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, color: '#92400e', marginBottom: '0.35rem' }}>
+                      {admLang.rejectNoteLabel || (isTamil ? 'வழிகாட்டிக்கு அனுப்ப வேண்டிய திருத்தக் குறிப்பு (கட்டாயம்) *' : 'Revision Note for Mentor (Required) *')}
+                    </label>
+                    <textarea
+                      rows={3}
+                      className="form-input"
+                      value={rejectNote}
+                      onChange={(e) => setRejectNote(e.target.value)}
+                      placeholder={admLang.rejectNotePlaceholder || (isTamil ? 'எ.கா. பாடப்பிரிவு விவரங்கள் மற்றும் தகுதித் தேவைகளை மேலும் விரிவாக விளக்கவும்...' : 'State clear revision instructions for the mentor...')}
+                      style={{ width: '100%', fontSize: '0.85rem', marginBottom: '0.65rem' }}
+                    />
+                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                      <button
+                        type="button"
+                        onClick={() => setShowRejectInput(false)}
+                        className="btn btn-sm btn-outline"
+                      >
+                        {isTamil ? 'ரத்து' : 'Cancel'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleReject}
+                        className="btn btn-sm btn-danger"
+                        style={{ fontSize: '0.8rem' }}
+                      >
+                        {isTamil ? 'குறிப்பை அனுப்பி நிராகரி' : 'Send Note & Decline'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Full Inline Edit Form */}
+                <form onSubmit={handleSaveEdits}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                        {isTamil ? 'தலைப்பு (ஆங்கிலம்) *' : 'Title (English) *'}
+                      </label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={editFormData.title_en || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, title_en: e.target.value })}
+                        required
+                        style={{ width: '100%', fontSize: '0.85rem' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                        {isTamil ? 'தலைப்பு (தமிழ்)' : 'Title (Tamil)'}
+                      </label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={editFormData.title_ta || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, title_ta: e.target.value })}
+                        style={{ width: '100%', fontSize: '0.85rem' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                        {isTamil ? 'விவரம் (ஆங்கிலம்) *' : 'Description (English) *'}
+                      </label>
+                      <textarea
+                        rows={3}
+                        className="form-input"
+                        value={editFormData.description_en || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, description_en: e.target.value })}
+                        required
+                        style={{ width: '100%', fontSize: '0.85rem' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                        {isTamil ? 'விவரம் (தமிழ்)' : 'Description (Tamil)'}
+                      </label>
+                      <textarea
+                        rows={3}
+                        className="form-input"
+                        value={editFormData.description_ta || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, description_ta: e.target.value })}
+                        style={{ width: '100%', fontSize: '0.85rem' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                        {isTamil ? 'துறை / தலைப்பு *' : 'Topic *'}
+                      </label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={editFormData.topic || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, topic: e.target.value })}
+                        required
+                        style={{ width: '100%', fontSize: '0.85rem' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                        {isTamil ? 'இலக்கு மாணவர்கள் *' : 'Target Audience *'}
+                      </label>
+                      <select
+                        className="form-input"
+                        value={editFormData.target_audience || 'Both'}
+                        onChange={(e) => setEditFormData({ ...editFormData, target_audience: e.target.value })}
+                        style={{ width: '100%', fontSize: '0.85rem' }}
+                      >
+                        <option value="Class 11">Class 11</option>
+                        <option value="Class 12">Class 12</option>
+                        <option value="Both">Both (Class 11 & 12)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                        {isTamil ? 'மொழி *' : 'Language *'}
+                      </label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={editFormData.language || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, language: e.target.value })}
+                        required
+                        style={{ width: '100%', fontSize: '0.85rem' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                        {isTamil ? 'தேதி *' : 'Session Date *'}
+                      </label>
+                      <input
+                        type="date"
+                        className="form-input"
+                        value={editFormData.session_date || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, session_date: e.target.value })}
+                        required
+                        style={{ width: '100%', fontSize: '0.85rem' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                        {isTamil ? 'தொடக்க நேரம் *' : 'Start Time *'}
+                      </label>
+                      <input
+                        type="time"
+                        className="form-input"
+                        value={editFormData.start_time || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, start_time: e.target.value })}
+                        required
+                        style={{ width: '100%', fontSize: '0.85rem' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                        {isTamil ? 'முடிவு நேரம் *' : 'End Time *'}
+                      </label>
+                      <input
+                        type="time"
+                        className="form-input"
+                        value={editFormData.end_time || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, end_time: e.target.value })}
+                        required
+                        style={{ width: '100%', fontSize: '0.85rem' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                        {isTamil ? 'இருக்கைகள்' : 'Capacity'}
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        className="form-input"
+                        value={editFormData.capacity || 100}
+                        onChange={(e) => setEditFormData({ ...editFormData, capacity: e.target.value })}
+                        style={{ width: '100%', fontSize: '0.85rem' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                        {isTamil ? 'கட்டணம் (₹, 0 = Free)' : 'Fee (INR, 0 = Free)'}
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        className="form-input"
+                        value={editFormData.price_inr !== undefined ? editFormData.price_inr : 0}
+                        onChange={(e) => setEditFormData({ ...editFormData, price_inr: e.target.value })}
+                        style={{ width: '100%', fontSize: '0.85rem' }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Meeting Link */}
+                  <div style={{ marginBottom: '1.25rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.25rem' }}>
+                      {isTamil ? 'கூகுள் மீட் / ஜூம் இணைய இணைப்பு *' : 'Live Meeting URL (Google Meet / Zoom) *'}
+                    </label>
+                    <input
+                      type="url"
+                      className="form-input"
+                      value={editFormData.meeting_link || ''}
+                      onChange={(e) => setEditFormData({ ...editFormData, meeting_link: e.target.value })}
+                      required
+                      placeholder="https://meet.google.com/xxx-xxxx-xxx"
+                      style={{ width: '100%', fontSize: '0.85rem' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
+                    <button
+                      type="button"
+                      onClick={handleCloseModal}
+                      className="btn btn-outline"
+                    >
+                      {isTamil ? 'மூடு' : 'Close'}
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSaving}
+                      className="btn btn-primary"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                    >
+                      <Save size={15} />
+                      <span>{isSaving ? (isTamil ? 'சேமிக்கப்படுகிறது...' : 'Saving...') : (admLang.btnSaveSessionChanges || (isTamil ? 'மாற்றங்களைச் சேமி' : 'Save Session Changes'))}</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* TAB 2: REGISTRATIONS MANAGEMENT */}
+            {modalTab === 'registrations' && (
+              <div>
+                <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.85rem', color: '#475569' }}>
+                    {isTamil ? 'இந்த அமர்வுக்கு பதிவு செய்த மாணவர்கள் பட்டியல்:' : 'Students registered for this mentorship session:'}
+                  </span>
+                  <span className="badge badge-purple">
+                    {selectedSession.registrations?.length || 0} {isTamil ? 'மாணவர்கள்' : 'Enrolled'}
+                  </span>
+                </div>
+
+                {(!selectedSession.registrations || selectedSession.registrations.length === 0) ? (
+                  <div style={{ textAlign: 'center', padding: '2.5rem 1rem', background: '#f8fafc', borderRadius: '8px', color: '#64748b' }}>
+                    <Users size={32} color="#94a3b8" style={{ margin: '0 auto 0.5rem auto' }} />
+                    <p style={{ margin: 0, fontSize: '0.85rem' }}>
+                      {admLang.noRegistrationsYet || (isTamil ? 'இந்த அமர்வில் இதுவரை மாணவர்கள் யாரும் பதிவு செய்யவில்லை.' : 'No students have registered for this session yet.')}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="table-responsive" style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem', textAlign: 'left' }}>
+                      <thead>
+                        <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
+                          <th style={{ padding: '0.65rem' }}>{isTamil ? 'மாணவர் பெயர்' : 'Student Name'}</th>
+                          <th style={{ padding: '0.65rem' }}>{isTamil ? 'பதிவு தேதி' : 'Reg Date'}</th>
+                          <th style={{ padding: '0.65rem' }}>{isTamil ? 'நிலை' : 'Status'}</th>
+                          <th style={{ padding: '0.65rem' }}>{isTamil ? 'கட்டண நிலை' : 'Payment Status'}</th>
+                          <th style={{ padding: '0.65rem', textAlign: 'right' }}>{isTamil ? 'நடவடிக்கை' : 'Action'}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedSession.registrations.map((reg) => {
+                          const isPaid = reg.payment_status === 'paid';
+                          const isFree = selectedSession.price_inr === 0 || selectedSession.price === 0;
+
+                          return (
+                            <tr key={reg.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                              <td style={{ padding: '0.65rem', fontWeight: 700, color: 'var(--navy-900)' }}>
+                                {reg.student_name || 'TN Student'}
+                              </td>
+                              <td style={{ padding: '0.65rem', color: '#64748b' }}>
+                                {reg.registered_at ? reg.registered_at.split('T')[0] : '2026-07-02'}
+                              </td>
+                              <td style={{ padding: '0.65rem' }}>
+                                <span className="badge badge-green" style={{ fontSize: '0.7rem' }}>
+                                  {reg.status || 'registered'}
+                                </span>
+                              </td>
+                              <td style={{ padding: '0.65rem' }}>
+                                {isFree ? (
+                                  <span className="badge badge-gray" style={{ fontSize: '0.7rem' }}>
+                                    {admLang.paymentStatusNotRequired || 'Free'}
+                                  </span>
+                                ) : isPaid ? (
+                                  <span className="badge badge-green" style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+                                    <Check size={11} /> {admLang.paymentStatusPaid || 'Paid'}
+                                  </span>
+                                ) : (
+                                  <span className="badge badge-amber" style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+                                    <Clock size={11} /> {admLang.paymentStatusPending || 'Pending'}
+                                  </span>
+                                )}
+                              </td>
+                              <td style={{ padding: '0.65rem', textAlign: 'right' }}>
+                                {!isFree && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleTogglePayment(reg.id, reg.payment_status)}
+                                    className="btn btn-sm btn-outline"
+                                    style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem' }}
+                                  >
+                                    {isPaid
+                                      ? (admLang.markPendingBtn || (isTamil ? 'நிலுவை என மாற்று' : 'Mark Pending'))
+                                      : (admLang.markPaidBtn || (isTamil ? 'கட்டணம் செலுத்தப்பட்டது' : 'Mark Paid'))}
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1443,6 +1443,12 @@ a {
   }
 }
 
+@media (min-width: 1280px) {
+  .sessions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 .session-card {
   display: flex;
   flex-direction: column;

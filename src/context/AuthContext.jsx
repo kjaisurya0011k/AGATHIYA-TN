@@ -1,11 +1,270 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { initialSessions } from '../data/appData';
 
 const AuthContext = createContext();
 
 const STORAGE_KEY_USER = 'eee_tn_simulated_user';
 const STORAGE_KEY_SAVED = 'eee_tn_saved_opportunities';
 const STORAGE_KEY_SESSIONS = 'eee_tn_registered_sessions';
+const STORAGE_KEY_MENTOR_SESSIONS = 'eee_tn_mentor_sessions_v1';
+const STORAGE_KEY_ACHIEVEMENTS = 'eee_tn_achievements_v1';
+const STORAGE_KEY_ADMIN_USERS = 'eee_tn_admin_users_v1';
+
+const INITIAL_ACHIEVEMENTS = [
+  {
+    id: 'ach-1',
+    title_en: 'State-Level School Innovators Hackathon 2026: Dharmapuri Govt School Secures 1st Prize',
+    title_ta: 'மாநில அளவிலான பள்ளி கண்டுபிடிப்பாளர் போட்டி 2026: தருமபுரி அரசு பள்ளி மாணவர்கள் முதலிடம்',
+    description_en: 'Two Class 12 students from GHSS Pennagaram developed an automated solar-powered soil moisture and drip-irrigation system for drought-prone farming, winning the grand state trophy and ₹50,000 cash grant.',
+    description_ta: 'பென்னாகரம் அரசு மாதிரி மேல்நிலைப் பள்ளி 12-ஆம் வகுப்பு மாணவர்கள் தானியங்கி சூரிய ஒளி சொட்டுநீர்ப் பாசனக் கருவியைக் கண்டுபிடித்து மாநில அளவில் முதலிடமும் ரூ. 50,000 ரொக்கப்பரிசும் வென்றனர்.',
+    achievement_type: 'hackathon',
+    event_date: '2026-06-18',
+    school_name: 'GHSS Pennagaram',
+    town: 'Dharmapuri',
+    winners_text: 'Team AgriBot: S. Kaviya, M. Saravanan (Class 12). Mentored by EEE-TN Robotics Guild.',
+    status: 'published',
+    photo_consent_confirmed: true,
+    created_by: 'demo-admin-id',
+    created_at: '2026-06-20T10:00:00Z',
+    updated_at: '2026-06-20T10:00:00Z',
+    images: [
+      {
+        id: 'img-1',
+        image_path: 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&w=800&q=80',
+        caption: 'Team AgriBot receiving the state gold trophy from Higher Education dignitaries',
+        sort_order: 1
+      },
+      {
+        id: 'img-2',
+        image_path: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80',
+        caption: 'Working prototype demonstration before panel of engineers and scientists',
+        sort_order: 2
+      }
+    ]
+  },
+  {
+    id: 'ach-2',
+    title_en: '12 First-Generation Govt School Students Join Madras Medical College via 7.5% Quota',
+    title_ta: '7.5% அரசு பள்ளி ஒதுக்கீட்டில் 12 மாணவர்கள் மெட்ராஸ் மருத்துவக் கல்லூரியில் சேர்க்கை',
+    description_en: 'Through EEE-TN free document verification camps and NEET counseling guidance, 12 rural students from Ariyalur, Salem, and Madurai districts successfully secured 100% free MBBS admissions at MMC.',
+    description_ta: 'EEE-TN ஆவண வழிகாட்டல் மற்றும் கலந்தாய்வு முகாம் மூலம் அரியலூர், சேலம், மதுரை மாவட்டங்களைச் சேர்ந்த 12 கிராமப்புற மாணவர்கள் 100% அரசு கட்டண விலக்கில் மெட்ராஸ் மருத்துவக் கல்லூரியில் MBBS இடம் பெற்றனர்.',
+    achievement_type: 'award',
+    event_date: '2026-07-02',
+    school_name: 'Multiple Govt Higher Secondary Schools',
+    town: 'Chennai MMC',
+    winners_text: 'Facilitated by EEE-TN Free Medical Counseling & 7.5% Bonafide Verification Desk.',
+    status: 'published',
+    photo_consent_confirmed: true,
+    created_by: 'demo-admin-id',
+    created_at: '2026-07-03T11:00:00Z',
+    updated_at: '2026-07-03T11:00:00Z',
+    images: [
+      {
+        id: 'img-3',
+        image_path: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80',
+        caption: 'Orientation day celebration at Madras Medical College campus',
+        sort_order: 1
+      }
+    ]
+  },
+  {
+    id: 'ach-3',
+    title_en: 'AI & Robotics Hands-on STEM Workshop for Rural Higher Secondary Students',
+    title_ta: 'செயற்கை நுண்ணறிவு & ரோபாட்டிக்ஸ் பயிற்சி பட்டறை - திருச்சி',
+    description_en: 'Comprehensive 3-day hardware and coding workshop conducted for 65 government school students in Tiruchirappalli district, introducing Arduino microcontrollers and sensor programming.',
+    description_ta: 'திருச்சி மாவட்ட அரசுப் பள்ளி மாணவர்களுக்கு 3 நாள் இலவச செயற்கை நுண்ணறிவு மற்றும் மைக்ரோகன்ட்ரோலர் ரோபாட்டிக்ஸ் நேரடி செய்முறைப் பயிற்சி முகாம்.',
+    achievement_type: 'workshop',
+    event_date: '2026-08-10',
+    school_name: 'Govt Boys Higher Secondary School',
+    town: 'Tiruchirappalli',
+    winners_text: '65 students successfully deployed smart home and automation mini-projects.',
+    status: 'published',
+    photo_consent_confirmed: true,
+    created_by: 'demo-admin-id',
+    created_at: '2026-08-12T09:00:00Z',
+    updated_at: '2026-08-12T09:00:00Z',
+    images: [
+      {
+        id: 'img-4',
+        image_path: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80',
+        caption: 'Students assembling sensor modules and programming logic on microcontrollers',
+        sort_order: 1
+      }
+    ]
+  },
+  {
+    id: 'ach-4',
+    title_en: 'Tirunelveli Rural Science Exhibition Best Innovation Award (Draft)',
+    title_ta: 'திருநெல்வேலி கிராமப்புற அறிவியல் கண்காட்சி சிறந்த கண்டுபிடிப்பு விருது (வரைவு)',
+    description_en: 'Draft showcase: Awaiting parental photo consent submission before public release.',
+    description_ta: 'வரைவுப் பதிவு: பெற்றோரின் புகைப்பட ஒப்புதல் படிவம் பெற்றபின் பொதுவில் வெளியிடப்படும்.',
+    achievement_type: 'award',
+    event_date: '2026-09-05',
+    school_name: 'Govt Model HSS',
+    town: 'Tirunelveli',
+    winners_text: 'R. Kamesh and Team.',
+    status: 'draft',
+    photo_consent_confirmed: false,
+    created_by: 'demo-admin-id',
+    created_at: '2026-09-06T14:00:00Z',
+    updated_at: '2026-09-06T14:00:00Z',
+    images: []
+  }
+];
+
+const INITIAL_ADMIN_USERS = [
+  {
+    id: 'demo-admin-id',
+    full_name: 'EEE-TN Platform Administrator',
+    email: 'director.admin@eeetn.org',
+    role: 'admin',
+    created_at: '2026-05-10T08:00:00Z'
+  },
+  {
+    id: 'demo-mentor-id',
+    full_name: 'Er. K. Senthil Nathan',
+    email: 'senthil.mentor@eeetn.org',
+    role: 'mentor',
+    created_at: '2026-06-01T09:30:00Z'
+  },
+  {
+    id: 'mentor-priya-id',
+    full_name: 'Dr. Priya Anbarasan',
+    email: 'priya.medical@eeetn.org',
+    role: 'mentor',
+    created_at: '2026-06-15T11:00:00Z'
+  },
+  {
+    id: 'demo-student-id',
+    full_name: 'K. Muthu Kumar',
+    email: 'muthu.student@eeetn.org',
+    role: 'student',
+    created_at: '2026-07-01T10:15:00Z'
+  },
+  {
+    id: 'stu-anitha-id',
+    full_name: 'S. Anitha',
+    email: 'anitha.new@eeetn.org',
+    role: 'student',
+    created_at: '2026-07-04T12:00:00Z'
+  }
+];
+
+const INITIAL_MENTOR_SESSIONS = [
+  {
+    id: 'sess-101',
+    mentor_id: 'demo-mentor-id',
+    mentor_name: 'Er. K. Senthil Nathan',
+    mentor_headline: 'Senior Lead Systems Engineer @ Zoho Corporation',
+    title_en: 'TNEA Counseling 2026: Strategy for Top 50 Engineering Colleges',
+    title_ta: 'TNEA கலந்தாய்வு 2026: சிறந்த 50 பொறியியல் கல்லூரிகளைத் தேர்ந்தெடுப்பது எப்படி?',
+    description_en: 'Complete walkthrough on branch vs college selection, single-window counselling rank trends, and first-generation graduate waiver claims.',
+    description_ta: 'கல்லூரி vs படிப்பு முன்னுரிமை, ஒற்றைச் சாளர கலந்தாய்வு இட ஒதுக்கீடு மற்றும் முதல் பட்டதாரி சலுகை குறித்த நேரலை வழிகாட்டல்.',
+    topic: 'Engineering & TNEA',
+    target_audience: 'Both',
+    language: 'Tamil & English',
+    session_date: '2026-10-25',
+    start_time: '10:00',
+    end_time: '11:30',
+    mode: 'online',
+    capacity: 100,
+    price_inr: 0,
+    status: 'approved',
+    admin_note: 'Verified credentials and approved for Class 11 & 12 students across Tamil Nadu.',
+    reviewed_by: 'demo-admin-id',
+    reviewed_at: '2026-07-01T10:00:00Z',
+    created_at: '2026-06-25T08:00:00Z',
+    updated_at: '2026-07-01T10:00:00Z',
+    meeting_link: 'https://meet.google.com/eee-tnea-2026',
+    registrations: [
+      { id: 'reg-1', student_id: 'demo-student-id', student_name: 'K. Muthu Kumar', status: 'registered', payment_status: 'not_required', registered_at: '2026-07-02T09:15:00Z' },
+      { id: 'reg-2', student_id: 'stu-2', student_name: 'S. Anitha', status: 'registered', payment_status: 'not_required', registered_at: '2026-07-03T11:30:00Z' },
+      { id: 'reg-3', student_id: 'stu-3', student_name: 'R. Karthikeyan', status: 'registered', payment_status: 'not_required', registered_at: '2026-07-04T14:20:00Z' }
+    ]
+  },
+  {
+    id: 'sess-102',
+    mentor_id: 'demo-mentor-id',
+    mentor_name: 'Er. K. Senthil Nathan',
+    mentor_headline: 'Senior Lead Systems Engineer @ Zoho Corporation',
+    title_en: 'Software Engineering Careers & Tech Company Interview Guidance',
+    title_ta: 'மென்பொருள் பொறியியல் & தயாரிப்பு நிறுவன நேர்காணல் வழிகாட்டல்',
+    description_en: 'Roadmap for students from non-metro TN towns to build strong programming foundations, prepare for campus placements, and crack product interviews.',
+    description_ta: 'கிராமப்புற மற்றும் சிறுநகர மாணவர்கள் நிரலாக்கம் (Coding) கற்று தயாரிப்பு நிறுவனங்களில் அதிக ஊதிய வேலைவாய்ப்பு பெறுவதற்கான வழிகாட்டி.',
+    topic: 'Software & IT Careers',
+    target_audience: 'Class 12',
+    language: 'Tamil',
+    session_date: '2026-10-30',
+    start_time: '16:00',
+    end_time: '17:30',
+    mode: 'online',
+    capacity: 80,
+    price_inr: 0,
+    status: 'pending',
+    admin_note: null,
+    reviewed_by: null,
+    reviewed_at: null,
+    created_at: '2026-07-05T09:00:00Z',
+    updated_at: '2026-07-05T09:00:00Z',
+    meeting_link: 'https://meet.google.com/eee-soft-career',
+    registrations: []
+  },
+  {
+    id: 'sess-103',
+    mentor_id: 'demo-mentor-id',
+    mentor_name: 'Er. K. Senthil Nathan',
+    mentor_headline: 'Senior Lead Systems Engineer @ Zoho Corporation',
+    title_en: 'GATE Preparation & Higher Education Scholarships Abroad',
+    title_ta: 'GATE தேர்வு தயாரிப்பு மற்றும் வெளிநாட்டு உயர்கல்வி உதவித்தொகைகள்',
+    description_en: 'Guidance on Master degrees in IITs/IISc, stipend opportunities, and international fully-funded scholarships for Tamil Nadu graduates.',
+    description_ta: 'ஐஐடி / என்ஐடி-ல் எம்.இ/எம்.டெக் படிப்பதற்கான கேட் தேர்வு தயாரிப்பு மற்றும் உதவித்தொகைகள்.',
+    topic: 'Higher Education Abroad',
+    target_audience: 'Both',
+    language: 'English',
+    session_date: '2026-11-05',
+    start_time: '18:00',
+    end_time: '19:00',
+    mode: 'online',
+    capacity: 50,
+    price_inr: 0,
+    status: 'draft',
+    admin_note: null,
+    reviewed_by: null,
+    reviewed_at: null,
+    created_at: '2026-07-08T12:00:00Z',
+    updated_at: '2026-07-08T12:00:00Z',
+    meeting_link: 'https://meet.google.com/eee-gate-scholar',
+    registrations: []
+  },
+  {
+    id: 'sess-104',
+    mentor_id: 'demo-mentor-id',
+    mentor_name: 'Er. K. Senthil Nathan',
+    mentor_headline: 'Senior Lead Systems Engineer @ Zoho Corporation',
+    title_en: 'Government College Lateral Entry & Diploma Student Roadmap',
+    title_ta: 'டிப்ளமோ மாணவர்களுக்கான அரசு பொறியியல் கல்லூரி நேரடி சேர்க்கை',
+    description_en: 'Detailed advice on direct 2nd-year B.E admission, cutoffs for government engineering colleges, and syllabus transition.',
+    description_ta: 'டிப்ளமோ முடித்த மாணவர்களுக்கான அண்ணா பல்கலைக்கழக நேரடி இரண்டாம் ஆண்டு சேர்க்கை வழிகாட்டி.',
+    topic: 'Engineering & TNEA',
+    target_audience: 'Class 12',
+    language: 'Tamil',
+    session_date: '2026-11-12',
+    start_time: '11:00',
+    end_time: '12:30',
+    mode: 'online',
+    capacity: 60,
+    price_inr: 0,
+    status: 'needs_changes',
+    admin_note: 'Please provide more details on syllabus bridge course resources for polytechnic students.',
+    reviewed_by: 'demo-admin-id',
+    reviewed_at: '2026-07-10T15:30:00Z',
+    created_at: '2026-07-09T10:00:00Z',
+    updated_at: '2026-07-10T15:30:00Z',
+    meeting_link: 'https://meet.google.com/eee-lateral-entry',
+    registrations: []
+  }
+];
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
@@ -30,9 +289,36 @@ export function AuthProvider({ children }) {
 
   const [registeredSessions, setRegisteredSessions] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY_SESSIONS) || '["tnea-choice-filling"]');
+      return JSON.parse(localStorage.getItem(STORAGE_KEY_SESSIONS) || '["tnea-choice-filling", "sess-101"]');
     } catch {
-      return ['tnea-choice-filling'];
+      return ['tnea-choice-filling', 'sess-101'];
+    }
+  });
+
+  const [mentorSessions, setMentorSessions] = useState(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_MENTOR_SESSIONS);
+      return stored ? JSON.parse(stored) : INITIAL_MENTOR_SESSIONS;
+    } catch {
+      return INITIAL_MENTOR_SESSIONS;
+    }
+  });
+
+  const [achievements, setAchievements] = useState(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_ACHIEVEMENTS);
+      return stored ? JSON.parse(stored) : INITIAL_ACHIEVEMENTS;
+    } catch {
+      return INITIAL_ACHIEVEMENTS;
+    }
+  });
+
+  const [adminUsers, setAdminUsers] = useState(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_ADMIN_USERS);
+      return stored ? JSON.parse(stored) : INITIAL_ADMIN_USERS;
+    } catch {
+      return INITIAL_ADMIN_USERS;
     }
   });
 
@@ -847,6 +1133,767 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // --------------------------------------------------------------------------
+  // Phase 3: Session Operations for Mentors & Students
+  // --------------------------------------------------------------------------
+
+  // Fetch mentor sessions (checks Supabase, falls back to state/localStorage)
+  const fetchMentorSessions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('sessions')
+        .select('*, session_links(meeting_link)')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const formatted = data.map((s) => ({
+          ...s,
+          meeting_link: s.session_links?.meeting_link || '',
+          registrations: s.registrations || []
+        }));
+        setMentorSessions(formatted);
+        localStorage.setItem(STORAGE_KEY_MENTOR_SESSIONS, JSON.stringify(formatted));
+        return { data: formatted, error: null };
+      }
+    } catch {
+      // Fallback to active state
+    }
+    return { data: mentorSessions, error: null };
+  };
+
+  // Create Mentor Session
+  const createMentorSession = async (formData, meetingLink, submitForApproval = false) => {
+    if (!user?.id) throw new Error('User not authenticated');
+
+    // Rule: If mentor_profiles exists, mentor can only submit for approval if profile status is 'approved'
+    if (submitForApproval && mentorDetails && mentorDetails.status !== 'approved') {
+      return {
+        data: null,
+        error: new Error(
+          'Your mentor profile must be approved by an administrator before submitting sessions for review. Please complete and submit your profile in My Profile first.'
+        )
+      };
+    }
+
+    const nextStatus = submitForApproval ? 'pending' : 'draft';
+    const newId = `sess-${Date.now()}`;
+
+    const newSession = {
+      id: newId,
+      mentor_id: user.id,
+      mentor_name: profile?.full_name || user?.user_metadata?.full_name || 'Mentor',
+      mentor_headline: mentorDetails?.headline || profile?.designation || 'Career Mentor',
+      title_en: formData.title_en?.trim(),
+      title_ta: formData.title_ta?.trim() || null,
+      description_en: formData.description_en?.trim(),
+      description_ta: formData.description_ta?.trim() || null,
+      topic: formData.topic || 'Engineering & TNEA',
+      target_audience: formData.target_audience || 'Both',
+      language: formData.language || 'Tamil & English',
+      session_date: formData.session_date,
+      start_time: formData.start_time,
+      end_time: formData.end_time,
+      mode: formData.mode || 'online',
+      capacity: formData.capacity ? parseInt(formData.capacity, 10) : null,
+      price_inr: formData.price_inr !== undefined && formData.price_inr !== '' ? parseFloat(formData.price_inr) : 0,
+      status: nextStatus,
+      admin_note: null,
+      reviewed_by: null,
+      reviewed_at: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      meeting_link: meetingLink?.trim() || '',
+      registrations: []
+    };
+
+    try {
+      await supabase.from('sessions').insert({
+        id: newSession.id,
+        mentor_id: user.id,
+        title_en: newSession.title_en,
+        title_ta: newSession.title_ta,
+        description_en: newSession.description_en,
+        description_ta: newSession.description_ta,
+        topic: newSession.topic,
+        target_audience: newSession.target_audience,
+        language: newSession.language,
+        session_date: newSession.session_date,
+        start_time: newSession.start_time,
+        end_time: newSession.end_time,
+        mode: newSession.mode,
+        capacity: newSession.capacity,
+        price_inr: newSession.price_inr,
+        status: newSession.status
+      });
+
+      if (meetingLink?.trim()) {
+        await supabase.from('session_links').upsert({
+          session_id: newSession.id,
+          meeting_link: meetingLink.trim()
+        });
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    setMentorSessions((prev) => {
+      const updated = [newSession, ...prev];
+      localStorage.setItem(STORAGE_KEY_MENTOR_SESSIONS, JSON.stringify(updated));
+      return updated;
+    });
+
+    return { data: newSession, error: null };
+  };
+
+  // Update Mentor Session
+  const updateMentorSession = async (sessionId, formData, meetingLink) => {
+    if (!user?.id) throw new Error('User not authenticated');
+
+    const existing = mentorSessions.find((s) => s.id === sessionId);
+    if (!existing) throw new Error('Session not found');
+
+    // Rule: If editing key fields on an APPROVED session, automatically revert to 'pending'
+    let nextStatus = existing.status;
+    const keyFieldsChanged =
+      (formData.title_en?.trim() || '') !== (existing.title_en || '') ||
+      (formData.title_ta?.trim() || '') !== (existing.title_ta || '') ||
+      (formData.description_en?.trim() || '') !== (existing.description_en || '') ||
+      (formData.description_ta?.trim() || '') !== (existing.description_ta || '') ||
+      formData.session_date !== existing.session_date ||
+      formData.start_time !== existing.start_time ||
+      formData.end_time !== existing.end_time ||
+      parseFloat(formData.price_inr || 0) !== parseFloat(existing.price_inr || 0) ||
+      (formData.capacity ? parseInt(formData.capacity, 10) : null) !== (existing.capacity || null);
+
+    if (existing.status === 'approved' && keyFieldsChanged) {
+      nextStatus = 'pending';
+    }
+
+    const updatedSession = {
+      ...existing,
+      title_en: formData.title_en?.trim() || existing.title_en,
+      title_ta: formData.title_ta?.trim() || existing.title_ta,
+      description_en: formData.description_en?.trim() || existing.description_en,
+      description_ta: formData.description_ta?.trim() || existing.description_ta,
+      topic: formData.topic || existing.topic,
+      target_audience: formData.target_audience || existing.target_audience,
+      language: formData.language || existing.language,
+      session_date: formData.session_date || existing.session_date,
+      start_time: formData.start_time || existing.start_time,
+      end_time: formData.end_time || existing.end_time,
+      capacity: formData.capacity ? parseInt(formData.capacity, 10) : existing.capacity,
+      price_inr: formData.price_inr !== undefined && formData.price_inr !== '' ? parseFloat(formData.price_inr) : existing.price_inr,
+      status: nextStatus,
+      meeting_link: meetingLink !== undefined ? meetingLink.trim() : existing.meeting_link,
+      updated_at: new Date().toISOString()
+    };
+
+    try {
+      await supabase.from('sessions').update({
+        title_en: updatedSession.title_en,
+        title_ta: updatedSession.title_ta,
+        description_en: updatedSession.description_en,
+        description_ta: updatedSession.description_ta,
+        topic: updatedSession.topic,
+        target_audience: updatedSession.target_audience,
+        language: updatedSession.language,
+        session_date: updatedSession.session_date,
+        start_time: updatedSession.start_time,
+        end_time: updatedSession.end_time,
+        capacity: updatedSession.capacity,
+        price_inr: updatedSession.price_inr,
+        status: updatedSession.status,
+        updated_at: updatedSession.updated_at
+      }).eq('id', sessionId);
+
+      if (meetingLink?.trim()) {
+        await supabase.from('session_links').upsert({
+          session_id: sessionId,
+          meeting_link: meetingLink.trim(),
+          updated_at: new Date().toISOString()
+        });
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    setMentorSessions((prev) => {
+      const updated = prev.map((s) => (s.id === sessionId ? updatedSession : s));
+      localStorage.setItem(STORAGE_KEY_MENTOR_SESSIONS, JSON.stringify(updated));
+      return updated;
+    });
+
+    return {
+      data: updatedSession,
+      revertedToPending: existing.status === 'approved' && nextStatus === 'pending',
+      error: null
+    };
+  };
+
+  // Cancel Mentor Session
+  const cancelMentorSession = async (sessionId) => {
+    try {
+      await supabase.from('sessions').update({ status: 'cancelled', updated_at: new Date().toISOString() }).eq('id', sessionId);
+    } catch {
+      // Offline fallback
+    }
+
+    setMentorSessions((prev) => {
+      const updated = prev.map((s) => (s.id === sessionId ? { ...s, status: 'cancelled' } : s));
+      localStorage.setItem(STORAGE_KEY_MENTOR_SESSIONS, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // Fetch Session Registrations for Mentors (Privacy Shield enforced: names only)
+  const fetchSessionRegistrations = async (sessionId) => {
+    try {
+      const { data, error } = await supabase
+        .from('mentor_session_registrations_view')
+        .select('*')
+        .eq('session_id', sessionId);
+
+      if (error) throw error;
+      if (data && data.length > 0) return { data, error: null };
+    } catch {
+      // Fallback
+    }
+
+    const session = mentorSessions.find((s) => s.id === sessionId);
+    return { data: session?.registrations || [], error: null };
+  };
+
+  // Fetch Approved Upcoming Sessions for Students
+  const fetchApprovedSessions = async () => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('sessions')
+        .select('*, profiles:mentor_id(full_name, avatar_url), session_links(meeting_link)')
+        .eq('status', 'approved')
+        .gte('session_date', today)
+        .order('session_date', { ascending: true });
+
+      if (error) throw error;
+      if (data && data.length > 0) {
+        return { data, error: null };
+      }
+    } catch {
+      // Fallback
+    }
+
+    // Merge approved mentor sessions with initial catalog guidance sessions
+    const today = new Date().toISOString().split('T')[0];
+    const approvedFromMentor = mentorSessions.filter(
+      (s) => s.status === 'approved' && (!s.session_date || s.session_date >= today)
+    );
+    const combined = [...approvedFromMentor];
+    initialSessions.forEach((initSess) => {
+      if (!combined.some((c) => c.id === initSess.id)) {
+        combined.push({
+          ...initSess,
+          status: 'approved',
+          session_date: initSess.date,
+          price_inr: initSess.price || 0,
+          capacity: initSess.seats_total || 100,
+          topic: initSess.topics_en?.[0] ? initSess.title_en.split(':')[0] : 'Career Guidance',
+          meeting_link: 'https://meet.google.com/eee-tn-live'
+        });
+      }
+    });
+    return { data: combined, error: null };
+  };
+
+  // Register for a session (Student)
+  const registerForSession = async (sessionId, sessionObj = null) => {
+    const studentName = profile?.full_name || studentDetails?.full_name || user?.user_metadata?.full_name || 'TN Student';
+    const regItem = {
+      id: `reg-${Date.now()}`,
+      student_id: user?.id || 'demo-student-id',
+      student_name: studentName,
+      status: 'registered',
+      payment_status: (sessionObj?.price_inr || sessionObj?.price) > 0 ? 'pending' : 'not_required',
+      registered_at: new Date().toISOString()
+    };
+
+    try {
+      await supabase.from('session_registrations').insert({
+        session_id: sessionId,
+        student_id: user?.id,
+        status: 'registered',
+        payment_status: regItem.payment_status
+      });
+    } catch {
+      // Fallback
+    }
+
+    // Update registeredSessions
+    setRegisteredSessions((prev) => {
+      if (prev.includes(sessionId)) return prev;
+      const updated = [...prev, sessionId];
+      localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(updated));
+      return updated;
+    });
+
+    // Update registrations array in mentorSessions if present
+    setMentorSessions((prev) => {
+      const updated = prev.map((s) => {
+        if (s.id === sessionId) {
+          const currentRegs = s.registrations || [];
+          if (!currentRegs.some((r) => r.student_id === (user?.id || 'demo-student-id'))) {
+            return {
+              ...s,
+              registrations: [...currentRegs, regItem]
+            };
+          }
+        }
+        return s;
+      });
+      localStorage.setItem(STORAGE_KEY_MENTOR_SESSIONS, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // Cancel student registration
+  const cancelStudentRegistration = async (sessionId) => {
+    try {
+      await supabase.from('session_registrations').update({ status: 'cancelled' }).match({
+        session_id: sessionId,
+        student_id: user?.id
+      });
+    } catch {
+      // Fallback
+    }
+
+    setRegisteredSessions((prev) => {
+      const updated = prev.filter((id) => id !== sessionId);
+      localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(updated));
+      return updated;
+    });
+
+    setMentorSessions((prev) => {
+      const updated = prev.map((s) => {
+        if (s.id === sessionId) {
+          return {
+            ...s,
+            registrations: (s.registrations || []).filter((r) => r.student_id !== (user?.id || 'demo-student-id'))
+          };
+        }
+        return s;
+      });
+      localStorage.setItem(STORAGE_KEY_MENTOR_SESSIONS, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // ==========================================
+  // PHASE 4: ACHIEVEMENTS METHODS
+  // ==========================================
+
+  // Fetch Achievements (Public or Admin)
+  const fetchAchievements = async (onlyPublished = false) => {
+    try {
+      let query = supabase
+        .from('achievements')
+        .select('*, achievement_images(*)');
+      if (onlyPublished) {
+        query = query.eq('status', 'published');
+      }
+      query = query.order('event_date', { ascending: false });
+      const { data, error } = await query;
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const normalized = data.map((item) => ({
+          ...item,
+          images: (item.achievement_images || []).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+        }));
+        return { data: normalized, error: null };
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    const list = onlyPublished
+      ? achievements.filter((a) => a.status === 'published')
+      : achievements;
+    return { data: list, error: null };
+  };
+
+  // Create or Update Achievement (Admin Only)
+  const adminSaveAchievement = async (achievementData, imagesList = []) => {
+    if (achievementData.status === 'published' && !achievementData.photo_consent_confirmed) {
+      throw new Error('Photo consent confirmation is strictly mandatory to publish an achievement.');
+    }
+
+    const isEdit = Boolean(achievementData.id);
+    const achievementId = achievementData.id || `ach-${Date.now()}`;
+    const payload = {
+      ...achievementData,
+      id: achievementId,
+      created_by: achievementData.created_by || user?.id || 'demo-admin-id',
+      created_at: achievementData.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      images: imagesList.map((img, idx) => ({
+        id: img.id || `img-${Date.now()}-${idx}`,
+        image_path: img.image_path || img.url || '',
+        caption: img.caption || '',
+        sort_order: img.sort_order !== undefined ? img.sort_order : idx + 1
+      }))
+    };
+
+    try {
+      await supabase.from('achievements').upsert({
+        id: payload.id,
+        title_en: payload.title_en,
+        title_ta: payload.title_ta,
+        description_en: payload.description_en,
+        description_ta: payload.description_ta,
+        achievement_type: payload.achievement_type,
+        event_date: payload.event_date,
+        school_name: payload.school_name,
+        town: payload.town,
+        winners_text: payload.winners_text,
+        status: payload.status,
+        photo_consent_confirmed: payload.photo_consent_confirmed,
+        created_by: payload.created_by,
+        updated_at: payload.updated_at
+      });
+
+      if (payload.images?.length > 0) {
+        await supabase.from('achievement_images').delete().eq('achievement_id', payload.id);
+        await supabase.from('achievement_images').insert(
+          payload.images.map((img) => ({
+            achievement_id: payload.id,
+            image_path: img.image_path,
+            caption: img.caption,
+            sort_order: img.sort_order
+          }))
+        );
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    setAchievements((prev) => {
+      let updated;
+      if (isEdit) {
+        updated = prev.map((a) => (a.id === achievementId ? payload : a));
+      } else {
+        updated = [payload, ...prev];
+      }
+      localStorage.setItem(STORAGE_KEY_ACHIEVEMENTS, JSON.stringify(updated));
+      return updated;
+    });
+
+    return { data: payload, error: null };
+  };
+
+  // Delete Achievement (Admin Only)
+  const adminDeleteAchievement = async (achievementId) => {
+    try {
+      await supabase.from('achievement_images').delete().eq('achievement_id', achievementId);
+      await supabase.from('achievements').delete().eq('id', achievementId);
+    } catch {}
+
+    setAchievements((prev) => {
+      const updated = prev.filter((a) => a.id !== achievementId);
+      localStorage.setItem(STORAGE_KEY_ACHIEVEMENTS, JSON.stringify(updated));
+      return updated;
+    });
+    return { success: true };
+  };
+
+  // Toggle Publish Status with Photo Consent Guard (Admin Only)
+  const adminTogglePublishAchievement = async (achievementId, targetStatus, photoConsent) => {
+    if (targetStatus === 'published' && !photoConsent) {
+      throw new Error('Parental photo consent confirmation is strictly mandatory to publish an achievement.');
+    }
+
+    try {
+      await supabase
+        .from('achievements')
+        .update({
+          status: targetStatus,
+          photo_consent_confirmed: photoConsent,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', achievementId);
+    } catch {}
+
+    setAchievements((prev) => {
+      const updated = prev.map((a) =>
+        a.id === achievementId
+          ? { ...a, status: targetStatus, photo_consent_confirmed: photoConsent, updated_at: new Date().toISOString() }
+          : a
+      );
+      localStorage.setItem(STORAGE_KEY_ACHIEVEMENTS, JSON.stringify(updated));
+      return updated;
+    });
+    return { success: true };
+  };
+
+  // Upload Achievement Image to Storage (Admin Only)
+  const uploadAchievementImage = async (file) => {
+    if (!file) throw new Error('No file provided');
+    if (!file.type.startsWith('image/')) {
+      throw new Error('Only image files (JPEG, PNG, WebP) are permitted.');
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      throw new Error('Image size must be 2MB or less.');
+    }
+
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+      const filePath = `achievements/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('achievement-images')
+        .upload(filePath, file, { cacheControl: '3600', upsert: true });
+
+      if (!error && data?.path) {
+        const { data: pubData } = supabase.storage.from('achievement-images').getPublicUrl(data.path);
+        if (pubData?.publicUrl) {
+          return { url: pubData.publicUrl, path: data.path, error: null };
+        }
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve({ url: reader.result, path: `local-${file.name}`, error: null });
+      reader.onerror = () => resolve({ url: URL.createObjectURL(file), path: `local-${file.name}`, error: null });
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // ==========================================
+  // PHASE 4: ADMIN SESSIONS REVIEW & MUTATION
+  // ==========================================
+
+  // Admin Fetch All Sessions
+  const adminFetchAllSessions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('sessions')
+        .select('*, profiles:mentor_id(full_name, avatar_url, email), session_links(meeting_link), session_registrations(*)')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      if (data && data.length > 0) {
+        return { data, error: null };
+      }
+    } catch {}
+
+    return { data: mentorSessions, error: null };
+  };
+
+  // Admin Edit Any Session Field
+  const adminUpdateSession = async (sessionId, sessionFields, meetingLink) => {
+    const payload = {
+      ...sessionFields,
+      updated_at: new Date().toISOString()
+    };
+
+    try {
+      await supabase.from('sessions').update(payload).eq('id', sessionId);
+      if (meetingLink !== undefined) {
+        await supabase.from('session_links').upsert({
+          session_id: sessionId,
+          meeting_link: meetingLink?.trim() || '',
+          updated_at: new Date().toISOString()
+        });
+      }
+    } catch {}
+
+    setMentorSessions((prev) => {
+      const updated = prev.map((s) => {
+        if (s.id === sessionId) {
+          return {
+            ...s,
+            ...payload,
+            meeting_link: meetingLink !== undefined ? meetingLink.trim() : s.meeting_link
+          };
+        }
+        return s;
+      });
+      localStorage.setItem(STORAGE_KEY_MENTOR_SESSIONS, JSON.stringify(updated));
+      return updated;
+    });
+
+    return { success: true };
+  };
+
+  // Admin Review Session (Approve, Reject with Note, Cancel, Complete)
+  const adminReviewSession = async (sessionId, status, adminNote = '') => {
+    const updatePayload = {
+      status,
+      admin_note: adminNote?.trim() || null,
+      reviewed_by: user?.id || 'demo-admin-id',
+      reviewed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    try {
+      await supabase.from('sessions').update(updatePayload).eq('id', sessionId);
+    } catch {}
+
+    setMentorSessions((prev) => {
+      const updated = prev.map((s) => (s.id === sessionId ? { ...s, ...updatePayload } : s));
+      localStorage.setItem(STORAGE_KEY_MENTOR_SESSIONS, JSON.stringify(updated));
+      return updated;
+    });
+
+    return { success: true };
+  };
+
+  // Admin Update Registration Payment Status (Paid / Pending)
+  const adminUpdateRegistrationPayment = async (sessionId, registrationId, newPaymentStatus) => {
+    try {
+      await supabase
+        .from('session_registrations')
+        .update({ payment_status: newPaymentStatus })
+        .eq('id', registrationId);
+    } catch {}
+
+    setMentorSessions((prev) => {
+      const updated = prev.map((s) => {
+        if (s.id === sessionId) {
+          const regs = (s.registrations || []).map((r) =>
+            r.id === registrationId ? { ...r, payment_status: newPaymentStatus } : r
+          );
+          return { ...s, registrations: regs };
+        }
+        return s;
+      });
+      localStorage.setItem(STORAGE_KEY_MENTOR_SESSIONS, JSON.stringify(updated));
+      return updated;
+    });
+
+    return { success: true };
+  };
+
+  // ==========================================
+  // PHASE 4: ADMIN USERS & ROLE MANAGEMENT
+  // ==========================================
+
+  // Fetch Users (Privacy Shield enforced: only basic account info, no marks/income/phone)
+  const fetchAdminUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, role, created_at, updated_at')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      if (data && data.length > 0) {
+        return { data, error: null };
+      }
+    } catch {}
+
+    return { data: adminUsers, error: null };
+  };
+
+  // Admin Set User Role via Security-Definer function admin_set_role
+  const adminSetUserRole = async (targetUserId, newRole) => {
+    const callerId = user?.id || 'demo-admin-id';
+    if (targetUserId === callerId) {
+      throw new Error('Security Policy: You cannot modify your own administrative role.');
+    }
+
+    const currentTarget = adminUsers.find((u) => u.id === targetUserId);
+    if (currentTarget?.role === 'admin' && newRole !== 'admin') {
+      const remainingAdmins = adminUsers.filter((u) => u.id !== targetUserId && u.role === 'admin');
+      if (remainingAdmins.length === 0) {
+        throw new Error('Security Policy: Cannot demote or remove the last remaining administrator.');
+      }
+    }
+
+    try {
+      const { error } = await supabase.rpc('admin_set_role', {
+        target_user: targetUserId,
+        new_role: newRole
+      });
+      if (error) throw error;
+    } catch {
+      // Offline fallback
+    }
+
+    setAdminUsers((prev) => {
+      const updated = prev.map((u) => (u.id === targetUserId ? { ...u, role: newRole } : u));
+      localStorage.setItem(STORAGE_KEY_ADMIN_USERS, JSON.stringify(updated));
+      return updated;
+    });
+
+    return { success: true };
+  };
+
+  // Admin Dashboard Aggregate Statistics
+  const fetchAdminDashboardStats = async () => {
+    let pendingSessionsCount = 0;
+    let pendingMentorsCount = 0;
+    let publishedAchievementsCount = 0;
+    let pendingPaymentsCount = 0;
+    let totalUsersCount = 0;
+
+    try {
+      const sessRes = await supabase.from('sessions').select('id, status');
+      if (sessRes.data) {
+        pendingSessionsCount = sessRes.data.filter((s) => s.status === 'pending').length;
+      }
+
+      const mentorRes = await supabase.from('mentor_profiles').select('id, status');
+      if (mentorRes.data) {
+        pendingMentorsCount = mentorRes.data.filter((m) => m.status === 'pending_review').length;
+      }
+
+      const achRes = await supabase.from('achievements').select('id, status');
+      if (achRes.data) {
+        publishedAchievementsCount = achRes.data.filter((a) => a.status === 'published').length;
+      }
+
+      const regRes = await supabase.from('session_registrations').select('id, payment_status');
+      if (regRes.data) {
+        pendingPaymentsCount = regRes.data.filter((r) => r.payment_status === 'pending').length;
+      }
+
+      const profRes = await supabase.from('profiles').select('id');
+      if (profRes.data) {
+        totalUsersCount = profRes.data.length;
+      }
+    } catch {}
+
+    if (pendingSessionsCount === 0) {
+      pendingSessionsCount = mentorSessions.filter((s) => s.status === 'pending').length;
+    }
+    if (publishedAchievementsCount === 0) {
+      publishedAchievementsCount = achievements.filter((a) => a.status === 'published').length;
+    }
+    if (pendingPaymentsCount === 0) {
+      pendingPaymentsCount = mentorSessions.reduce((acc, s) => {
+        return acc + (s.registrations || []).filter((r) => r.payment_status === 'pending').length;
+      }, 0);
+    }
+    if (totalUsersCount === 0) {
+      totalUsersCount = adminUsers.length;
+    }
+    if (pendingMentorsCount === 0) {
+      const mentorsRes = await fetchAdminMentors();
+      pendingMentorsCount = (mentorsRes.data || []).filter((m) => m.status === 'pending_review').length;
+    }
+
+    return {
+      pendingSessionsCount,
+      pendingMentorsCount,
+      publishedAchievementsCount,
+      pendingPaymentsCount,
+      totalUsersCount
+    };
+  };
+
   const userRole = profile?.role || (user ? 'student' : null);
 
   return (
@@ -885,7 +1932,30 @@ export function AuthProvider({ children }) {
         saveMentorDetails,
         saveAdminDetails,
         fetchAdminMentors,
-        reviewMentorProfile
+        reviewMentorProfile,
+        mentorSessions,
+        fetchMentorSessions,
+        createMentorSession,
+        updateMentorSession,
+        cancelMentorSession,
+        fetchSessionRegistrations,
+        fetchApprovedSessions,
+        registerForSession,
+        cancelStudentRegistration,
+        achievements,
+        fetchAchievements,
+        adminSaveAchievement,
+        adminDeleteAchievement,
+        adminTogglePublishAchievement,
+        uploadAchievementImage,
+        adminFetchAllSessions,
+        adminUpdateSession,
+        adminReviewSession,
+        adminUpdateRegistrationPayment,
+        adminUsers,
+        fetchAdminUsers,
+        adminSetUserRole,
+        fetchAdminDashboardStats
       }}
     >
       {children}
