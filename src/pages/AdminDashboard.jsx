@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { initialOpportunities, initialSessions } from '../data/appData';
@@ -13,7 +14,10 @@ import {
   FileCheck,
   PlusCircle,
   Lock,
-  ExternalLink
+  ExternalLink,
+  Clock,
+  Award,
+  Compass
 } from 'lucide-react';
 
 export function AdminDashboard() {
@@ -79,6 +83,53 @@ export function AdminDashboard() {
                 ? 'வழிகாட்டி அமர்வுகள் ஒப்புதல், அரசு உதவித்தொகை தகவல்கள் தணிக்கை மற்றும் மாணவர் சரிபார்ப்பு.'
                 : 'Review mentor workshop proposals, audit government scheme accuracy, and verify student records.'}
             </p>
+
+            <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', marginTop: '1.25rem' }}>
+              <Link
+                to="/admin/sessions"
+                className="btn btn-outline"
+                style={{ padding: '0.45rem 0.85rem', fontSize: '0.84rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                <Clock size={15} />
+                <span>{lang === 'ta' ? 'அமர்வுகள் மதிப்பாய்வு' : 'Sessions Review'}</span>
+              </Link>
+
+              <Link
+                to="/admin/achievements"
+                className="btn btn-outline"
+                style={{ padding: '0.45rem 0.85rem', fontSize: '0.84rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                <Award size={15} />
+                <span>{lang === 'ta' ? 'சாதனைகள்' : 'Achievements'}</span>
+              </Link>
+
+              <Link
+                to="/admin/users"
+                className="btn btn-outline"
+                style={{ padding: '0.45rem 0.85rem', fontSize: '0.84rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                <Users size={15} />
+                <span>{lang === 'ta' ? 'பயனர்கள்' : 'Users'}</span>
+              </Link>
+
+              <Link
+                to="/admin/mentors"
+                className="btn btn-outline"
+                style={{ padding: '0.45rem 0.85rem', fontSize: '0.84rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                <ShieldCheck size={15} />
+                <span>{lang === 'ta' ? 'வழிகாட்டிகள்' : 'Mentors'}</span>
+              </Link>
+
+              <Link
+                to="/opportunities"
+                className="btn btn-outline"
+                style={{ padding: '0.45rem 0.85rem', fontSize: '0.84rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                <Compass size={15} />
+                <span>{lang === 'ta' ? 'வாய்ப்புகள்' : 'Opportunities'}</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import {
+  Home,
   Compass,
   Calendar,
   Award,
@@ -15,12 +16,15 @@ import {
   LayoutDashboard,
   ShieldCheck,
   GraduationCap,
-  UserCheck
+  UserCheck,
+  PlusCircle,
+  Clock,
+  Users
 } from 'lucide-react';
 import { BrandIdentity } from './BrandIdentity';
 
 export function Navbar() {
-  const { lang, toggleLanguage } = useLanguage();
+  const { lang, toggleLanguage, t } = useLanguage();
   const { user, profile, userRole, signOut, signInWithGoogle } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -56,9 +60,9 @@ export function Navbar() {
   };
 
   const getDashboardPath = () => {
-    if (userRole === 'admin') return '/dashboard/admin';
-    if (userRole === 'mentor') return '/dashboard/mentor';
-    return '/dashboard/student';
+    if (userRole === 'admin') return '/admin';
+    if (userRole === 'mentor') return '/mentor';
+    return '/home';
   };
 
   const navLinkClass = ({ isActive }) =>
@@ -67,13 +71,90 @@ export function Navbar() {
   const mobileLinkClass = ({ isActive }) =>
     `mobile-nav-item ${isActive ? 'active' : ''}`;
 
+  const renderNavLinks = (isMobile = false) => {
+    const linkClass = isMobile ? mobileLinkClass : navLinkClass;
+    const iconSize = isMobile ? 18 : 16;
+
+    if (userRole === 'mentor') {
+      return (
+        <>
+          <NavLink to="/mentor" end className={linkClass} onClick={closeMenus}>
+            <LayoutDashboard size={iconSize} />
+            <span>{t?.roleNav?.dashboard || 'Dashboard'}</span>
+          </NavLink>
+          <NavLink to="/mentor/sessions" className={linkClass} onClick={closeMenus}>
+            <Calendar size={iconSize} />
+            <span>{t?.roleNav?.mySessions || 'My Sessions'}</span>
+          </NavLink>
+          <NavLink to="/mentor/sessions/new" className={linkClass} onClick={closeMenus}>
+            <PlusCircle size={iconSize} />
+            <span>{t?.roleNav?.createSession || 'Create Session'}</span>
+          </NavLink>
+          <NavLink to="/achievements" className={linkClass} onClick={closeMenus}>
+            <Award size={iconSize} />
+            <span>{t?.roleNav?.achievements || 'Achievements'}</span>
+          </NavLink>
+        </>
+      );
+    }
+
+    if (userRole === 'admin') {
+      return (
+        <>
+          <NavLink to="/admin" end className={linkClass} onClick={closeMenus}>
+            <LayoutDashboard size={iconSize} />
+            <span>{t?.roleNav?.dashboard || 'Dashboard'}</span>
+          </NavLink>
+          <NavLink to="/admin/sessions" className={linkClass} onClick={closeMenus}>
+            <Clock size={iconSize} />
+            <span>{t?.roleNav?.sessionsReview || 'Sessions Review'}</span>
+          </NavLink>
+          <NavLink to="/admin/achievements" className={linkClass} onClick={closeMenus}>
+            <Award size={iconSize} />
+            <span>{t?.roleNav?.adminAchievements || 'Achievements'}</span>
+          </NavLink>
+          <NavLink to="/opportunities" className={linkClass} onClick={closeMenus}>
+            <Compass size={iconSize} />
+            <span>{t?.roleNav?.opportunities || 'Opportunities'}</span>
+          </NavLink>
+          <NavLink to="/admin/users" className={linkClass} onClick={closeMenus}>
+            <Users size={iconSize} />
+            <span>{t?.roleNav?.users || 'Users'}</span>
+          </NavLink>
+        </>
+      );
+    }
+
+    // Default: Student or Guest
+    return (
+      <>
+        <NavLink to="/home" className={linkClass} onClick={closeMenus}>
+          <Home size={iconSize} />
+          <span>{t?.roleNav?.home || 'Home'}</span>
+        </NavLink>
+        <NavLink to="/opportunities" className={linkClass} onClick={closeMenus}>
+          <Compass size={iconSize} />
+          <span>{t?.roleNav?.opportunities || 'Opportunities'}</span>
+        </NavLink>
+        <NavLink to="/sessions" className={linkClass} onClick={closeMenus}>
+          <Calendar size={iconSize} />
+          <span>{t?.roleNav?.sessions || 'Sessions'}</span>
+        </NavLink>
+        <NavLink to="/achievements" className={linkClass} onClick={closeMenus}>
+          <Award size={iconSize} />
+          <span>{t?.roleNav?.achievements || 'Achievements'}</span>
+        </NavLink>
+      </>
+    );
+  };
+
   return (
     <header className="navbar-wrapper">
       <div className="container navbar-container">
 
         {/* Brand */}
         <Link
-          to={user ? "/home" : "/login"}
+          to={user ? getDashboardPath() : "/login"}
           className="brand-logo"
           onClick={closeMenus}
         >
@@ -89,36 +170,7 @@ export function Navbar() {
           className="desktop-nav"
           aria-label="Main Navigation"
         >
-          <NavLink
-            to="/home"
-            className={navLinkClass}
-          >
-            {labels.home}
-          </NavLink>
-
-          <NavLink
-            to="/opportunities"
-            className={navLinkClass}
-          >
-            <Compass size={16} />
-            <span>{labels.opportunities}</span>
-          </NavLink>
-
-          <NavLink
-            to="/sessions"
-            className={navLinkClass}
-          >
-            <Calendar size={16} />
-            <span>{labels.sessions}</span>
-          </NavLink>
-
-          <NavLink
-            to="/achievements"
-            className={navLinkClass}
-          >
-            <Award size={16} />
-            <span>{labels.achievements}</span>
-          </NavLink>
+          {renderNavLinks(false)}
         </nav>
 
         {/* Language and User Actions */}
@@ -198,7 +250,7 @@ export function Navbar() {
                     onClick={closeMenus}
                   >
                     <UserCheck size={16} />
-                    <span>{isTamil ? 'என் சுயவிவரம்' : 'My Profile'}</span>
+                    <span>{t?.roleNav?.myProfile || (isTamil ? 'என் சுயவிவரம்' : 'My Profile')}</span>
                   </Link>
 
                   <Link
@@ -207,28 +259,8 @@ export function Navbar() {
                     onClick={closeMenus}
                   >
                     <LayoutDashboard size={16} />
-                    <span>{labels.dashboard}</span>
+                    <span>{t?.roleNav?.dashboard || (isTamil ? 'டாஷ்போர்டு' : 'Dashboard')}</span>
                   </Link>
-
-                  <Link
-                    to="/achievements"
-                    className="dropdown-item"
-                    onClick={closeMenus}
-                  >
-                    <Award size={16} />
-                    <span>{labels.myAchievements}</span>
-                  </Link>
-
-                  {userRole === 'admin' && (
-                    <Link
-                      to="/dashboard/admin"
-                      className="dropdown-item"
-                      onClick={closeMenus}
-                    >
-                      <ShieldCheck size={16} />
-                      <span>{labels.admin}</span>
-                    </Link>
-                  )}
 
                   <div className="dropdown-divider" />
 
@@ -280,57 +312,7 @@ export function Navbar() {
           aria-label="Navigation menu"
         >
           <div className="mobile-nav-links">
-            <NavLink
-              to="/home"
-              className={mobileLinkClass}
-              onClick={closeMenus}
-            >
-              {labels.home}
-            </NavLink>
-
-            <NavLink
-              to="/opportunities"
-              className={mobileLinkClass}
-              onClick={closeMenus}
-            >
-              <Compass size={18} />
-              <span>
-                {isTamil
-                  ? 'படிப்பு & உதவித்தொகை'
-                  : 'Opportunities & Scholarships'}
-              </span>
-            </NavLink>
-
-            <NavLink
-              to="/sessions"
-              className={mobileLinkClass}
-              onClick={closeMenus}
-            >
-              <Calendar size={18} />
-              <span>
-                {isTamil ? 'வழிகாட்டல் அமர்வுகள்' : 'Mentor Sessions'}
-              </span>
-            </NavLink>
-
-            <NavLink
-              to="/achievements"
-              className={mobileLinkClass}
-              onClick={closeMenus}
-            >
-              <Award size={18} />
-              <span>{labels.achievements}</span>
-            </NavLink>
-
-            {user && (
-              <NavLink
-                to={getDashboardPath()}
-                className={mobileLinkClass}
-                onClick={closeMenus}
-              >
-                <LayoutDashboard size={18} />
-                <span>{labels.dashboard}</span>
-              </NavLink>
-            )}
+            {renderNavLinks(true)}
           </div>
 
           <div className="mobile-drawer-footer">

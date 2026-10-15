@@ -55,32 +55,23 @@ export function ProtectedRoute({ children, allowedRoles }) {
     );
   }
 
-  // 4. Incomplete onboarding: block /home and all other protected pages, send to /onboarding
-  if (!isProfileComplete && location.pathname !== '/onboarding') {
+  // 4. Mentors and admins skip student onboarding form
+  const currentRole = profile?.role || 'student';
+  const isStudent = currentRole === 'student';
+
+  if (isStudent && !isProfileComplete && location.pathname !== '/onboarding') {
     return <Navigate to="/onboarding" state={{ from: location }} replace />;
   }
 
-  // 5. Role checks using role stored in profiles
-  const currentRole = profile?.role || 'student';
+  if (!isStudent && location.pathname === '/onboarding') {
+    const target = currentRole === 'admin' ? '/admin' : '/mentor';
+    return <Navigate to={target} replace />;
+  }
+
+  // 5. Role checks using role stored in profiles - redirect to own role page
   if (allowedRoles && !allowedRoles.includes(currentRole)) {
-    return (
-      <div className="container" style={{ padding: '5rem 1rem', textAlign: 'center' }}>
-        <div className="card" style={{ maxWidth: '520px', margin: '0 auto', padding: '2.5rem' }}>
-          <ShieldAlert size={48} color="var(--purple-600)" style={{ margin: '0 auto 1rem' }} />
-          <h2 style={{ color: 'var(--navy-900)', marginBottom: '0.75rem', fontSize: '1.4rem' }}>
-            {lang === 'ta' ? 'அணுகல் அனுமதி இல்லை' : 'Access Restricted'}
-          </h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
-            {lang === 'ta'
-              ? `இந்த பக்கம் ${allowedRoles.join(', ')} அனுமதி பெற்றவர்களுக்கு மட்டுமே. உங்கள் தற்போதைய பங்கு: ${currentRole}.`
-              : `This section is restricted to ${allowedRoles.join(', ')} accounts. Your current profile role is: ${currentRole}.`}
-          </p>
-          <Link to="/home" className="btn btn-primary">
-            {lang === 'ta' ? 'முகப்புக்குச் செல்' : 'Back to Home'}
-          </Link>
-        </div>
-      </div>
-    );
+    const roleHome = currentRole === 'admin' ? '/admin' : currentRole === 'mentor' ? '/mentor' : '/home';
+    return <Navigate to={roleHome} replace />;
   }
 
   return children;

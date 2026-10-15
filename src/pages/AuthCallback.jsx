@@ -11,6 +11,7 @@ export function AuthCallback() {
   const {
     session,
     user,
+    profile,
     isProfileComplete,
     loading,
     profileNetworkError,
@@ -38,20 +39,28 @@ export function AuthCallback() {
       // If session is still loading from AuthContext, wait
       if (loading) return;
 
-      // If user & session are established, route according to onboarding status
+      // If user & session are established, route according to role and onboarding status
       if (user || session) {
         const savedTarget = sessionStorage.getItem('eee_tn_redirect_after_login');
         if (savedTarget) {
           sessionStorage.removeItem('eee_tn_redirect_after_login');
         }
 
-        if (!isProfileComplete) {
-          // Incomplete onboarding goes to /onboarding first
-          navigate('/onboarding', { replace: true });
-        } else {
-          // Complete onboarding lands on remembered target or /home
-          const target = savedTarget && savedTarget !== '/' && savedTarget !== '/login' ? savedTarget : '/home';
+        const userRole = profile?.role || 'student';
+        if (userRole === 'admin') {
+          const target = savedTarget && savedTarget !== '/' && savedTarget !== '/login' ? savedTarget : '/admin';
           navigate(target, { replace: true });
+        } else if (userRole === 'mentor') {
+          const target = savedTarget && savedTarget !== '/' && savedTarget !== '/login' ? savedTarget : '/mentor';
+          navigate(target, { replace: true });
+        } else {
+          // student
+          if (!isProfileComplete) {
+            navigate('/onboarding', { replace: true });
+          } else {
+            const target = savedTarget && savedTarget !== '/' && savedTarget !== '/login' ? savedTarget : '/home';
+            navigate(target, { replace: true });
+          }
         }
         return;
       }

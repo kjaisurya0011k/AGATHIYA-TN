@@ -207,7 +207,12 @@ export function AuthProvider({ children }) {
         setIsProfileComplete(Boolean(studentData.consent_given));
       } else {
         setStudentDetails(null);
-        setIsProfileComplete(false);
+        // Mentors and admins skip student onboarding
+        if (currentProfile?.role === 'mentor' || currentProfile?.role === 'admin') {
+          setIsProfileComplete(true);
+        } else {
+          setIsProfileComplete(false);
+        }
       }
 
       // 3. Fetch Mentor Details if user has role 'mentor' or if row exists
@@ -518,6 +523,9 @@ export function AuthProvider({ children }) {
     setProfile(selected.profile);
     if (selected.studentDetails && selected.studentDetails.consent_given) {
       setStudentDetails(selected.studentDetails);
+      setIsProfileComplete(true);
+    } else if (selected.profile?.role === 'mentor' || selected.profile?.role === 'admin') {
+      setStudentDetails(null);
       setIsProfileComplete(true);
     } else {
       setStudentDetails(null);

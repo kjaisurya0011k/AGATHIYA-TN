@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { initialSessions } from '../data/appData';
@@ -138,14 +139,23 @@ export function MentorDashboard() {
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setShowProposeModal(true)}
-            className="btn btn-primary"
-          >
-            <PlusCircle size={16} />
-            <span>{lang === 'ta' ? 'புதிய அமர்வை உருவாக்க' : 'Propose New Session'}</span>
-          </button>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <Link
+              to="/mentor/sessions"
+              className="btn btn-outline"
+            >
+              <Calendar size={16} />
+              <span>{lang === 'ta' ? 'அனைத்து அமர்வுகள்' : 'My Sessions'}</span>
+            </Link>
+
+            <Link
+              to="/mentor/sessions/new"
+              className="btn btn-primary"
+            >
+              <PlusCircle size={16} />
+              <span>{lang === 'ta' ? 'புதிய அமர்வை உருவாக்க' : 'Create Session'}</span>
+            </Link>
+          </div>
         </div>
 
         {/* Sessions Table / List */}

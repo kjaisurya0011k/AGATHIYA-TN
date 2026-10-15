@@ -326,6 +326,40 @@ export const translations = {
       mentorChangesRequested: "மாற்றங்களுக்கான குறிப்பு வழிகாட்டிக்கு அனுப்பப்பட்டது.",
       backToProfile: "என் சுயவிவரத்திற்குத் திரும்பு",
       noMentorsFound: "இந்த பிரிவில் வழிகாட்டி சுயவிவரங்கள் எதுவும் கிடைக்கவில்லை."
+    },
+
+    roleNav: {
+      home: "முகப்பு",
+      dashboard: "டாஷ்போர்டு",
+      opportunities: "வாய்ப்புகள்",
+      sessions: "வழிகாட்டல்",
+      mySessions: "என் அமர்வுகள்",
+      createSession: "அமர்வு உருவாக்கு",
+      achievements: "சாதனைகள்",
+      sessionsReview: "அமர்வுகள் மதிப்பாய்வு",
+      adminAchievements: "சாதனைகள்",
+      users: "பயனர்கள்",
+      myProfile: "என் சுயவிவரம்",
+      roleStudent: "மாணவர்",
+      roleMentor: "வழிகாட்டி",
+      roleAdmin: "நிர்வாகி"
+    },
+
+    placeholders: {
+      mentorSessionsTitle: "என் வழிகாட்டல் அமர்வுகள்",
+      mentorSessionsDesc: "நீங்கள் திட்டமிட்ட அல்லது நடத்திய அமர்வுகளின் முழு விவரங்கள் மற்றும் பதிவு செய்த மாணவர் பட்டியல்.",
+      mentorCreateTitle: "புதிய வழிகாட்டல் அமர்வு உருவாக்கு",
+      mentorCreateDesc: "11 மற்றும் 12-ஆம் வகுப்பு மாணவர்களுக்கான புதிய நேரலை வழிகாட்டல் அமர்வைத் திட்டமிடுங்கள்.",
+      mentorEditTitle: "அமர்வை திருத்து",
+      mentorEditDesc: "அமர்வு தலைப்பு, நேரம், கட்டணம் மற்றும் இணைப்பு விவரங்களை மாற்றவும்.",
+      adminSessionsTitle: "அமர்வுகள் மதிப்பாய்வு",
+      adminSessionsDesc: "வழிகாட்டிகளிடமிருந்து பெறப்பட்ட அமர்வு முன்மொழிவுகளை மதிப்பாய்வு செய்து அங்கீகரிக்கவும்.",
+      adminAchievementsTitle: "சாதனைகள் மேலாண்மை",
+      adminAchievementsDesc: "மாணவர் கண்டுபிடிப்புகள், ஹேக்கத்தான் வெற்றிகள் மற்றும் பள்ளி ஒத்துழைப்புகளை நிர்வகிக்கவும்.",
+      adminUsersTitle: "பயனர்கள் மேலாண்மை",
+      adminUsersDesc: "தளத்தின் மாணவர்கள், வழிகாட்டிகள் மற்றும் நிர்வாகிகளின் கணக்குகளைப் பாதுகாப்பாக நிர்வகிக்கவும்.",
+      phaseNotice: "கட்டம் 1 நிலை: இந்த பகுதி அடுத்த கட்டத்தில் நேரலை செயல்பாடுகளுடன் முழுமையாக்கப்படும்.",
+      backToDashboard: "டாஷ்போர்டுக்குத் திரும்பு"
     }
   },
 
@@ -655,6 +689,40 @@ export const translations = {
       mentorChangesRequested: "Requested changes sent to mentor.",
       backToProfile: "Back to Profile",
       noMentorsFound: "No mentor profiles found in this category."
+    },
+
+    roleNav: {
+      home: "Home",
+      dashboard: "Dashboard",
+      opportunities: "Opportunities",
+      sessions: "Sessions",
+      mySessions: "My Sessions",
+      createSession: "Create Session",
+      achievements: "Achievements",
+      sessionsReview: "Sessions Review",
+      adminAchievements: "Achievements",
+      users: "Users",
+      myProfile: "My Profile",
+      roleStudent: "Student",
+      roleMentor: "Mentor",
+      roleAdmin: "Admin"
+    },
+
+    placeholders: {
+      mentorSessionsTitle: "My Mentor Sessions",
+      mentorSessionsDesc: "Manage all your guidance sessions, review schedules, and track registered students.",
+      mentorCreateTitle: "Create Guidance Session",
+      mentorCreateDesc: "Schedule a live guidance session for Class 11 and Class 12 students across Tamil Nadu.",
+      mentorEditTitle: "Edit Guidance Session",
+      mentorEditDesc: "Update session details, schedule, capacity, and meeting coordinates.",
+      adminSessionsTitle: "Sessions Review & Approval",
+      adminSessionsDesc: "Review incoming mentor session proposals, edit details, approve, or request revisions.",
+      adminAchievementsTitle: "Achievements Management",
+      adminAchievementsDesc: "Curate student achievements, hackathon wins, awards, and school outreach showcases.",
+      adminUsersTitle: "User Management",
+      adminUsersDesc: "Search platform users, view activity, and update access permissions securely.",
+      phaseNotice: "Phase 1 Placeholder: This section will be connected to database tables in subsequent phases.",
+      backToDashboard: "Back to Dashboard"
     }
   }
 };

@@ -17,6 +17,13 @@ import { ProfilePage } from './pages/ProfilePage';
 import { AdminMentorsPage } from './pages/AdminMentorsPage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { RoleRoute } from './components/RoleRoute';
+import { MentorSessionsPage } from './pages/mentor/MentorSessionsPage';
+import { MentorCreateSessionPage } from './pages/mentor/MentorCreateSessionPage';
+import { MentorEditSessionPage } from './pages/mentor/MentorEditSessionPage';
+import { AdminSessionsPage } from './pages/admin/AdminSessionsPage';
+import { AdminAchievementsPage } from './pages/admin/AdminAchievementsPage';
+import { AdminUsersPage } from './pages/admin/AdminUsersPage';
 import { OnboardingModal } from './components/OnboardingModal';
 import { FullScreenLoader } from './components/FullScreenLoader';
 import { useAuth } from './context/AuthContext';
@@ -45,107 +52,158 @@ export function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
 
-          {/* Protected Routes (Require Login & Completed Onboarding) */}
+          {/* Protected Routes: Student Home & Onboarding */}
           <Route
             path="/home"
             element={
-              <ProtectedRoute>
+              <RoleRoute allowedRoles={['student']}>
                 <HomePage />
-              </ProtectedRoute>
+              </RoleRoute>
             }
           />
 
           <Route
             path="/onboarding"
             element={
-              <ProtectedRoute>
+              <RoleRoute allowedRoles={['student']}>
                 <OnboardingPage />
-              </ProtectedRoute>
+              </RoleRoute>
             }
           />
 
+          {/* Student & Shared Routes */}
           <Route
             path="/opportunities"
             element={
-              <ProtectedRoute>
+              <RoleRoute allowedRoles={['student', 'admin']}>
                 <OpportunitiesPage />
-              </ProtectedRoute>
+              </RoleRoute>
             }
           />
 
           <Route
             path="/opportunities/:id"
             element={
-              <ProtectedRoute>
+              <RoleRoute allowedRoles={['student', 'admin']}>
                 <OpportunityDetailPage />
-              </ProtectedRoute>
+              </RoleRoute>
             }
           />
 
           <Route
             path="/sessions"
             element={
-              <ProtectedRoute>
+              <RoleRoute allowedRoles={['student']}>
                 <SessionsPage />
-              </ProtectedRoute>
+              </RoleRoute>
             }
           />
 
           <Route
             path="/achievements"
             element={
-              <ProtectedRoute>
+              <RoleRoute allowedRoles={['student', 'mentor', 'admin']}>
                 <AchievementsPage />
-              </ProtectedRoute>
+              </RoleRoute>
             }
           />
 
           <Route
             path="/profile"
             element={
-              <ProtectedRoute>
+              <RoleRoute allowedRoles={['student', 'mentor', 'admin']}>
                 <ProfilePage />
-              </ProtectedRoute>
+              </RoleRoute>
             }
           />
 
-          {/* Role-Protected Dashboards */}
+          {/* Mentor Routes */}
           <Route
-            path="/dashboard/student"
+            path="/mentor"
             element={
-              <ProtectedRoute allowedRoles={['student', 'mentor', 'admin']}>
-                <StudentDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/dashboard/mentor"
-            element={
-              <ProtectedRoute allowedRoles={['mentor', 'admin']}>
+              <RoleRoute allowedRoles={['mentor']}>
                 <MentorDashboard />
-              </ProtectedRoute>
+              </RoleRoute>
             }
           />
 
           <Route
-            path="/dashboard/admin"
+            path="/mentor/sessions"
             element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboard />
-              </ProtectedRoute>
+              <RoleRoute allowedRoles={['mentor']}>
+                <MentorSessionsPage />
+              </RoleRoute>
             }
           />
 
-          {/* Admin Mentor Review Page */}
+          <Route
+            path="/mentor/sessions/new"
+            element={
+              <RoleRoute allowedRoles={['mentor']}>
+                <MentorCreateSessionPage />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/mentor/sessions/:id/edit"
+            element={
+              <RoleRoute allowedRoles={['mentor']}>
+                <MentorEditSessionPage />
+              </RoleRoute>
+            }
+          />
+
+          {/* Admin Routes */}
+          <Route
+            path="/admin"
+            element={
+              <RoleRoute allowedRoles={['admin']}>
+                <AdminDashboard />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/admin/sessions"
+            element={
+              <RoleRoute allowedRoles={['admin']}>
+                <AdminSessionsPage />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/admin/achievements"
+            element={
+              <RoleRoute allowedRoles={['admin']}>
+                <AdminAchievementsPage />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/admin/users"
+            element={
+              <RoleRoute allowedRoles={['admin']}>
+                <AdminUsersPage />
+              </RoleRoute>
+            }
+          />
+
           <Route
             path="/admin/mentors"
             element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <RoleRoute allowedRoles={['admin']}>
                 <AdminMentorsPage />
-              </ProtectedRoute>
+              </RoleRoute>
             }
           />
+
+          {/* Legacy Dashboard Route Redirects */}
+          <Route path="/dashboard/student" element={<Navigate to="/home" replace />} />
+          <Route path="/dashboard/mentor" element={<Navigate to="/mentor" replace />} />
+          <Route path="/dashboard/admin" element={<Navigate to="/admin" replace />} />
 
           {/* Catch-all: unknown routes redirect to "/" */}
           <Route path="*" element={<Navigate to="/" replace />} />

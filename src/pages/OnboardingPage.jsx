@@ -49,6 +49,16 @@ export function OnboardingPage() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(false);
 
+  // Mentors and admins skip student onboarding form (redirect to their role home)
+  const userRole = profile?.role || 'student';
+  useEffect(() => {
+    if (userRole === 'admin') {
+      navigate('/admin', { replace: true });
+    } else if (userRole === 'mentor') {
+      navigate('/mentor', { replace: true });
+    }
+  }, [userRole, navigate]);
+
   // Pre-fill form: prioritize local sessionStorage draft, then studentDetails from DB, then auth metadata
   const [formData, setFormData] = useState(() => {
     let draft = null;

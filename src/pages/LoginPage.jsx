@@ -51,6 +51,7 @@ export function LoginPage() {
   const { lang, toggleLanguage, t } = useLanguage();
   const {
     user,
+    profile,
     isProfileComplete,
     loading,
     signInWithGoogle,
@@ -90,8 +91,18 @@ export function LoginPage() {
     sessionStorage.setItem('eee_tn_redirect_after_login', from);
   }
 
-  // If already logged in, redirect away
+  // If already logged in, redirect by role: student goes to /home, mentor to /mentor, admin to /admin
   if (!loading && user) {
+    const userRole = profile?.role || 'student';
+    if (userRole === 'admin') {
+      const dest = from && from !== '/' && from !== '/login' ? from : '/admin';
+      return <Navigate to={dest} replace />;
+    }
+    if (userRole === 'mentor') {
+      const dest = from && from !== '/' && from !== '/login' ? from : '/mentor';
+      return <Navigate to={dest} replace />;
+    }
+    // student role
     if (isProfileComplete) {
       const destination = from && from !== '/' && from !== '/login' ? from : '/home';
       return <Navigate to={destination} replace />;
