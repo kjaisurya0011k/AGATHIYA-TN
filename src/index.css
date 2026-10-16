@@ -6164,6 +6164,7 @@ textarea:focus-visible {
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -6482,4 +6483,152 @@ textarea:focus-visible {
     flex: 1;
     justify-content: center;
   }
-}
+}
+
+/* ==========================================
+   EEE-TN AUTH PAGE — 3D FLIP + ATMOSPHERE
+   ========================================== */
+
+.login-page-screen {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 100vh;
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 8% 12%,
+      rgba(20, 184, 166, 0.18),
+      transparent 32%),
+    radial-gradient(circle at 95% 28%,
+      rgba(124, 58, 237, 0.12),
+      transparent 34%),
+    radial-gradient(circle at 50% 100%,
+      rgba(37, 99, 235, 0.10),
+      transparent 38%),
+    #f5f8ff;
+}
+
+/* Soft moving colour orbs behind the content */
+.login-page-screen::before,
+.login-page-screen::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 19rem;
+  height: 19rem;
+  border-radius: 50%;
+  filter: blur(65px);
+  opacity: 0.5;
+  pointer-events: none;
+  animation: authAmbientFloat 12s ease-in-out infinite alternate;
+}
+
+.login-page-screen::before {
+  top: 12%;
+  left: -8rem;
+  background: rgba(20, 184, 166, 0.3);
+}
+
+.login-page-screen::after {
+  right: -8rem;
+  bottom: 8%;
+  background: rgba(124, 58, 237, 0.22);
+  animation-delay: -5s;
+}
+
+.login-page-box {
+  position: relative;
+  z-index: 1;
+}
+
+/* Retain your existing card alignment and rounded corners */
+.login-main-card {
+  position: relative;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 22px 55px rgba(23, 52, 105, 0.12),
+    0 5px 16px rgba(20, 184, 166, 0.08);
+}
+
+/* Login/Register card flip entrance */
+.auth-card-flip-enter {
+  animation: authCardFlipEnter 750ms cubic-bezier(0.2, 0.72, 0.25, 1) both;
+  transform-origin: center center;
+}
+
+@keyframes authCardFlipEnter {
+  0% {
+    opacity: 0;
+    transform: perspective(1200px) rotateY(180deg) scale(0.97);
+  }
+
+  49% {
+    opacity: 0;
+    transform: perspective(1200px) rotateY(90deg) scale(0.98);
+  }
+
+  72% {
+    opacity: 1;
+    transform: perspective(1200px) rotateY(-8deg) scale(1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: perspective(1200px) rotateY(0deg) scale(1);
+  }
+}
+
+/* Smooth transition for the changing header */
+.login-header-body {
+  animation: authHeaderChange 400ms ease both;
+}
+
+@keyframes authHeaderChange {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Keep the background and layout mobile-friendly */
+@media (max-width: 640px) {
+  .login-page-screen {
+    padding-bottom: 2rem;
+  }
+
+  .login-header-hero {
+    background:
+      radial-gradient(circle at 92% 12%,
+        rgba(20, 184, 166, 0.35),
+        transparent 42%),
+      linear-gradient(135deg, #10233f, #075b70 72%, #087e83);
+  }
+
+  .login-main-card {
+    border-radius: 24px;
+    box-shadow:
+      0 18px 42px rgba(23, 52, 105, 0.14),
+      0 4px 14px rgba(20, 184, 166, 0.09);
+  }
+}
+
+/* Accessible animation settings */
+@media (prefers-reduced-motion: reduce) {
+
+  .login-page-screen::before,
+  .login-page-screen::after,
+  .login-main-card,
+  .auth-card-flip-enter,
+  .login-header-body {
+    animation: none !important;
+    transition: none !important;
+  }
+}

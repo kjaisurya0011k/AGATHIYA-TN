@@ -278,8 +278,12 @@ export function LoginPage() {
       setSubmitting(false);
     }
   };
-
+  const authCardAnimationClass =
+    activeTab === 'forgot'
+      ? 'card-fade-slide'
+      : 'auth-card-flip-enter';
   return (
+
     <div className="login-page-screen">
       <div className="login-page-box">
         {/* 1. Header: Navy-to-teal gradient panel with large rounded bottom corners */}
@@ -309,23 +313,53 @@ export function LoginPage() {
             </button>
           </div>
 
-          <div className="login-header-body">
+          <div className="login-header-body" key={activeTab}>
             <h1 className="login-header-title">
-              {t.auth.welcomeGreeting || (lang === 'ta' ? 'வணக்கம் 👋' : 'Welcome 👋')}
+              {activeTab === 'signup'
+                ? (lang === 'ta' ? 'உங்கள் கணக்கை உருவாக்குங்கள் ' : 'Create your account ')
+                : activeTab === 'forgot'
+                  ? (lang === 'ta' ? 'கடவுச்சொல்லை மீட்டமைக்கவும்' : 'Reset your password')
+                  : (t.auth.welcomeGreeting || (lang === 'ta' ? 'வணக்கம் 👋' : 'Welcome 👋'))}
             </h1>
+
             <p className="login-header-subtitle">
-              {t.auth.welcomeTagline || (lang === 'ta' ? 'உங்கள் பயணத்தைத் தொடர உள்நுழைக' : 'Login to continue your journey')}
+              {activeTab === 'signup'
+                ? (lang === 'ta' ? 'EEE-TN உடன் உங்கள் பயணத்தைத் தொடங்குங்கள்' : 'Start your journey with EEE-TN')
+                : activeTab === 'forgot'
+                  ? (lang === 'ta' ? 'உங்கள் கடவுச்சொல்லை மீட்டமைக்கவும்' : 'Reset your password securely')
+                  : (t.auth.welcomeTagline || (lang === 'ta' ? 'உங்கள் பயணத்தைத் தொடர உள்நுழைக' : 'Login to continue your journey'))}
             </p>
+
             <p className="login-header-desc">
-              {t.auth.welcomeDesc || (lang === 'ta' ? 'தமிழ்நாடு 12-ஆம் வகுப்பு மாணவர்களுக்கான உதவித்தொகை, கல்லூரி மற்றும் உயர்கல்வி வழிகாட்டல்.' : 'Scholarships, colleges and career guidance for Tamil Nadu Class 12 students.')}
+              {activeTab === 'signup'
+                ? (lang === 'ta'
+                  ? 'கல்லூரிகள், உதவித்தொகைகள் மற்றும் தொழில் வழிகாட்டலை ஒரே இடத்தில் கண்டறியுங்கள்.'
+                  : 'Discover colleges, scholarships and career guidance in one place.')
+                : activeTab === 'forgot'
+                  ? (lang === 'ta'
+                    ? 'உங்கள் கணக்கிற்கான அணுகலை மீண்டும் பெறுங்கள்.'
+                    : 'Recover access to your EEE-TN account.')
+                  : (t.auth.welcomeDesc || (lang === 'ta'
+                    ? 'தமிழ்நாடு 12-ஆம் வகுப்பு மாணவர்களுக்கான உதவித்தொகை, கல்லூரி மற்றும் உயர்கல்வி வழிகாட்டல்.'
+                    : 'Scholarships, colleges and career guidance for Tamil Nadu Class 12 students.'))}
             </p>
           </div>
         </header>
 
         {/* 2. Card: White, large rounded corners, soft shadow, overlapping header */}
         <div className="login-overlap-card-wrap">
-          <div className="login-main-card card-fade-slide" role="region" aria-label="Sign In">
-            {/* OAuth Redirect Error Banner */}
+          <div
+            key={activeTab}
+            className={`login-main-card ${authCardAnimationClass}`}
+            role="region"
+            aria-label={
+              activeTab === 'signup'
+                ? 'Create Account'
+                : activeTab === 'forgot'
+                  ? 'Reset Password'
+                  : 'Sign In'
+            }
+          >
             {authError && (
               <div className="auth-error-banner" role="alert">
                 <AlertCircle size={16} className="auth-error-icon" />
