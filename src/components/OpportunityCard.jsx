@@ -11,6 +11,7 @@ import {
   Building2,
   ExternalLink
 } from 'lucide-react';
+import './OpportunityCard.css';
 
 export function OpportunityCard({ opportunity }) {
   const { lang } = useLanguage();

@@ -358,7 +358,10 @@ export function AuthProvider({ children }) {
     async function initSession() {
       try {
         if (supabase && typeof supabase.auth?.getSession === 'function') {
-          const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+          const sessionPromise = supabase.auth.getSession();
+          const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ data: { session: null }, timeout: true }), 2000));
+          const { data: sessionData } = await Promise.race([sessionPromise, timeoutPromise]);
+          const currentSession = sessionData?.session;
           if (currentSession?.user && mounted) {
             setSession(currentSession);
             setUser(currentSession.user);

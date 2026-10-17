@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { GraduationCap, ExternalLink, ShieldCheck, Heart } from 'lucide-react';
+import './Footer.css';
 
 export function Footer() {
   const { lang, t } = useLanguage();

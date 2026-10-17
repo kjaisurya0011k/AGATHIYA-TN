@@ -1,7 +1,10 @@
+
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Navbar } from './components/Navbar';
+
+import Navbar from './components/Navbar.jsx';
 import { Footer } from './components/Footer';
+
 import { HomePage } from './pages/HomePage';
 import { OpportunitiesPage } from './pages/OpportunitiesPage';
 import { OpportunityDetailPage } from './pages/OpportunityDetailPage';
@@ -16,14 +19,18 @@ import { AuthCallback } from './pages/AuthCallback';
 import { ProfilePage } from './pages/ProfilePage';
 import { AdminMentorsPage } from './pages/AdminMentorsPage';
 import { OnboardingPage } from './pages/OnboardingPage';
+
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RoleRoute } from './components/RoleRoute';
+
 import { MentorSessionsPage } from './pages/mentor/MentorSessionsPage';
 import { MentorCreateSessionPage } from './pages/mentor/MentorCreateSessionPage';
 import { MentorEditSessionPage } from './pages/mentor/MentorEditSessionPage';
+
 import { AdminSessionsPage } from './pages/admin/AdminSessionsPage';
 import { AdminAchievementsPage } from './pages/admin/AdminAchievementsPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
+
 import { OnboardingModal } from './components/OnboardingModal';
 import { FullScreenLoader } from './components/FullScreenLoader';
 import { useAuth } from './context/AuthContext';
@@ -32,36 +39,62 @@ export function App() {
   const { loading } = useAuth();
   const location = useLocation();
 
-  // Show full-screen loader while session is resolving to prevent any visual flash
+  // Wait for the authentication session to resolve.
   if (loading) {
     return <FullScreenLoader />;
   }
 
-  // Full-page authentication routes that have their own self-contained header/layout
-  const isAuthScreen = ['/', '/login', '/reset-password'].includes(location.pathname);
+  // Authentication pages use their own layout.
+  const isAuthScreen = [
+    '/login',
+    '/register',
+    '/reset-password',
+  ].includes(location.pathname);
 
   return (
     <div className="app-shell">
       {!isAuthScreen && <Navbar />}
 
-      <main className={`main-content ${isAuthScreen ? 'auth-main-content' : ''}`}>
+      <main
+        className={`main-content ${isAuthScreen ? 'auth-main-content' : ''
+          }`}
+      >
         <Routes>
-          {/* Public Auth Routes */}
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
+          {/* Public homepage */}
+          <Route path="/" element={<HomePage />} />
 
-          {/* Protected Routes: Student Home & Onboarding */}
+          {/* Login and registration */}
+          <Route
+            path="/login"
+            element={<LoginPage initialTab="login" />}
+          />
+
+          <Route
+            path="/register"
+            element={<LoginPage initialTab="signup" />}
+          />
+
+          <Route
+            path="/reset-password"
+            element={<ResetPasswordPage />}
+          />
+
+          <Route
+            path="/auth/callback"
+            element={<AuthCallback />}
+          />
+
+          {/* Protected student dashboard */}
           <Route
             path="/home"
             element={
               <RoleRoute allowedRoles={['student']}>
-                <HomePage />
+                <StudentDashboard />
               </RoleRoute>
             }
           />
 
+          {/* Student onboarding */}
           <Route
             path="/onboarding"
             element={
@@ -71,7 +104,7 @@ export function App() {
             }
           />
 
-          {/* Student & Shared Routes */}
+          {/* Opportunities */}
           <Route
             path="/opportunities"
             element={
@@ -90,6 +123,7 @@ export function App() {
             }
           />
 
+          {/* Student sessions */}
           <Route
             path="/sessions"
             element={
@@ -99,6 +133,7 @@ export function App() {
             }
           />
 
+          {/* Shared achievements */}
           <Route
             path="/achievements"
             element={
@@ -108,6 +143,7 @@ export function App() {
             }
           />
 
+          {/* Shared profile */}
           <Route
             path="/profile"
             element={
@@ -117,7 +153,7 @@ export function App() {
             }
           />
 
-          {/* Mentor Routes */}
+          {/* Mentor dashboard */}
           <Route
             path="/mentor"
             element={
@@ -154,7 +190,7 @@ export function App() {
             }
           />
 
-          {/* Admin Routes */}
+          {/* Admin dashboard */}
           <Route
             path="/admin"
             element={
@@ -200,17 +236,32 @@ export function App() {
             }
           />
 
-          {/* Legacy Dashboard Route Redirects */}
-          <Route path="/dashboard/student" element={<Navigate to="/home" replace />} />
-          <Route path="/dashboard/mentor" element={<Navigate to="/mentor" replace />} />
-          <Route path="/dashboard/admin" element={<Navigate to="/admin" replace />} />
+          {/* Legacy dashboard redirects */}
+          <Route
+            path="/dashboard/student"
+            element={<Navigate to="/home" replace />}
+          />
 
-          {/* Catch-all: unknown routes redirect to "/" */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route
+            path="/dashboard/mentor"
+            element={<Navigate to="/mentor" replace />}
+          />
+
+          <Route
+            path="/dashboard/admin"
+            element={<Navigate to="/admin" replace />}
+          />
+
+          {/* Unknown routes return to the public homepage */}
+          <Route
+            path="*"
+            element={<Navigate to="/" replace />}
+          />
         </Routes>
       </main>
 
       {!isAuthScreen && <Footer />}
+
       <OnboardingModal />
     </div>
   );

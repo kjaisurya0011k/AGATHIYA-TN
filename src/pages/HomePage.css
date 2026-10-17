@@ -1,0 +1,877 @@
+/* =========================================================
+   EEE-TN HOMEPAGE
+   FULL CSS REPLACEMENT
+   Seamless, soft student-photo blending
+   ========================================================= */
+
+.homepage-landing-root {
+  width: 100%;
+  overflow-x: clip;
+}
+
+/* ================= HERO BACKGROUND ================= */
+
+.hp-hero-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(48px, 6vw, 84px) 0 40px;
+  background:
+    radial-gradient(ellipse at 78% 42%,
+      rgba(8, 127, 140, 0.045),
+      transparent 54%),
+    linear-gradient(135deg,
+      #fbfbf9 0%,
+      #f7f8f4 52%,
+      #f2f7f5 100%);
+}
+
+.hp-hero-ambient-glow {
+  position: absolute;
+  z-index: -1;
+  top: 5%;
+  right: 0;
+  width: min(55vw, 620px);
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse,
+      rgba(8, 127, 140, 0.06) 0%,
+      rgba(8, 127, 140, 0.02) 40%,
+      transparent 72%);
+  filter: blur(55px);
+  pointer-events: none;
+  animation: hpAmbientDrift 12s ease-in-out infinite alternate;
+}
+
+.hp-hero-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: center;
+  gap: clamp(28px, 4vw, 56px);
+}
+
+@media (max-width: 900px) {
+  .hp-hero-container {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+}
+
+/* ================= HERO TEXT ================= */
+
+.hp-hero-content {
+  position: relative;
+  z-index: 2;
+  animation: hpContentEnter 0.8s ease-out both;
+}
+
+.hp-hero-brand-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(8, 127, 140, 0.2);
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(16, 45, 79, 0.035);
+  margin-bottom: 20px;
+}
+
+.hp-pill-tag {
+  background: #087f8c;
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.hp-pill-text {
+  font-size: 0.84rem;
+  font-weight: 650;
+  color: #102d4f;
+}
+
+.hp-hero-title {
+  color: #102d4f;
+  font-size: clamp(2.3rem, 4vw, 3.8rem);
+  font-weight: 850;
+  line-height: 1.16;
+  letter-spacing: -0.035em;
+  margin-bottom: 18px;
+}
+
+.hp-gradient-highlight {
+  background: linear-gradient(120deg,
+      #087f8c 0%,
+      #19486b 60%,
+      #066873 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.hp-hero-description {
+  color: #475569;
+  font-size: clamp(1rem, 1.2vw, 1.15rem);
+  line-height: 1.8;
+  max-width: 600px;
+  margin-bottom: 28px;
+}
+
+.hp-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+.hp-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 24px;
+  background: linear-gradient(135deg, #102d4f, #087f8c);
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(8, 127, 140, 0.2);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hp-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(8, 127, 140, 0.3);
+}
+
+.hp-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 13px 22px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1.5px solid #c7d9e5;
+  color: #102d4f;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.98rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.hp-btn-secondary:hover {
+  background: #f0f6fb;
+  border-color: #102d4f;
+  transform: translateY(-2px);
+}
+
+.hp-hero-trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.hp-trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #4b6379;
+}
+
+.hp-trust-item svg {
+  color: #087f8c;
+  flex-shrink: 0;
+}
+
+/* ================= HERO PHOTO ================= */
+
+/*
+  The image itself is faded with a broad elliptical mask.
+  The middle remains visible, while every edge and corner
+  fades gradually into the cream hero background.
+*/
+
+.hp-hero-visual-col {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: hpImageEnter 1s ease-out both;
+}
+
+.hp-photo-card {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Remove decorative frames from the image wrapper. */
+
+.hp-photo-card::before,
+.hp-photo-card::after {
+  content: none !important;
+  display: none !important;
+}
+
+.hp-hero-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: contain;
+  object-position: center;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+
+  /*
+    Natural photo visibility without harsh cutoff or over-fading.
+  */
+  opacity: 0.50;
+  filter: contrast(0.98) brightness(1.02);
+
+  /*
+    Seamless multidirectional mask:
+    Fades smoothly on all 4 boundaries (top, bottom, left, right) and corners
+    so that no rectangular frame or cut-off boundary is ever visible, while
+    leaving the students in the centre crisp and vivid.
+  */
+  -webkit-mask-image:
+    linear-gradient(to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.4) 6%,
+      rgba(0, 0, 0, 0.95) 16%,
+      rgba(0, 0, 0, 1) 25%,
+      rgba(0, 0, 0, 1) 75%,
+      rgba(0, 0, 0, 0.85) 86%,
+      rgba(0, 0, 0, 0.3) 94%,
+      transparent 100%),
+    linear-gradient(to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.4) 6%,
+      rgba(0, 0, 0, 0.95) 15%,
+      rgba(0, 0, 0, 1) 24%,
+      rgba(0, 0, 0, 1) 76%,
+      rgba(0, 0, 0, 0.9) 86%,
+      rgba(0, 0, 0, 0.35) 94%,
+      transparent 100%);
+  mask-image:
+    linear-gradient(to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.4) 6%,
+      rgba(0, 0, 0, 0.95) 16%,
+      rgba(0, 0, 0, 1) 25%,
+      rgba(0, 0, 0, 1) 75%,
+      rgba(0, 0, 0, 0.85) 86%,
+      rgba(0, 0, 0, 0.3) 94%,
+      transparent 100%),
+    linear-gradient(to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.4) 6%,
+      rgba(0, 0, 0, 0.95) 15%,
+      rgba(0, 0, 0, 1) 24%,
+      rgba(0, 0, 0, 1) 76%,
+      rgba(0, 0, 0, 0.9) 86%,
+      rgba(0, 0, 0, 0.35) 94%,
+      transparent 100%);
+
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+
+  animation: hpPhotoReveal 1.2s ease-out both;
+}
+
+/* ================= PHOTO CAPTION: TRANSPARENT ================= */
+
+/* Keep the caption without a visible rectangular panel. */
+
+.hp-photo-overlay-card {
+  position: absolute;
+  z-index: 2;
+  left: 5%;
+  right: 5%;
+  bottom: 4%;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  animation: hpCaptionEnter 0.9s 0.3s ease-out both;
+}
+
+.hp-photo-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(230, 246, 245, 0.72);
+  color: #087f8c;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.hp-photo-overlay-card strong {
+  display: block;
+  font-size: 0.9rem;
+  color: #102d4f;
+  text-shadow: 0 1px 10px rgba(251, 251, 249, 0.95);
+}
+
+.hp-photo-overlay-card p {
+  margin: 3px 0 0;
+  font-size: 0.77rem;
+  line-height: 1.5;
+  color: #475f70;
+  text-shadow: 0 1px 10px rgba(251, 251, 249, 0.95);
+}
+
+/* ================= EDNOVA AI TEASER ================= */
+
+.hp-hero-ednova-anchor {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  border: 1px solid rgba(204, 229, 232, 0.72);
+  border-radius: 16px;
+  background: rgba(250, 250, 246, 0.74);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(8, 127, 140, 0.045);
+  animation: hpCaptionEnter 0.9s 0.45s ease-out both;
+}
+
+.hp-ednova-mini-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 750;
+  color: #087f8c;
+  background: rgba(230, 246, 245, 0.78);
+  padding: 4px 9px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.hp-ednova-mini-text {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: #18324b;
+  font-style: italic;
+  font-weight: 550;
+}
+
+.hp-ednova-mini-cta {
+  background: transparent;
+  border: 0;
+  color: #087f8c;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  font-family: inherit;
+  transition: transform 0.2s ease;
+}
+
+.hp-ednova-mini-cta:hover {
+  text-decoration: underline;
+  transform: translateX(3px);
+}
+
+/* ================= COLLEGE CHECKLIST ================= */
+
+.colleges-split-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .colleges-split-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hp-checklist-card {
+  padding: 24px;
+}
+
+.hp-checklist-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e5edf3;
+}
+
+.hp-checklist-header h3 {
+  font-size: 1.15rem;
+  color: #102d4f;
+  font-weight: 750;
+  margin: 0;
+}
+
+.hp-checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.hp-check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.hp-check-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #e6f6f5;
+  color: #087f8c;
+  font-size: 0.82rem;
+  font-weight: 750;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.hp-check-row strong {
+  display: block;
+  font-size: 0.94rem;
+  color: #102d4f;
+  margin-bottom: 3px;
+}
+
+.hp-check-row p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #556c80;
+  line-height: 1.55;
+}
+
+.hp-checklist-footer {
+  padding-top: 14px;
+  border-top: 1px solid #e5edf3;
+}
+
+/* ================= SKILLS SECTION ================= */
+
+.skills-grid-clean {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.skill-track-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.skill-track-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(16, 45, 79, 0.09);
+  border-color: #087f8c;
+}
+
+.skill-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.skill-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #eff5f9;
+  display: grid;
+  place-items: center;
+}
+
+.skill-card-title {
+  font-size: 1.1rem;
+  font-weight: 750;
+  color: #102d4f;
+  margin-bottom: 10px;
+}
+
+.skill-card-desc {
+  font-size: 0.9rem;
+  color: #556c80;
+  line-height: 1.6;
+  flex: 1;
+  margin-bottom: 16px;
+}
+
+.skill-card-footer {
+  display: flex;
+  align-items: center;
+}
+
+.skill-tag-pill {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #087f8c;
+  background: #e6f6f5;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.learning-resources-banner {
+  padding: 22px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: linear-gradient(135deg, #fff, #f3f8fb);
+  border: 1px solid #d2e4ea;
+}
+
+@media (max-width: 768px) {
+  .learning-resources-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.lr-banner-text {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lr-banner-text strong {
+  display: block;
+  font-size: 1rem;
+  color: #102d4f;
+}
+
+.lr-banner-text p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #556c80;
+}
+
+.lr-resources-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ================= JOURNEY SECTION ================= */
+
+.journey-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+}
+
+.journey-step-card {
+  padding: 24px;
+  position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.journey-step-card:hover {
+  transform: translateY(-4px);
+  border-color: #087f8c;
+  box-shadow: 0 8px 22px rgba(16, 45, 79, 0.06);
+}
+
+.journey-step-num {
+  font-family: var(--font-brand);
+  font-size: 1.6rem;
+  font-weight: 850;
+  color: #087f8c;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.journey-step-indicator {
+  width: 32px;
+  height: 3px;
+  background: linear-gradient(90deg, #087f8c, #19486b);
+  border-radius: 99px;
+  margin-bottom: 14px;
+}
+
+.journey-step-title {
+  font-size: 1.05rem;
+  color: #102d4f;
+  font-weight: 750;
+  margin-bottom: 8px;
+}
+
+.journey-step-desc {
+  font-size: 0.88rem;
+  color: #556c80;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ================= FINAL CTA ================= */
+
+.hp-final-cta-section {
+  padding: 60px 0 80px;
+}
+
+.hp-final-cta-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  background: linear-gradient(135deg,
+      #102d4f 0%,
+      #16476b 50%,
+      #087f8c 100%);
+  padding: clamp(38px, 6vw, 68px) clamp(20px, 4vw, 48px);
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 20px 48px rgba(16, 45, 79, 0.2);
+}
+
+.hp-cta-glow-bg {
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+      rgba(255, 255, 255, 0.15),
+      transparent 70%);
+  pointer-events: none;
+  animation: hpAmbientDrift 12s ease-in-out infinite alternate;
+}
+
+.hp-cta-heading {
+  color: #fff;
+  font-size: clamp(2rem, 3.8vw, 3.1rem);
+  font-weight: 850;
+  letter-spacing: -0.03em;
+  margin: 16px auto 14px;
+  max-width: 760px;
+  line-height: 1.22;
+}
+
+.hp-cta-subtext {
+  color: #dceaf5;
+  font-size: clamp(0.98rem, 1.2vw, 1.15rem);
+  max-width: 620px;
+  margin: 0 auto 30px;
+  line-height: 1.7;
+}
+
+.hp-cta-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.hp-cta-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 26px;
+  background: #fff;
+  color: #102d4f;
+  border-radius: 12px;
+  font-weight: 750;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transition: all 0.22s ease;
+}
+
+.hp-cta-primary-btn:hover {
+  transform: translateY(-2px);
+  background: #f0fdfa;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.hp-cta-secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 22px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 650;
+  font-size: 0.96rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.hp-cta-secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-2px);
+}
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes hpContentEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hpImageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hpPhotoReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+
+  to {
+    opacity: 0.50;
+    transform: scale(1);
+  }
+}
+
+@keyframes hpCaptionEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hpAmbientDrift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-12px, 10px, 0);
+  }
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 600px) {
+  .hp-hero-ednova-anchor {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hp-hero-photo {
+    max-height: 360px;
+  }
+
+  .hp-photo-overlay-card {
+    left: 3%;
+    right: 3%;
+    bottom: 3%;
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .hp-photo-overlay-card strong {
+    font-size: 0.82rem;
+  }
+
+  .hp-photo-overlay-card p {
+    font-size: 0.72rem;
+  }
+}
+
+/* ================= REDUCED MOTION ================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .hp-hero-content,
+  .hp-hero-visual-col,
+  .hp-hero-photo,
+  .hp-photo-overlay-card,
+  .hp-hero-ednova-anchor,
+  .hp-hero-ambient-glow,
+  .hp-cta-glow-bg {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .hp-hero-photo {
+    opacity: 0.50;
+  }
+
+  .skill-track-card,
+  .journey-step-card,
+  .hp-btn-primary,
+  .hp-btn-secondary {
+    transition: none !important;
+  }
+}

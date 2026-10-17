@@ -47,7 +47,7 @@ export function GoogleLogo() {
   );
 }
 
-export function LoginPage() {
+export function LoginPage({ initialTab = 'login' }) {
   const { lang, toggleLanguage, t } = useLanguage();
   const {
     user,
@@ -65,7 +65,7 @@ export function LoginPage() {
   const location = useLocation();
 
   // Active view: 'login' | 'signup' | 'forgot'
-  const [activeTab, setActiveTab] = useState('login');
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   // Form Fields
   const [fullName, setFullName] = useState('');
@@ -87,24 +87,25 @@ export function LoginPage() {
 
   // Remember redirect path if user tried to visit protected route
   const from = location.state?.from?.pathname;
-  if (from && from !== '/' && from !== '/login') {
+  if (from && from !== '/' && from !== '/login' && from !== '/register') {
     sessionStorage.setItem('eee_tn_redirect_after_login', from);
   }
 
   // If already logged in, redirect by role: student goes to /home, mentor to /mentor, admin to /admin
   if (!loading && user) {
     const userRole = profile?.role || 'student';
+    const isAuthPath = (p) => !p || p === '/' || p === '/login' || p === '/register';
     if (userRole === 'admin') {
-      const dest = from && from !== '/' && from !== '/login' ? from : '/admin';
+      const dest = from && !isAuthPath(from) ? from : '/admin';
       return <Navigate to={dest} replace />;
     }
     if (userRole === 'mentor') {
-      const dest = from && from !== '/' && from !== '/login' ? from : '/mentor';
+      const dest = from && !isAuthPath(from) ? from : '/mentor';
       return <Navigate to={dest} replace />;
     }
     // student role
     if (isProfileComplete) {
-      const destination = from && from !== '/' && from !== '/login' ? from : '/home';
+      const destination = from && !isAuthPath(from) ? from : '/home';
       return <Navigate to={destination} replace />;
     }
     return <Navigate to="/onboarding" replace />;

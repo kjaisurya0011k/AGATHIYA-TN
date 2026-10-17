@@ -1,0 +1,379 @@
+/* --- Section 4: Ednova AI Robot Component --- */
+.ednova-card {
+  background: linear-gradient(145deg, #FFFFFF, #F8FCFD);
+  border: 1.5px solid #C7E6E9;
+  border-radius: 24px;
+  box-shadow: 0 16px 40px rgba(8, 127, 140, 0.08);
+  padding: clamp(24px, 4vw, 36px);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.ednova-robot-stage {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 4vw, 40px);
+  margin-bottom: 24px;
+}
+
+@media (max-width: 720px) {
+  .ednova-robot-stage {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+/* Animated Robot Visual */
+.ednova-robot {
+  position: relative;
+  width: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: robotFloating 3.6s ease-in-out infinite alternate;
+  flex-shrink: 0;
+}
+
+@keyframes robotFloating {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-10px);
+  }
+}
+
+.ednova-antenna {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.antenna-glow {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 14px #38bdf8;
+  animation: antennaBlink 2.4s infinite ease-in-out;
+}
+
+@keyframes antennaBlink {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+.antenna-stem {
+  width: 3px;
+  height: 12px;
+  background: #64748b;
+}
+
+.ednova-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ednova-ear {
+  width: 7px;
+  height: 20px;
+  background: #087F8C;
+  border-radius: 3px;
+}
+
+.ear-left {
+  border-radius: 4px 0 0 4px;
+}
+
+.ear-right {
+  border-radius: 0 4px 4px 0;
+}
+
+.ednova-face {
+  width: 78px;
+  height: 60px;
+  background: linear-gradient(135deg, #102D4F, #19486B);
+  border: 2px solid #087F8C;
+  border-radius: 16px;
+  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.ednova-visor {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 10px;
+  background: #041426;
+  border-radius: 10px;
+  border: 1px solid rgba(8, 127, 140, 0.4);
+}
+
+.ednova-eye {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: eyeBlink 4s infinite;
+}
+
+@keyframes eyeBlink {
+  0%, 46%, 48%, 100% {
+    transform: scaleY(1);
+  }
+  47% {
+    transform: scaleY(0.08);
+  }
+}
+
+.ednova-pupil {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #FFFFFF;
+}
+
+.ednova-smile {
+  width: 20px;
+  height: 6px;
+  border-bottom: 2.5px solid #38bdf8;
+  border-radius: 0 0 10px 10px;
+}
+
+.ednova-body {
+  position: relative;
+  width: 64px;
+  height: 44px;
+  margin-top: 4px;
+  background: linear-gradient(135deg, #1e4566, #102D4F);
+  border: 2px solid #087F8C;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ednova-core-sparkle {
+  color: #38bdf8;
+  animation: corePulse 2.8s infinite ease-in-out;
+}
+
+@keyframes corePulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+.ednova-arm {
+  position: absolute;
+  top: 8px;
+  width: 6px;
+  height: 24px;
+  background: #087F8C;
+  border-radius: 3px;
+}
+
+.arm-left {
+  left: -9px;
+  transform: rotate(12deg);
+}
+
+.arm-right {
+  right: -9px;
+  transform: rotate(-12deg);
+}
+
+.ednova-shadow {
+  width: 60px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(16, 45, 79, 0.12);
+  margin-top: 10px;
+  filter: blur(2px);
+  animation: shadowPulse 3.6s ease-in-out infinite alternate;
+}
+
+@keyframes shadowPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(0.75);
+    opacity: 0.2;
+  }
+}
+
+/* Ednova Speech Bubble */
+.ednova-bubble {
+  position: relative;
+  background: #FFFFFF;
+  border: 1.5px solid #d0e7e8;
+  border-radius: 18px;
+  padding: 18px 22px;
+  box-shadow: 0 8px 24px rgba(16, 45, 79, 0.06);
+  flex: 1;
+  text-align: left;
+}
+
+.ednova-bubble-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 750;
+  color: #087F8C;
+  background: #e6f6f5;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.ednova-bubble-text {
+  margin: 0;
+  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  color: #102D4F;
+  font-weight: 650;
+  line-height: 1.6;
+}
+
+/* Response Card */
+.ednova-response-card {
+  background: #EFF9F8;
+  border: 1px solid #C7EAE6;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 18px;
+  animation: slideDown 0.25s ease-out;
+}
+
+.response-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: #066873;
+}
+
+.ednova-response-card p {
+  margin: 0;
+  font-size: 0.94rem;
+  color: #18324B;
+  line-height: 1.65;
+}
+
+/* Prompts Tray */
+.ednova-prompts-tray {
+  margin-bottom: 18px;
+}
+
+.ednova-tray-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #556c80;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ednova-prompts-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ednova-prompt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #FFFFFF;
+  border: 1px solid #d0dee8;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: #18324B;
+  font-weight: 550;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.ednova-prompt-chip:hover,
+.ednova-prompt-chip.active {
+  background: #e6f6f5;
+  border-color: #087F8C;
+  color: #066873;
+  transform: translateY(-1px);
+}
+
+.ednova-input-row {
+  display: flex;
+  gap: 10px;
+}
+
+@media (max-width: 600px) {
+  .ednova-input-row {
+    flex-direction: column;
+  }
+}
+
+.ednova-input {
+  flex: 1;
+  padding: 12px 18px;
+  border: 1.5px solid #d0dee8;
+  border-radius: 12px;
+  font-size: 0.94rem;
+  font-family: inherit;
+  color: #102D4F;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.ednova-input:focus {
+  border-color: #087F8C;
+  box-shadow: 0 0 0 3px rgba(8, 127, 140, 0.12);
+}
+
+.ednova-send-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px 22px;
+  background: linear-gradient(135deg, #102D4F, #087F8C);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.94rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.ednova-send-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(8, 127, 140, 0.3);
+}

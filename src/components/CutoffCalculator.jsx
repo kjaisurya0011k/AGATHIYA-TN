@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { Calculator, Award, Info, CheckCircle2, RotateCcw } from 'lucide-react';
+import './CutoffCalculator.css';
 
 export function CutoffCalculator() {
   const { lang, t } = useLanguage();
