@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 import { initialOpportunities } from '../data/appData';
 import {
   ArrowLeft,
@@ -15,7 +16,8 @@ import {
   Bookmark,
   BookmarkCheck,
   Share2,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 
 export function OpportunityDetailPage() {
@@ -24,7 +26,63 @@ export function OpportunityDetailPage() {
   const { lang } = useLanguage();
   const { savedOpportunities, toggleSaveOpportunity } = useAuth();
 
-  const opportunity = initialOpportunities.find((o) => o.id === id);
+  const [opportunity, setOpportunity] = useState(() => {
+    return initialOpportunities.find((o) => o.id === id) || null;
+  });
+  const [loading, setLoading] = useState(!opportunity);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchOpp() {
+      // If already found in initialOpportunities, we still check if there's an updated version or continue
+      const local = initialOpportunities.find((o) => o.id === id);
+      if (local) {
+        setOpportunity(local);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('opportunities')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+
+        if (!isMounted) return;
+
+        if (data && !error) {
+          setOpportunity(data);
+        } else {
+          setOpportunity(null);
+        }
+      } catch (err) {
+        console.error('[OpportunityDetailPage] Error fetching opportunity:', err);
+        if (isMounted) setOpportunity(null);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    fetchOpp();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="container" style={{ padding: '6rem 1rem', textAlign: 'center' }}>
+        <Loader2 size={36} color="var(--purple-600)" className="animate-spin" style={{ margin: '0 auto 1rem' }} />
+        <p style={{ color: 'var(--text-secondary)' }}>
+          {lang === 'ta' ? 'விவரங்கள் ஏற்றப்படுகின்றன...' : 'Loading opportunity details...'}
+        </p>
+      </div>
+    );
+  }
 
   if (!opportunity) {
     return (
@@ -38,12 +96,67 @@ export function OpportunityDetailPage() {
   }
 
   const isSaved = savedOpportunities.includes(opportunity.id);
-  const title = lang === 'ta' ? opportunity.title_ta : opportunity.title_en;
-  const provider = lang === 'ta' ? opportunity.provider_ta : opportunity.provider_en;
-  const award = lang === 'ta' ? opportunity.award_amount_ta : opportunity.award_amount_en;
-  const eligibility = lang === 'ta' ? opportunity.eligibility_ta : opportunity.eligibility_en;
-  const benefits = lang === 'ta' ? opportunity.benefits_ta : opportunity.benefits_en;
-  const documents = lang === 'ta' ? opportunity.documents_ta : opportunity.documents_en;
+
+  const title = (lang === 'ta' && opportunity.title_ta)
+    ? opportunity.title_ta
+    : (opportunity.title_en || opportunity.title_ta || 'Opportunity Details');
+
+  const provider = (lang === 'ta' && opportunity.provider_ta)
+    ? opportunity.provider_ta
+    : (opportunity.provider_name || opportunity.provider_en || 'Official Authority');
+
+  let award = null;
+  if (lang === 'ta' && opportunity.award_amount_ta) {
+    award = opportunity.award_amount_ta;
+  } else if (opportunity.award_amount_en) {
+    award = opportunity.award_amount_en;
+  } else if (opportunity.amount) {
+    award = `₹${Number(opportunity.amount).toLocaleString('en-IN')}`;
+  } else if (opportunity.description_en) {
+    award = opportunity.description_en;
+  } else {
+    award = lang === 'ta' ? 'கல்விக் கட்டண விலக்கு / உதவித்தொகை' : 'Complete / Partial Financial Coverage';
+  }
+
+  const eligibility = (lang === 'ta' && opportunity.eligibility_ta)
+    ? opportunity.eligibility_ta
+    : (opportunity.eligibility_en || (lang === 'ta' ? 'அதிகாரப்பூர்வ தகுதி விதிகளைப் பார்க்கவும்.' : 'Check verified notification for full criteria.'));
+
+  // Benefits list
+  let benefits = [];
+  if (lang === 'ta' && Array.isArray(opportunity.benefits_ta) && opportunity.benefits_ta.length > 0) {
+    benefits = opportunity.benefits_ta;
+  } else if (Array.isArray(opportunity.benefits_en) && opportunity.benefits_en.length > 0) {
+    benefits = opportunity.benefits_en;
+  } else if (opportunity.description_en) {
+    // Split sentences into list items
+    benefits = opportunity.description_en
+      .split(/(?<=[.!?])\s+/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 10);
+  }
+  if (benefits.length === 0) {
+    benefits = [lang === 'ta' ? 'கல்விக் கட்டண சலுகை மற்றும் உதவித்தொகை.' : 'Tuition waiver and academic financial assistance.'];
+  }
+
+  // Documents list
+  let documents = [];
+  if (lang === 'ta' && Array.isArray(opportunity.documents_ta) && opportunity.documents_ta.length > 0) {
+    documents = opportunity.documents_ta;
+  } else if (Array.isArray(opportunity.documents_en) && opportunity.documents_en.length > 0) {
+    documents = opportunity.documents_en;
+  } else {
+    documents = [
+      lang === 'ta' ? '10 & 12-ஆம் வகுப்பு மதிப்பெண் சான்றிதழ்கள்' : 'Class 10 & 12 Marksheets',
+      lang === 'ta' ? 'பள்ளி மாற்றுச் சான்றிதழ் (TC) & Bonafide சான்றிதழ்' : 'Transfer Certificate (TC) & School Bonafide',
+      lang === 'ta' ? 'சாதிச் சான்றிதழ் (Community Certificate) மற்றும் வருமானச் சான்றிதழ்' : 'Community Certificate & Income Certificate',
+      lang === 'ta' ? 'மாணவர் ஆதார் அட்டை மற்றும் வங்கி கணக்கு புத்தகம் (DBT Seeded)' : 'Student Aadhaar Card & DBT Linked Bank Passbook'
+    ];
+  }
+
+  const officialLink = opportunity.application_url || opportunity.official_source_url || opportunity.official_link;
+  const deadline = opportunity.deadline || (lang === 'ta' ? 'அதிகாரப்பூர்வ தளத்தில் பார்க்கவும்' : 'Verify on official portal');
+  const category = opportunity.category || opportunity.opportunity_type || 'Scholarship';
 
   return (
     <div className="page-wrapper container">
@@ -74,14 +187,14 @@ export function OpportunityDetailPage() {
           {/* Header Card */}
           <div className="card detail-header-card">
             <div className="detail-badges-row">
-              <span className="badge badge-purple">{opportunity.category}</span>
-              {opportunity.is_verified && (
+              <span className="badge badge-purple">{category}</span>
+              {(opportunity.is_verified || opportunity.status === 'verified') && (
                 <span className="verified-badge">
                   <ShieldCheck size={14} />
                   <span>
                     {lang === 'ta'
-                      ? `அரசு சரிபார்க்கப்பட்டது (${opportunity.verification_date})`
-                      : `Verified (${opportunity.verification_date})`}
+                      ? 'அரசு / அறக்கட்டளை சரிபார்க்கப்பட்டது'
+                      : 'Audited & Verified'}
                   </span>
                 </span>
               )}
@@ -110,7 +223,7 @@ export function OpportunityDetailPage() {
               <span>{lang === 'ta' ? 'முக்கிய பயன்கள்' : 'Key Benefits & Concessions'}</span>
             </h2>
             <ul className="detail-list">
-              {benefits?.map((item, idx) => (
+              {benefits.map((item, idx) => (
                 <li key={idx}>
                   <CheckCircle size={16} color="#16a34a" className="list-icon" />
                   <span>{item}</span>
@@ -135,7 +248,7 @@ export function OpportunityDetailPage() {
               <span>{lang === 'ta' ? 'தேவையான அத்தியாவசிய ஆவணங்கள்' : 'Required Documents'}</span>
             </h2>
             <ul className="detail-list doc-list">
-              {documents?.map((doc, idx) => (
+              {documents.map((doc, idx) => (
                 <li key={idx}>
                   <span className="doc-num">{idx + 1}</span>
                   <span>{doc}</span>
@@ -157,7 +270,7 @@ export function OpportunityDetailPage() {
                 <Calendar size={14} />
                 <span>{lang === 'ta' ? 'கடைசி தேதி' : 'Deadline'}</span>
               </span>
-              <strong className="side-meta-val">{opportunity.deadline}</strong>
+              <strong className="side-meta-val">{deadline}</strong>
             </div>
 
             <div className="side-meta-item">
@@ -166,7 +279,7 @@ export function OpportunityDetailPage() {
                 <span>{lang === 'ta' ? 'சரிபார்ப்பு நிலை' : 'Verification'}</span>
               </span>
               <strong className="side-meta-val text-green">
-                {lang === 'ta' ? 'அரசு தணிக்கை பெற்றது' : 'Government Audited'}
+                {lang === 'ta' ? 'சரிபார்க்கப்பட்டது' : 'Verified Notification'}
               </strong>
             </div>
 
@@ -189,14 +302,15 @@ export function OpportunityDetailPage() {
             </button>
 
             {/* Official Portal Apply Button */}
-            {opportunity.official_link && (
+            {officialLink && (
               <a
-                href={opportunity.official_link}
+                href={officialLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary side-action-btn apply-btn"
+                style={{ textDecoration: 'none' }}
               >
-                <span>{lang === 'ta' ? 'அதிகாரப்பூர்வ தளம்' : 'Official Portal'}</span>
+                <span>{lang === 'ta' ? 'அதிகாரப்பூர்வ தளம் / விண்ணப்பி' : 'Official Portal / Apply'}</span>
                 <ExternalLink size={15} />
               </a>
             )}
@@ -205,7 +319,7 @@ export function OpportunityDetailPage() {
               <AlertCircle size={14} />
               <span>
                 {lang === 'ta'
-                  ? 'அதிகாரப்பூர்வ அரசு இணையதளங்களில் மட்டுமே உங்கள் விண்ணப்பத்தை சமர்ப்பிக்கவும். இடைத்தரகர்களுக்கு பணம் செலுத்த வேண்டாம்.'
+                  ? 'அதிகாரப்பூர்வ இணையதளங்களில் மட்டுமே உங்கள் விண்ணப்பத்தை சமர்ப்பிக்கவும். இடைத்தரகர்களுக்கு பணம் செலுத்த வேண்டாம்.'
                   : 'Always apply directly on the verified official portal. Never pay money to unauthorized intermediaries.'}
               </span>
             </p>
