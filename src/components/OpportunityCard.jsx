@@ -24,41 +24,61 @@ export function OpportunityCard({ opportunity }) {
     : (opportunity.title_en || opportunity.title_ta || 'Higher Education Opportunity');
 
   // Provider
-  const provider = (lang === 'ta' && opportunity.provider_ta)
+  const rawProvider = (lang === 'ta' && opportunity.provider_ta)
     ? opportunity.provider_ta
-    : (opportunity.provider_name || opportunity.provider_en || 'Official State / National Authority');
+    : (opportunity.provider_name || opportunity.provider_en || opportunity.provider_ta);
+  const provider = (rawProvider && rawProvider.trim())
+    ? rawProvider.trim()
+    : (lang === 'ta' ? 'அரசு / அதிகாரப்பூர்வ அமைப்பு' : 'Official State / National Authority');
 
   // Award / Benefit Amount formatting
   let award = null;
-  if (lang === 'ta' && opportunity.award_amount_ta) {
-    award = opportunity.award_amount_ta;
-  } else if (opportunity.award_amount_en) {
-    award = opportunity.award_amount_en;
+  if (lang === 'ta' && opportunity.award_amount_ta && opportunity.award_amount_ta.trim()) {
+    award = opportunity.award_amount_ta.trim();
+  } else if (opportunity.award_amount_en && opportunity.award_amount_en.trim()) {
+    award = opportunity.award_amount_en.trim();
   } else if (opportunity.amount) {
     award = `₹${Number(opportunity.amount).toLocaleString('en-IN')}`;
-  } else if (opportunity.description_en) {
-    // Extract short benefit snippet or default
-    const desc = opportunity.description_en;
+  } else if (opportunity.support_type && opportunity.support_type.trim()) {
+    award = opportunity.support_type.trim();
+  } else if (opportunity.description_en && opportunity.description_en.trim()) {
+    const desc = opportunity.description_en.trim();
     if (desc.includes('Benefits:')) {
       const bPart = desc.split('Benefits:')[1].split('.')[0].trim();
-      award = bPart.length > 70 ? bPart.substring(0, 67) + '...' : bPart;
-    } else {
+      if (bPart) {
+        award = bPart.length > 70 ? bPart.substring(0, 67) + '...' : bPart;
+      }
+    }
+    if (!award) {
       award = desc.length > 70 ? desc.substring(0, 67) + '...' : desc;
     }
-  } else {
-    award = lang === 'ta' ? 'கல்விக் கட்டண விலக்கு / நிதியுதவி' : 'Full / Partial Fee Waiver';
   }
 
-  // Eligibility snippet
-  const eligibility = (lang === 'ta' && opportunity.eligibility_ta)
+  if (!award || !award.trim()) {
+    award = lang === 'ta' ? 'கல்விக் கட்டண விலக்கு / நிதியுதவி' : 'Full / Partial Fee Waiver & Support';
+  }
+
+  // Eligibility snippet with redundant prefix stripped
+  let rawEligibility = (lang === 'ta' && opportunity.eligibility_ta)
     ? opportunity.eligibility_ta
-    : (opportunity.eligibility_en || (lang === 'ta' ? 'அதிகாரப்பூர்வ தகுதி விதிகளைப் பார்க்கவும்.' : 'Check full details for verified eligibility criteria.'));
+    : (opportunity.eligibility_en || opportunity.eligibility_criteria_en || opportunity.eligibility_ta);
+
+  if (rawEligibility && typeof rawEligibility === 'string') {
+    rawEligibility = rawEligibility.replace(/^Eligibility:\s*/i, '').trim();
+  }
+
+  const eligibility = (rawEligibility && rawEligibility.trim())
+    ? rawEligibility.trim()
+    : (lang === 'ta' ? 'அதிகாரப்பூர்வ தகுதி விதிகளைப் பார்க்கவும்.' : 'Check full details for verified eligibility criteria.');
 
   // Category badge
   const category = opportunity.category || opportunity.opportunity_type || 'Scholarship';
 
   // Deadline display
-  const deadline = opportunity.deadline || (lang === 'ta' ? 'அதிகாரப்பூர்வ தளத்தில் பார்க்கவும்' : 'Verify on portal');
+  const rawDeadline = opportunity.deadline;
+  const deadline = (rawDeadline && String(rawDeadline).trim())
+    ? String(rawDeadline).trim()
+    : (lang === 'ta' ? 'அதிகாரப்பூர்வ தளத்தில் பார்க்கவும்' : 'Verify on portal cycle');
 
   // Official Link
   const officialLink = opportunity.application_url || opportunity.official_source_url || opportunity.official_link;
@@ -105,10 +125,12 @@ export function OpportunityCard({ opportunity }) {
       </div>
 
       {/* Award Amount Pill */}
-      <div className="opp-award-banner">
-        <span className="award-label">{lang === 'ta' ? 'கிடைக்கும் உதவி:' : 'Benefit:'}</span>
-        <strong className="award-val">{award}</strong>
-      </div>
+      {award && (
+        <div className="opp-award-banner">
+          <span className="award-label">{lang === 'ta' ? 'கிடைக்கும் உதவி:' : 'Benefit:'}</span>
+          <strong className="award-val">{award}</strong>
+        </div>
+      )}
 
       {/* Eligibility Snippet */}
       <p className="opp-eligibility" title={eligibility}>
@@ -132,7 +154,7 @@ export function OpportunityCard({ opportunity }) {
             className="btn btn-sm btn-outline view-detail-btn"
             style={{ flex: 1, justifyContent: 'center' }}
           >
-            <span>{lang === 'ta' ? 'முழு விபரம்' : 'Details'}</span>
+            <span>{lang === 'ta' ? 'முழு விபரம்' : 'View Details'}</span>
             <ArrowRight size={14} />
           </Link>
 

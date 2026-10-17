@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { supabase } from '../lib/supabase';
 import {
   initialOpportunities,
   initialSessions,
@@ -30,6 +31,35 @@ import {
 export function HomePage() {
   const { lang, t } = useLanguage();
   const [selectedStreamCat, setSelectedStreamCat] = useState('all');
+  const [featuredOpportunities, setFeaturedOpportunities] = useState(initialOpportunities.slice(0, 6));
+  const [totalOppCount, setTotalOppCount] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadFeatured() {
+      try {
+        const { data, count, error } = await supabase
+          .from('opportunities')
+          .select('*', { count: 'exact' })
+          .order('title_en', { ascending: true })
+          .limit(6);
+
+        if (!isMounted) return;
+        if (!error && data && data.length > 0) {
+          setFeaturedOpportunities(data);
+          if (typeof count === 'number') {
+            setTotalOppCount(count);
+          }
+        }
+      } catch (err) {
+        console.warn('[HomePage] Failed to fetch featured opportunities:', err);
+      }
+    }
+    loadFeatured();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredStreams =
     selectedStreamCat === 'all'
@@ -313,7 +343,9 @@ export function HomePage() {
               </h2>
 
               <p className="section-subtitle">
-                {t.schemes.subtitle}
+                {lang === 'ta'
+                  ? `தமிழ்நாடு முழுவதும் உள்ள ${totalOppCount || '240+'}+ சரிபார்க்கப்பட்ட அரசு உதவித்தொகைகள் மற்றும் கல்வித் திட்டங்கள்.`
+                  : `Explore ${totalOppCount || '240+'}+ verified government scholarships, schemes, and foundation grants across Tamil Nadu.`}
               </p>
             </div>
 
@@ -323,8 +355,8 @@ export function HomePage() {
             >
               <span>
                 {lang === 'ta'
-                  ? 'அனைத்து வாய்ப்புகளும்'
-                  : 'View All Opportunities'}
+                  ? `அனைத்து வாய்ப்புகளையும் பார் (${totalOppCount || '240+'})`
+                  : `View All Opportunities (${totalOppCount || '240+'})`}
               </span>
 
               <ArrowRight size={16} />
@@ -333,14 +365,27 @@ export function HomePage() {
           </div>
 
           <div className="opportunities-grid">
-            {initialOpportunities
-              .slice(0, 3)
-              .map((opportunity) => (
-                <OpportunityCard
-                  key={opportunity.id}
-                  opportunity={opportunity}
-                />
-              ))}
+            {featuredOpportunities.map((opportunity) => (
+              <OpportunityCard
+                key={opportunity.id}
+                opportunity={opportunity}
+              />
+            ))}
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+            <Link
+              to="/opportunities"
+              className="btn btn-primary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.75rem 1.75rem', fontWeight: 600 }}
+            >
+              <span>
+                {lang === 'ta'
+                  ? `முழுமையான ${totalOppCount || '240+'}+ வாய்ப்புகளைத் தேட இங்கு செல்லவும்`
+                  : `Search & Filter All ${totalOppCount || '240+'}+ Opportunities`}
+              </span>
+              <ArrowRight size={16} />
+            </Link>
           </div>
 
         </div>
