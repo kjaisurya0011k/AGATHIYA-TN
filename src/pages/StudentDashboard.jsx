@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { initialOpportunities, initialSessions } from '../data/appData';
@@ -17,12 +17,20 @@ import {
   Sparkles,
   ArrowRight,
   Calculator,
-  Download
+  Download,
+  LogOut,
+  UserCheck
 } from 'lucide-react';
 
 export function StudentDashboard() {
   const { lang } = useLanguage();
-  const { user, profile, savedOpportunities, registeredSessions } = useAuth();
+  const { user, profile, savedOpportunities, registeredSessions, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   const savedList = initialOpportunities.filter((opp) => savedOpportunities.includes(opp.id));
   const registeredList = initialSessions.filter((s) => registeredSessions.includes(s.id));
@@ -72,9 +80,28 @@ export function StudentDashboard() {
       {/* Student Greeting Banner */}
       <div className="card dashboard-hero-card">
         <div className="dash-hero-info">
-          <span className="badge badge-cyan">
-            {lang === 'ta' ? 'மாணவர் கட்டுப்பாட்டு மையம்' : 'Student Dashboard'}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <span className="badge badge-cyan">
+              {lang === 'ta' ? 'மாணவர் கட்டுப்பாட்டு மையம்' : 'Student Dashboard'}
+            </span>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Link to="/profile" className="btn btn-sm btn-outline" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
+                <UserCheck size={14} />
+                <span>{lang === 'ta' ? 'என் சுயவிவரம்' : 'My Profile'}</span>
+              </Link>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="btn btn-sm btn-outline"
+                style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', color: '#dc2626', borderColor: '#fca5a5' }}
+                title={lang === 'ta' ? 'வெளியேற' : 'Sign Out'}
+              >
+                <LogOut size={14} />
+                <span>{lang === 'ta' ? 'வெளியேற' : 'Sign Out'}</span>
+              </button>
+            </div>
+          </div>
           <h1 className="dash-hero-title">
             {lang === 'ta' ? 'வணக்கம், ' : 'Welcome, '}
             {profile?.full_name || 'K. Muthu Kumar'}!

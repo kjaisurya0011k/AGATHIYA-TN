@@ -12,6 +12,7 @@ import { CutoffCalculator } from '../components/CutoffCalculator';
 import { EdnovaAI } from '../components/EdnovaAI';
 
 import heroStudents from '../assets/eee-tn-students.png';
+import { BrandIdentity } from '../components/BrandIdentity';
 import './HomePage.css';
 
 import {
@@ -183,47 +184,37 @@ export function HomePage() {
         <div className="container hp-hero-container">
           {/* Left Column: Hero Text */}
           <div className="hp-hero-content">
-            <div className="hp-hero-brand-pill">
-              <span className="hp-pill-tag">EEE-TN</span>
-              <span className="hp-pill-text">
-                {isTamil ? 'இன்றைய தேடல், நாளைய வெற்றி!' : 'Every Dream Deserves a Direction'}
-              </span>
-            </div>
+            {/* Hero Brand Block matching reference screenshot */}
+            <BrandIdentity variant="hero" />
+
+            <span className="eee-hero-badge">
+              <GraduationCap size={15} />
+              {t.hero.badge}
+            </span>
 
             <h1 className="hp-hero-title">
-              {isTamil ? (
-                <>
-                  உங்கள் எதிர்காலத்துக்கான{' '}
-                  <span className="hp-gradient-highlight">தெளிவான தொடக்கம்!</span>
-                </>
-              ) : (
-                <>
-                  Not Sure What Comes After 12th?{' '}
-                  <span className="hp-gradient-highlight">Your Journey Starts Here</span>
-                </>
-              )}
+              {t.hero.heading}{' '}
+              <span className="hp-gradient-highlight">{t.hero.headingHighlight}</span>
             </h1>
 
             <p className="hp-hero-description">
-              {isTamil
-                ? '12-ஆம் வகுப்புக்குப் பிறகு என்ன படிக்கலாம் என்று குழப்பமா? தமிழ்நாட்டு மாணவர்களுக்கு ஏற்ற படிப்புகள், கல்லூரிகள், உதவித்தொகைகள் மற்றும் எதிர்காலத் தொழில்நுட்பத் திறன்களை ஒரே தளத்தில் எளிதாக ஆராயுங்கள்.'
-                : 'EEE-TN guides Class 12 students across Tamil Nadu to explore verified careers, find the right college, secure scholarships, and master in-demand practical skills.'}
+              {t.hero.desc}
             </p>
 
             <div className="hp-hero-actions">
-              <Link to="/register" className="hp-btn-primary">
-                <Sparkles size={18} />
-                <span>{isTamil ? 'தொடங்கலாம்' : 'Get Started'}</span>
+              <Link to="/opportunities" className="hp-btn-primary">
+                <Compass size={18} />
+                <span>{t.hero.exploreBtn || (isTamil ? 'படிப்பு வாய்ப்புகளைப் பாருங்கள்' : 'Explore My Options')}</span>
                 <ArrowRight size={17} />
               </Link>
 
               <button
                 type="button"
                 className="hp-btn-secondary"
-                onClick={() => scrollTo('careers')}
+                onClick={() => scrollTo('colleges')}
               >
-                <Compass size={18} />
-                <span>{isTamil ? 'படிப்புகளை ஆராயுங்கள்' : 'Explore Careers'}</span>
+                <GraduationCap size={18} />
+                <span>{t.hero.cutoffBtn || (isTamil ? 'Cut-off கணக்கிடுங்கள்' : 'Estimate My Cutoff')}</span>
               </button>
             </div>
 
@@ -231,15 +222,15 @@ export function HomePage() {
             <div className="hp-hero-trust-row">
               <div className="hp-trust-item">
                 <CheckCircle2 size={16} />
-                <span>{isTamil ? '7.5% அரசுப் பள்ளி ஒதுக்கீடு வழிகாட்டுதல்' : '7.5% Govt School Quota Guidance'}</span>
+                <span>{t.hero.fact1}</span>
               </div>
               <div className="hp-trust-item">
                 <CheckCircle2 size={16} />
-                <span>{isTamil ? '100% அதிகாரப்பூர்வ தமிழ்நாடு தரவுகள்' : '100% Official TN Portals'}</span>
+                <span>{t.hero.fact2}</span>
               </div>
               <div className="hp-trust-item">
                 <CheckCircle2 size={16} />
-                <span>{isTamil ? 'இலவச வழிகாட்டல் தளம்' : 'Non-profit & Student First'}</span>
+                <span>{t.hero.fact3}</span>
               </div>
             </div>
           </div>
@@ -547,8 +538,7 @@ export function HomePage() {
                 <a
                   key={res.id}
                   href={res.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  download={res.fileName || true}
                   className="btn btn-sm btn-outline"
                 >
                   <Download size={14} />

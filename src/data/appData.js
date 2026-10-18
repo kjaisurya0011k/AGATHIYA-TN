@@ -1,3 +1,6 @@
+import tneaCutoffPdf from '../assets/resources/tnea-cutoff-counselling-2026.pdf';
+import tnCollegesPdf from '../assets/resources/tamil-nadu-engineering-colleges.pdf';
+
 export const initialOpportunities = [
   {
     id: "tn-7point5-quota",
@@ -382,7 +385,8 @@ export const learningResources = [
     type_ta: "வழிகாட்டி கையேடு (PDF)",
     type_en: "Handbook (PDF)",
     category: "counseling",
-    link: "#",
+    link: tneaCutoffPdf,
+    fileName: "tnea-cutoff-counselling-2026.pdf",
     tag_ta: "இலவச பதிவிறக்கம்",
     tag_en: "Free Download"
   },
@@ -393,7 +397,8 @@ export const learningResources = [
     type_ta: "அதிகாரப்பூர்வ பட்டியல்",
     type_en: "Official Directory",
     category: "directory",
-    link: "https://www.tneaonline.org",
+    link: tnCollegesPdf,
+    fileName: "tamil-nadu-engineering-colleges.pdf",
     tag_ta: "TNEA அங்கீகரிக்கப்பட்டது",
     tag_en: "TNEA Approved"
   },

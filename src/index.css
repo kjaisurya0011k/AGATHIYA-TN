@@ -9,20 +9,64 @@
    Existing selectors and page styles are preserved to avoid breaking React components.
    ==========================================================================*/
 :root {
-  --navy-800: #16476B;
-  --bg-surface-elevated: #FFFFFF;
-  --text-inverse: #FFFFFF;
+  /* Blue-Purple Identity & Coordinated Palette */
+  --navy-900: #0a1931;
+  --navy-850: #0f274a;
+  --navy-800: #102d4f;
+  --navy-700: #1a365d;
+  --navy-600: #254b7c;
+  --navy-100: #e8f0fe;
+  --navy-50: #f4f8fd;
+
+  --primary-blue: #1d4ed8;
+  --primary-blue-hover: #1e40af;
+  --primary-indigo: #4338ca;
+  --primary-purple: #6d28d9;
+
+  /* EEE-TN Refined Primary Button Gradient: Subtle Teal-Blue (#0F8B8D), Sky Blue (#2563EB), and Elegant Purple (#7050C8) */
+  --brand-gradient: linear-gradient(110deg, #0F8B8D 0%, #2563EB 58%, #7050C8 100%);
+  --brand-gradient-hover: linear-gradient(110deg, #119ba0 0%, #3171f5 58%, #7c5bd7 100%);
+  --brand-gradient-text: linear-gradient(110deg, #0284c7 0%, #06b6d4 20%, #0d9488 38%, #2563eb 66%, #7c3aed 100%);
+
+  --purple-700: #581c87;
+  --purple-600: #6b21a8;
+  --purple-500: #7c3aed;
+  --purple-100: #f3e8ff;
+  --purple-50: #faf5ff;
+
+  --cyan-700: #0e7490;
+  --cyan-600: #087f8c;
+  --cyan-500: #06b6d4;
+  --cyan-100: #e0f2fe;
+  --cyan-50: #f0f9ff;
+
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-surface-alt: #f1f5f9;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-xl: 22px;
   --radius-full: 9999px;
+
   --shadow-sm: 0 1px 2px 0 rgba(16, 45, 79, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 6, 102, 0.08), 0 2px 4px -2px rgba(0, 6, 102, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 6, 102, 0.08), 0 4px 6px -4px rgba(0, 6, 102, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+
   --font-brand: 'Montserrat', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-base: 'Plus Jakarta Sans', 'Noto Sans Tamil', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-tamil: 'Noto Sans Tamil', 'Plus Jakarta Sans', system-ui, sans-serif;
+
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
 }
@@ -195,14 +239,18 @@ a {
 }
 
 .btn-primary {
-  background-color: var(--navy-900);
+  background: var(--brand-gradient);
   color: var(--text-inverse);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 14px rgba(8, 127, 140, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.3s ease;
 }
 
 .btn-primary:hover {
-  background-color: var(--navy-800);
-  box-shadow: var(--shadow-md);
+  background: var(--brand-gradient-hover);
+  color: var(--text-inverse);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(8, 127, 140, 0.32), 0 0 12px rgba(117, 70, 232, 0.22);
 }
 
 .btn-secondary {
@@ -3744,9 +3792,11 @@ h3 {
   --eee-blue-dark: #172554;
   --eee-violet: #7c3aed;
   --eee-violet-light: #ede9fe;
-  --eee-gradient: linear-gradient(120deg,
-      #0f9f99 0%,
-      #2563eb 52%,
+  --eee-gradient: linear-gradient(110deg,
+      #0284c7 0%,
+      #06b6d4 18%,
+      #0d9488 36%,
+      #2563eb 64%,
       #7c3aed 100%);
   --eee-page-bg: #f7f9ff;
   --eee-card-bg: rgba(255, 255, 255, 0.88);
@@ -8661,7 +8711,7 @@ button,
 }
 
 .hp-gradient-highlight {
-  background: linear-gradient(120deg, #087F8C 0%, #19486B 60%, #066873 100%);
+  background: var(--brand-gradient-text, linear-gradient(110deg, #0284c7 0%, #06b6d4 20%, #0d9488 38%, #2563eb 66%, #7c3aed 100%));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -8689,20 +8739,23 @@ button,
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 13px 24px;
-  background: linear-gradient(135deg, #102D4F, #087F8C);
-  color: #FFFFFF;
-  border-radius: 12px;
+  min-height: 48px;
+  padding: 13px 26px;
+  background: var(--brand-gradient, linear-gradient(110deg, #0F8B8D 0%, #2563EB 58%, #7050C8 100%));
+  color: #ffffff;
+  border-radius: 999px;
   font-weight: 700;
   font-size: 1rem;
   text-decoration: none;
-  box-shadow: 0 6px 20px rgba(8, 127, 140, 0.28);
-  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.3s ease;
 }
 
 .hp-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(8, 127, 140, 0.38);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.38), 0 0 12px rgba(112, 80, 200, 0.25);
+  background: var(--brand-gradient-hover, linear-gradient(110deg, #119ba0 0%, #3171f5 58%, #7c5bd7 100%));
 }
 
 .hp-btn-secondary {
@@ -8973,10 +9026,10 @@ button,
 .ednova-face {
   width: 78px;
   height: 60px;
-  background: linear-gradient(135deg, #102D4F, #19486B);
-  border: 2px solid #087F8C;
+  background: linear-gradient(135deg, #102A83, #087F8C);
+  border: 2px solid #13A8A8;
   border-radius: 16px;
-  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.25), 0 4px 12px rgba(16, 42, 131, 0.25);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -8989,9 +9042,9 @@ button,
   align-items: center;
   gap: 12px;
   padding: 4px 10px;
-  background: #041426;
+  background: #041126;
   border-radius: 10px;
-  border: 1px solid rgba(8, 127, 140, 0.4);
+  border: 1px solid rgba(19, 168, 168, 0.5);
 }
 
 .ednova-eye {
@@ -8999,7 +9052,7 @@ button,
   height: 12px;
   border-radius: 50%;
   background: #38bdf8;
-  box-shadow: 0 0 8px #38bdf8;
+  box-shadow: 0 0 10px #38bdf8;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9034,16 +9087,18 @@ button,
   width: 64px;
   height: 44px;
   margin-top: 4px;
-  background: linear-gradient(135deg, #1e4566, #102D4F);
-  border: 2px solid #087F8C;
+  background: linear-gradient(135deg, #087F8C 0%, #3478F6 55%, #7546E8 100%);
+  border: 2px solid #13A8A8;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(8, 127, 140, 0.22);
 }
 
 .ednova-core-sparkle {
-  color: #38bdf8;
+  color: #ffffff;
+  filter: drop-shadow(0 0 6px #38bdf8);
   animation: corePulse 2.8s infinite ease-in-out;
 }
 

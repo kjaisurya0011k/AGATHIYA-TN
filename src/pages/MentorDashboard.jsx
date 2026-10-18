@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { UserAvatar } from '../components/UserAvatar';
@@ -23,7 +23,8 @@ import {
   Search,
   Filter,
   UserCheck,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 
 export function MentorDashboard() {
@@ -34,8 +35,15 @@ export function MentorDashboard() {
     mentorDetails,
     mentorSessions,
     cancelMentorSession,
-    fetchSessionRegistrations
+    fetchSessionRegistrations,
+    signOut
   } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   const isTamil = lang === 'ta';
   const hub = t?.mentorHub || {};
@@ -193,19 +201,30 @@ export function MentorDashboard() {
           <Link
             to="/mentor/sessions/new"
             className="btn btn-primary"
-            style={{ width: '100%', justifyContent: 'center', marginBottom: '0.75rem' }}
+            style={{ width: '100%', justifyContent: 'center', marginBottom: '0.65rem' }}
           >
             <PlusCircle size={16} />
             <span>{hub.createSessionBtn || (isTamil ? 'புதிய அமர்வு உருவாக்கு' : 'Create Session')}</span>
           </Link>
-          <Link
-            to="/profile"
-            className="btn btn-outline"
-            style={{ width: '100%', justifyContent: 'center' }}
-          >
-            <ShieldCheck size={16} />
-            <span>{isTamil ? 'என் சுயவிவரம்' : 'My Profile'}</span>
-          </Link>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', width: '100%' }}>
+            <Link
+              to="/profile"
+              className="btn btn-outline"
+              style={{ justifyContent: 'center', fontSize: '0.85rem', padding: '0.5rem' }}
+            >
+              <ShieldCheck size={15} />
+              <span>{isTamil ? 'சுயவிவரம்' : 'Profile'}</span>
+            </Link>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="btn btn-outline"
+              style={{ justifyContent: 'center', fontSize: '0.85rem', padding: '0.5rem', color: '#dc2626', borderColor: '#fca5a5' }}
+            >
+              <LogOut size={15} />
+              <span>{isTamil ? 'வெளியேற' : 'Sign Out'}</span>
+            </button>
+          </div>
         </div>
       </div>
 

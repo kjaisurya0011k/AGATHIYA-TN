@@ -100,10 +100,10 @@
 .ednova-face {
   width: 78px;
   height: 60px;
-  background: linear-gradient(135deg, #102D4F, #19486B);
-  border: 2px solid #087F8C;
+  background: linear-gradient(135deg, #102A83, #087F8C);
+  border: 2px solid #13A8A8;
   border-radius: 16px;
-  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.25), 0 4px 12px rgba(16, 42, 131, 0.25);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -116,9 +116,9 @@
   align-items: center;
   gap: 12px;
   padding: 4px 10px;
-  background: #041426;
+  background: #041126;
   border-radius: 10px;
-  border: 1px solid rgba(8, 127, 140, 0.4);
+  border: 1px solid rgba(19, 168, 168, 0.5);
 }
 
 .ednova-eye {
@@ -126,7 +126,7 @@
   height: 12px;
   border-radius: 50%;
   background: #38bdf8;
-  box-shadow: 0 0 8px #38bdf8;
+  box-shadow: 0 0 10px #38bdf8;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -161,16 +161,18 @@
   width: 64px;
   height: 44px;
   margin-top: 4px;
-  background: linear-gradient(135deg, #1e4566, #102D4F);
-  border: 2px solid #087F8C;
+  background: linear-gradient(135deg, #087F8C 0%, #3478F6 55%, #7546E8 100%);
+  border: 2px solid #13A8A8;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(8, 127, 140, 0.22);
 }
 
 .ednova-core-sparkle {
-  color: #38bdf8;
+  color: #ffffff;
+  filter: drop-shadow(0 0 6px #38bdf8);
   animation: corePulse 2.8s infinite ease-in-out;
 }
 
@@ -244,10 +246,11 @@
   font-size: 0.78rem;
   font-weight: 750;
   color: #087F8C;
-  background: #e6f6f5;
+  background: rgba(8, 127, 140, 0.1);
   padding: 3px 10px;
   border-radius: 999px;
   margin-bottom: 8px;
+  border: 1px solid rgba(19, 168, 168, 0.25);
 }
 
 .ednova-bubble-text {
@@ -362,7 +365,7 @@
   justify-content: center;
   gap: 7px;
   padding: 12px 22px;
-  background: linear-gradient(135deg, #102D4F, #087F8C);
+  background: var(--brand-gradient, linear-gradient(110deg, #102A83 0%, #087F8C 28%, #13A8A8 48%, #3478F6 74%, #7546E8 100%));
   color: #FFFFFF;
   border: none;
   border-radius: 12px;
@@ -371,9 +374,11 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
+  box-shadow: 0 4px 14px rgba(8, 127, 140, 0.28);
 }
 
 .ednova-send-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(8, 127, 140, 0.3);
+  background: var(--brand-gradient-hover, linear-gradient(110deg, #123094 0%, #0a91a0 28%, #16bebe 48%, #4484fa 74%, #8255ec 100%));
+  box-shadow: 0 6px 18px rgba(8, 127, 140, 0.38), 0 0 10px rgba(117, 70, 232, 0.25);
 }

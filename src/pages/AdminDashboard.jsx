@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -20,7 +20,8 @@ import {
   ArrowRight,
   Sparkles,
   CreditCard,
-  UserCheck
+  UserCheck,
+  LogOut
 } from 'lucide-react';
 
 export function AdminDashboard() {
@@ -30,8 +31,15 @@ export function AdminDashboard() {
     fetchAdminDashboardStats,
     mentorSessions,
     achievements,
-    adminUsers
+    adminUsers,
+    signOut
   } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   const isTamil = lang === 'ta';
   const admLang = t?.adminHub || {};
@@ -128,6 +136,25 @@ export function AdminDashboard() {
             <Compass size={15} />
             <span>{admLang.navOpportunities || (isTamil ? 'அரசு வாய்ப்புகள் மேலாண்மை' : 'Manage Opportunities')}</span>
           </Link>
+
+          <Link
+            to="/profile"
+            className="btn btn-outline"
+            style={{ padding: '0.45rem 0.9rem', fontSize: '0.84rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600 }}
+          >
+            <ShieldCheck size={15} />
+            <span>{isTamil ? 'என் சுயவிவரம்' : 'My Profile'}</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="btn btn-outline"
+            style={{ padding: '0.45rem 0.9rem', fontSize: '0.84rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, color: '#dc2626', borderColor: '#fca5a5' }}
+          >
+            <LogOut size={15} />
+            <span>{isTamil ? 'வெளியேற' : 'Sign Out'}</span>
+          </button>
         </div>
       </div>
 

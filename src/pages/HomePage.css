@@ -17,28 +17,29 @@
   overflow: hidden;
   padding: clamp(48px, 6vw, 84px) 0 40px;
   background:
-    radial-gradient(ellipse at 78% 42%,
-      rgba(8, 127, 140, 0.045),
-      transparent 54%),
+    radial-gradient(ellipse at 85% 35%,
+      rgba(224, 246, 255, 0.95),
+      rgba(238, 245, 255, 0.6) 45%,
+      transparent 70%),
     linear-gradient(135deg,
-      #fbfbf9 0%,
-      #f7f8f4 52%,
-      #f2f7f5 100%);
+      #ffffff 0%,
+      #f4f8fe 45%,
+      #eef4ff 100%);
 }
 
 .hp-hero-ambient-glow {
   position: absolute;
   z-index: -1;
-  top: 5%;
+  top: 0;
   right: 0;
-  width: min(55vw, 620px);
-  height: 520px;
+  width: min(65vw, 750px);
+  height: 600px;
   border-radius: 50%;
   background: radial-gradient(ellipse,
-      rgba(8, 127, 140, 0.06) 0%,
-      rgba(8, 127, 140, 0.02) 40%,
-      transparent 72%);
-  filter: blur(55px);
+      rgba(59, 130, 246, 0.08) 0%,
+      rgba(124, 58, 237, 0.04) 45%,
+      transparent 70%);
+  filter: blur(60px);
   pointer-events: none;
   animation: hpAmbientDrift 12s ease-in-out infinite alternate;
 }
@@ -78,7 +79,7 @@
 }
 
 .hp-pill-tag {
-  background: #087f8c;
+  background: linear-gradient(135deg, #1d4ed8, #6d28d9);
   color: #fff;
   font-size: 0.76rem;
   font-weight: 800;
@@ -89,23 +90,20 @@
 .hp-pill-text {
   font-size: 0.84rem;
   font-weight: 650;
-  color: #102d4f;
+  color: #0b1a48;
 }
 
 .hp-hero-title {
-  color: #102d4f;
-  font-size: clamp(2.3rem, 4vw, 3.8rem);
-  font-weight: 850;
-  line-height: 1.16;
-  letter-spacing: -0.035em;
-  margin-bottom: 18px;
+  color: #0b1a48;
+  font-size: clamp(2.4rem, 4.2vw, 3.85rem);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  margin-bottom: 20px;
 }
 
 .hp-gradient-highlight {
-  background: linear-gradient(120deg,
-      #087f8c 0%,
-      #19486b 60%,
-      #066873 100%);
+  background: var(--brand-gradient-text, linear-gradient(110deg, #0284c7 0%, #06b6d4 20%, #0d9488 38%, #2563eb 66%, #7c3aed 100%));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -114,9 +112,9 @@
 
 .hp-hero-description {
   color: #475569;
-  font-size: clamp(1rem, 1.2vw, 1.15rem);
-  line-height: 1.8;
-  max-width: 600px;
+  font-size: clamp(1rem, 1.2vw, 1.12rem);
+  line-height: 1.75;
+  max-width: 620px;
   margin-bottom: 28px;
 }
 
@@ -133,20 +131,28 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 13px 24px;
-  background: linear-gradient(135deg, #102d4f, #087f8c);
-  color: #fff;
-  border-radius: 12px;
+  min-height: 48px;
+  padding: 13px 26px;
+  background: var(--brand-gradient, linear-gradient(110deg, #0F8B8D 0%, #2563EB 58%, #7050C8 100%));
+  color: #ffffff;
+  border-radius: 999px;
   font-weight: 700;
   font-size: 1rem;
   text-decoration: none;
-  box-shadow: 0 6px 20px rgba(8, 127, 140, 0.2);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.3s ease;
 }
 
 .hp-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(8, 127, 140, 0.3);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.38), 0 0 12px rgba(112, 80, 200, 0.25);
+  background: var(--brand-gradient-hover, linear-gradient(110deg, #119ba0 0%, #3171f5 58%, #7c5bd7 100%));
+}
+
+.hp-btn-primary:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }
 
 .hp-btn-secondary {
@@ -154,22 +160,31 @@
   align-items: center;
   justify-content: center;
   gap: 9px;
-  padding: 13px 22px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1.5px solid #c7d9e5;
-  color: #102d4f;
-  border-radius: 12px;
+  min-height: 48px;
+  padding: 13px 24px;
+  background: #faf5ff;
+  border: 1.5px solid #c084fc;
+  color: #6b21a8;
+  border-radius: 999px;
   font-weight: 700;
   font-size: 0.98rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   font-family: inherit;
+  box-shadow: 0 2px 8px rgba(107, 33, 168, 0.08);
 }
 
 .hp-btn-secondary:hover {
-  background: #f0f6fb;
-  border-color: #102d4f;
+  background: #f3e8ff;
+  border-color: #9333ea;
+  color: #581c87;
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(147, 51, 234, 0.18);
+}
+
+.hp-btn-secondary:focus-visible {
+  outline: 2px solid #9333ea;
+  outline-offset: 2px;
 }
 
 .hp-hero-trust-row {
@@ -188,7 +203,7 @@
 }
 
 .hp-trust-item svg {
-  color: #087f8c;
+  color: #2563eb;
   flex-shrink: 0;
 }
 
@@ -246,10 +261,10 @@
   background: transparent !important;
 
   /*
-    Natural photo visibility without harsh cutoff or over-fading.
+    Natural photo visibility matching reference screenshot
   */
-  opacity: 0.50;
-  filter: contrast(0.98) brightness(1.02);
+  opacity: 0.72;
+  filter: contrast(1.02) brightness(1.01);
 
   /*
     Seamless multidirectional mask:
@@ -337,8 +352,8 @@
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: rgba(230, 246, 245, 0.72);
-  color: #087f8c;
+  background: rgba(238, 242, 255, 0.85);
+  color: #4f46e5;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -347,16 +362,16 @@
 .hp-photo-overlay-card strong {
   display: block;
   font-size: 0.9rem;
-  color: #102d4f;
-  text-shadow: 0 1px 10px rgba(251, 251, 249, 0.95);
+  color: #0b1a48;
+  text-shadow: 0 1px 10px rgba(255, 255, 255, 0.95);
 }
 
 .hp-photo-overlay-card p {
   margin: 3px 0 0;
   font-size: 0.77rem;
   line-height: 1.5;
-  color: #475f70;
-  text-shadow: 0 1px 10px rgba(251, 251, 249, 0.95);
+  color: #334155;
+  text-shadow: 0 1px 10px rgba(255, 255, 255, 0.95);
 }
 
 /* ================= EDNOVA AI TEASER ================= */
@@ -369,12 +384,12 @@
   justify-content: space-between;
   gap: 12px;
   padding: 12px 18px;
-  border: 1px solid rgba(204, 229, 232, 0.72);
+  border: 1px solid rgba(199, 210, 254, 0.6);
   border-radius: 16px;
-  background: rgba(250, 250, 246, 0.74);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 16px rgba(8, 127, 140, 0.045);
+  box-shadow: 0 4px 16px rgba(67, 56, 202, 0.06);
   animation: hpCaptionEnter 0.9s 0.45s ease-out both;
 }
 
@@ -384,8 +399,8 @@
   gap: 6px;
   font-size: 0.82rem;
   font-weight: 750;
-  color: #087f8c;
-  background: rgba(230, 246, 245, 0.78);
+  color: #4f46e5;
+  background: rgba(238, 242, 255, 0.9);
   padding: 4px 9px;
   border-radius: 999px;
   flex-shrink: 0;
@@ -395,7 +410,7 @@
   margin: 0;
   font-size: 0.84rem;
   line-height: 1.6;
-  color: #18324b;
+  color: #1e1b4b;
   font-style: italic;
   font-weight: 550;
 }
@@ -403,7 +418,7 @@
 .hp-ednova-mini-cta {
   background: transparent;
   border: 0;
-  color: #087f8c;
+  color: #4338ca;
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
@@ -416,6 +431,7 @@
 }
 
 .hp-ednova-mini-cta:hover {
+  color: #6d28d9;
   text-decoration: underline;
   transform: translateX(3px);
 }
@@ -670,13 +686,15 @@
   overflow: hidden;
   border-radius: 28px;
   background: linear-gradient(135deg,
-      #102d4f 0%,
-      #16476b 50%,
+      #0d2542 0%,
+      #0e3859 28%,
+      #134e6f 55%,
       #087f8c 100%);
   padding: clamp(38px, 6vw, 68px) clamp(20px, 4vw, 48px);
   text-align: center;
   color: #fff;
-  box-shadow: 0 20px 48px rgba(16, 45, 79, 0.2);
+  box-shadow: 0 20px 48px rgba(13, 37, 66, 0.28);
+  border: 1px solid rgba(8, 127, 140, 0.2);
 }
 
 .hp-cta-glow-bg {
@@ -724,20 +742,21 @@
   align-items: center;
   gap: 9px;
   padding: 14px 26px;
-  background: #fff;
-  color: #102d4f;
-  border-radius: 12px;
+  background: var(--brand-gradient, linear-gradient(110deg, #0F8B8D 0%, #2563EB 58%, #7050C8 100%));
+  color: #ffffff;
+  border-radius: 999px;
   font-weight: 750;
   font-size: 1rem;
   text-decoration: none;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-  transition: all 0.22s ease;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.3s ease;
 }
 
 .hp-cta-primary-btn:hover {
   transform: translateY(-2px);
-  background: #f0fdfa;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  background: var(--brand-gradient-hover, linear-gradient(110deg, #119ba0 0%, #3171f5 58%, #7c5bd7 100%));
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.38), 0 0 12px rgba(112, 80, 200, 0.25);
 }
 
 .hp-cta-secondary-btn {
