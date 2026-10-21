@@ -1,136 +1,165 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { GraduationCap, ExternalLink, ShieldCheck, Heart } from 'lucide-react';
+import { helpline } from '../data/siteContact';
+import { brand } from '../data/brand';
+import { Mail, Phone, ShieldCheck } from 'lucide-react';
 import './Footer.css';
 
 export function Footer() {
-  const { lang, t } = useLanguage();
+  const { lang } = useLanguage();
+  const isTamil = lang === 'ta';
+  const currentYear = new Date().getFullYear();
+  const [logoError, setLogoError] = useState(false);
 
   return (
-    <footer className="footer-wrapper">
+    <footer className="footer-wrapper" role="contentinfo">
       <div className="container footer-content">
-        {/* Brand & Purpose Column */}
+        {/* Column 1: Brand */}
         <div className="footer-col brand-col">
-          <div className="footer-brand">
-            <div className="brand-icon">
-              <GraduationCap size={20} color="#FFFFFF" />
-            </div>
-            <span className="footer-brand-name">EEE-TN</span>
+          <div className="footer-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {!logoError && (
+              <img
+                src={brand.logo}
+                alt="AGATHIYA logo"
+                style={{
+                  height: '38px',
+                  width: 'auto',
+                  objectFit: 'contain',
+                  background: '#ffffff',
+                  padding: '3px 6px',
+                  borderRadius: '6px'
+                }}
+                onError={() => setLogoError(true)}
+              />
+            )}
+            <span className="footer-brand-name">{brand.name}</span>
           </div>
+          {brand.tagline && (
+            <p className="footer-full-name">{brand.tagline}</p>
+          )}
           <p className="footer-tagline">
-            {lang === 'ta'
-              ? 'கல்வி பரிணாமம் மற்றும் அதிகாரம் - தமிழ்நாடு. 12-ஆம் வகுப்பு முடித்த கிராமப்புற மற்றும் சிறுநகர மாணவர்களுக்கான உண்மையான வழிகாட்டி தளம்.'
-              : 'Education Evolution and Empowerment – Tamil Nadu. A trustworthy guidance platform for Class 12 students from Tier 2, Tier 3 towns and rural areas.'}
+            {isTamil
+              ? 'மாணவர்கள் புதிய வாய்ப்புகளைக் கண்டறியவும், நடைமுறைத் திறன்களை வளர்க்கவும், கற்றல் மற்றும் புதுமை மூலம் தங்கள் எதிர்காலத்தை ஆராயவும் உதவுகிறோம்.'
+              : 'Helping students discover opportunities, develop practical skills, and explore their future through learning and innovation.'}
           </p>
           <div className="trust-badge">
             <ShieldCheck size={16} color="var(--cyan-600)" />
-            <span>{lang === 'ta' ? 'அரசு அங்கீகரிக்கப்பட்ட தகவல்கள் மட்டுமே' : '100% Verified Govt Sources'}</span>
+            <span>{isTamil ? 'அரசு அங்கீகரிக்கப்பட்ட வழிகாட்டல்' : '100% Verified Education Guidance'}</span>
           </div>
         </div>
 
-        {/* Official Tamil Nadu Portals */}
+        {/* Column 2: Quick Links */}
         <div className="footer-col">
           <h4 className="footer-heading">
-            {lang === 'ta' ? 'அரசு அதிகாரப்பூர்வ தளங்கள்' : 'Official State Portals'}
+            {isTamil ? 'விரைவு இணைப்புகள்' : 'Quick Links'}
           </h4>
           <ul className="footer-links">
             <li>
-              <a href="https://www.tneaonline.org" target="_blank" rel="noopener noreferrer">
-                <span>TNEA பொறியியல் கவுன்சிலிங்</span>
-                <ExternalLink size={12} />
-              </a>
-            </li>
-            <li>
-              <a href="https://tnmedicalselection.net" target="_blank" rel="noopener noreferrer">
-                <span>TN மருத்துவ கவுன்சிலிங் (MBBS/BDS)</span>
-                <ExternalLink size={12} />
-              </a>
-            </li>
-            <li>
-              <a href="https://www.tngasa.in" target="_blank" rel="noopener noreferrer">
-                <span>TNGASA கலை & அறிவியல் சேர்க்கை</span>
-                <ExternalLink size={12} />
-              </a>
-            </li>
-            <li>
-              <a href="https://tnau.ac.in" target="_blank" rel="noopener noreferrer">
-                <span>TNAU தமிழ்நாடு வேளாண் பல்கலைக்கழகம்</span>
-                <ExternalLink size={12} />
-              </a>
-            </li>
-            <li>
-              <a href="https://naanmudhalvan.tn.gov.in" target="_blank" rel="noopener noreferrer">
-                <span>நான் முதல்வன் (Naan Mudhalvan)</span>
-                <ExternalLink size={12} />
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        {/* Quick Navigation Links */}
-        <div className="footer-col">
-          <h4 className="footer-heading">
-            {lang === 'ta' ? 'முக்கிய வழிகாட்டல்' : 'Quick Pathways'}
-          </h4>
-          <ul className="footer-links">
-            <li>
-              <Link to="/opportunities">
-                {lang === 'ta' ? '7.5% அரசுப் பள்ளி இடஒதுக்கீடு' : '7.5% Govt School Quota'}
+              <Link to="/">
+                <span>{isTamil ? 'முகப்பு' : 'Home'}</span>
               </Link>
             </li>
             <li>
               <Link to="/opportunities">
-                {lang === 'ta' ? 'புதுமைப் பெண் & தமிழ்ப் புதல்வன்' : 'Pudhumai Penn & Tamil Pudhalvan'}
-              </Link>
-            </li>
-            <li>
-              <Link to="/opportunities">
-                {lang === 'ta' ? 'முதல் பட்டதாரி கட்டணச் சலுகை' : 'First Graduate Fee Waiver'}
+                <span>{isTamil ? 'கல்வி வாய்ப்புகள்' : 'Opportunities'}</span>
               </Link>
             </li>
             <li>
               <Link to="/sessions">
-                {lang === 'ta' ? 'இலவச வழிகாட்டல் வெபினார்கள்' : 'Free Mentor Webinars'}
+                <span>{isTamil ? 'வழிகாட்டல் அமர்வுகள்' : 'Sessions'}</span>
               </Link>
             </li>
             <li>
               <Link to="/achievements">
-                {lang === 'ta' ? 'சேமிக்கப்பட்ட உதவித்தொகைகள்' : 'Saved Opportunities'}
+                <span>{isTamil ? 'மாணவர் சாதனைகள்' : 'Achievements'}</span>
               </Link>
             </li>
           </ul>
         </div>
 
-        {/* Caution Advisory */}
+        {/* Column 3: Support */}
         <div className="footer-col">
           <h4 className="footer-heading">
-            {lang === 'ta' ? 'மாணவர்களுக்கான எச்சரிக்கை' : 'Student Advisory'}
+            {isTamil ? 'உதவி & தொடர்பு' : 'Support'}
           </h4>
-          <p className="advisory-text">
-            {lang === 'ta'
-              ? 'கல்லூரி சேர்க்கைக்கு தனியார் இடைத்தரகர்களுக்கு (Brokers) எந்தவித முன் தொகையையும் செலுத்த வேண்டாம். அரசு நடத்தும் கலந்தாய்வு மூலமே சேருங்கள்.'
-              : 'Never pay advance seat-booking fees to unverified brokers or agents. Always enroll through official government counseling sessions.'}
-          </p>
-          <div className="non-profit-note">
-            <Heart size={14} color="var(--purple-600)" />
-            <span>{lang === 'ta' ? 'லாப நோக்கற்ற தன்னார்வ முயற்சி' : 'Community Non-Profit Initiative'}</span>
-          </div>
+          <ul className="footer-links">
+            <li>
+              <Link to="/contact">
+                <span>{isTamil ? 'தொடர்பு கொள்ள' : 'Contact Us'}</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact">
+                <span>{isTamil ? 'உதவி மையம்' : 'Help & Support'}</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact#faq">
+                <span>{isTamil ? 'அடிக்கடி கேட்கப்படும் கேள்விகள்' : 'Frequently Asked Questions'}</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact?type=school">
+                <span>{isTamil ? 'பள்ளி கூட்டாண்மை' : 'School Collaboration'}</span>
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        {/* Column 4: Legal & Official Contact */}
+        <div className="footer-col">
+          <h4 className="footer-heading">
+            {isTamil ? 'சட்டம் & தொடர்புகள்' : 'Legal & Contact'}
+          </h4>
+          <ul className="footer-links">
+            <li>
+              <Link to="/privacy">
+                <span>{isTamil ? 'தனியுரிமைக் கொள்கை' : 'Privacy Policy'}</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/terms">
+                <span>{isTamil ? 'விதிமுறைகள் & நிபந்தனைகள்' : 'Terms & Conditions'}</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/refund-policy">
+                <span>{isTamil ? 'ரீஃபண்ட் கொள்கை' : 'Refund Policy'}</span>
+              </Link>
+            </li>
+            <li className="footer-contact-item">
+              <a href={`mailto:${helpline.email}`}>
+                <Mail size={13} aria-hidden="true" />
+                <span>{helpline.email}</span>
+              </a>
+            </li>
+            <li className="footer-contact-item">
+              <a href={`tel:${helpline.phones[0]?.tel}`}>
+                <Phone size={13} aria-hidden="true" />
+                <span>{helpline.phones[0]?.display}</span>
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
 
       <div className="footer-bottom">
         <div className="container footer-bottom-inner">
           <p className="copyright-text">
-            © 2026 EEE-TN (Education Evolution and Empowerment – Tamil Nadu).
+            © {currentYear} {brand.name}. {isTamil ? 'அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.' : 'All rights reserved.'}
           </p>
-          <p className="disclaimer-text">
-            {lang === 'ta'
-              ? 'அனைத்து கல்வி விபரங்களும் மாணவர் விழிப்புணர்விற்காக மட்டுமே தொகுக்கப்பட்டுள்ளன.'
-              : 'Compiled purely for public student awareness and empowerment.'}
-          </p>
+          <div className="footer-bottom-links">
+            <Link to="/privacy">{isTamil ? 'தனியுரிமை' : 'Privacy Policy'}</Link>
+            <span className="dot-divider">•</span>
+            <Link to="/terms">{isTamil ? 'விதிமுறைகள்' : 'Terms & Conditions'}</Link>
+            <span className="dot-divider">•</span>
+            <Link to="/contact">{isTamil ? 'உதவி மையம்' : 'Help Desk'}</Link>
+          </div>
         </div>
       </div>
     </footer>
   );
 }
+
+export default Footer;

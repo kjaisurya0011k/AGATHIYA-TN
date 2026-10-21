@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { brand } from '../data/brand';
 import { UserAvatar } from './UserAvatar';
 import {
   Camera,
@@ -314,8 +315,8 @@ export function AvatarUploader({
           : "Use a clear photo of yourself. Don't upload photos of other people. Admin photos are visible only to authorized platform staff.")
       : avtLang.privacyNoteStudent ||
         (isTamil
-          ? 'உங்கள் தெளிவான புகைப்படத்தைப் பயன்படுத்தவும். மற்றவர்களின் புகைப்படங்களை பதிவேற்ற வேண்டாம். மாணவர் புகைப்படங்கள் உங்களுக்கும் EEE-TN நிர்வாகிகளுக்கும் மட்டுமே தெரியும்.'
-          : "Use a clear photo of yourself. Don't upload photos of other people. Student photos are visible only to you and EEE-TN admins.");
+          ? `உங்கள் தெளிவான புகைப்படத்தைப் பயன்படுத்தவும். மற்றவர்களின் புகைப்படங்களை பதிவேற்ற வேண்டாம். மாணவர் புகைப்படங்கள் உங்களுக்கும் ${brand.name} நிர்வாகிகளுக்கும் மட்டுமே தெரியும்.`
+          : `Use a clear photo of yourself. Don't upload photos of other people. Student photos are visible only to you and ${brand.name} admins.`);
 
   return (
     <div className="avatar-uploader-component" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>

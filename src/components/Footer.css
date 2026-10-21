@@ -151,3 +151,43 @@
     text-align: left;
   }
 }
+
+.footer-full-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #38bdf8;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.02em;
+}
+
+.footer-contact-item a {
+  color: #94a3b8 !important;
+  font-size: 0.82rem !important;
+  word-break: break-all;
+}
+
+.footer-contact-item a:hover {
+  color: #38bdf8 !important;
+}
+
+.footer-bottom-links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.footer-bottom-links a {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: color var(--transition-fast);
+}
+
+.footer-bottom-links a:hover {
+  color: #ffffff;
+}
+
+.dot-divider {
+  color: #475569;
+}

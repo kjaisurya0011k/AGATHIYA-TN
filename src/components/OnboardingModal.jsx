@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { brand } from '../data/brand';
 import {
   TN_DISTRICTS,
   STUDENT_STATUS_OPTIONS,
@@ -259,8 +260,8 @@ export function OnboardingModal() {
     if (!formData.consent_given && !isSkip) {
       setErrorMsg(
         lang === 'ta'
-          ? 'தொடர EEE-TN தரவு சேமிப்பு சம்மதப் பெட்டியைத் தேர்வு செய்யவும்.'
-          : 'Please check the consent box to allow EEE-TN to process your details.'
+          ? `தொடர ${brand.name} தரவு சேமிப்பு சம்மதப் பெட்டியைத் தேர்வு செய்யவும்.`
+          : `Please check the consent box to allow ${brand.name} to process your details.`
       );
       return;
     }

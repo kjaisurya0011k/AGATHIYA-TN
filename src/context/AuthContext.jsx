@@ -176,7 +176,7 @@ const INITIAL_MENTOR_SESSIONS = [
     end_time: '11:30',
     mode: 'online',
     capacity: 100,
-    price_inr: 0,
+    price_inr: 100,
     status: 'approved',
     admin_note: 'Verified credentials and approved for Class 11 & 12 students across Tamil Nadu.',
     reviewed_by: 'demo-admin-id',
@@ -185,9 +185,8 @@ const INITIAL_MENTOR_SESSIONS = [
     updated_at: '2026-07-01T10:00:00Z',
     meeting_link: 'https://meet.google.com/eee-tnea-2026',
     registrations: [
-      { id: 'reg-1', student_id: 'demo-student-id', student_name: 'K. Muthu Kumar', status: 'registered', payment_status: 'not_required', registered_at: '2026-07-02T09:15:00Z' },
-      { id: 'reg-2', student_id: 'stu-2', student_name: 'S. Anitha', status: 'registered', payment_status: 'not_required', registered_at: '2026-07-03T11:30:00Z' },
-      { id: 'reg-3', student_id: 'stu-3', student_name: 'R. Karthikeyan', status: 'registered', payment_status: 'not_required', registered_at: '2026-07-04T14:20:00Z' }
+      { id: 'reg-2', student_id: 'stu-2', student_name: 'S. Anitha', status: 'registered', payment_status: 'paid', registered_at: '2026-07-03T11:30:00Z' },
+      { id: 'reg-3', student_id: 'stu-3', student_name: 'R. Karthikeyan', status: 'registered', payment_status: 'paid', registered_at: '2026-07-04T14:20:00Z' }
     ]
   },
   {
@@ -296,9 +295,9 @@ export function AuthProvider({ children }) {
 
   const [registeredSessions, setRegisteredSessions] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY_SESSIONS) || '["tnea-choice-filling", "sess-101"]');
+      return JSON.parse(localStorage.getItem(STORAGE_KEY_SESSIONS) || '["tnea-choice-filling"]');
     } catch {
-      return ['tnea-choice-filling', 'sess-101'];
+      return ['tnea-choice-filling'];
     }
   });
 
@@ -1396,7 +1395,14 @@ export function AuthProvider({ children }) {
 
       if (error) throw error;
       if (data && data.length > 0) {
-        return { data, error: null };
+        const merged = data.map((d) => {
+          const localMatch = (mentorSessions || []).find((m) => m.id === d.id);
+          return localMatch ? { ...d, ...localMatch } : d;
+        });
+        const localOnly = (mentorSessions || []).filter(
+          (m) => m.status === 'approved' && !data.some((d) => d.id === m.id)
+        );
+        return { data: [...merged, ...localOnly], error: null };
       }
     } catch {
       // Fallback

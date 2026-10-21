@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { SessionCard } from '../components/SessionCard';
+import { brand } from '../data/brand';
 import {
   Calendar,
   Users,
@@ -327,8 +328,8 @@ export function SessionsPage() {
             </h3>
             <p className="mentor-invite-desc">
               {isTamil
-                ? 'உங்கள் ஊர் மற்றும் கிராமப்புற 12-ஆம் வகுப்பு தம்பிகள், தங்கைகளுக்கு வழிகாட்ட முன்வாருங்கள். EEE-TN-இல் வழிகாட்டியாக (Mentor) இணைந்து உங்கள் அனுபவங்களை பகிர்ந்துகொள்ளுங்கள்.'
-                : 'Share your genuine counseling experiences and guide rural Class 12 students. Join as an EEE-TN verified mentor.'}
+                ? `உங்கள் ஊர் மற்றும் கிராமப்புற 12-ஆம் வகுப்பு தம்பிகள், தங்கைகளுக்கு வழிகாட்ட முன்வாருங்கள். ${brand.name}-இல் வழிகாட்டியாக (Mentor) இணைந்து உங்கள் அனுபவங்களை பகிர்ந்துகொள்ளுங்கள்.`
+                : `Share your genuine counseling experiences and guide rural Class 12 students. Join as an ${brand.name} verified mentor.`}
             </p>
           </div>
         </div>

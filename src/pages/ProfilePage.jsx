@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { brand } from '../data/brand';
 import { AvatarUploader } from '../components/AvatarUploader';
 import {
   TN_DISTRICTS,
@@ -1415,8 +1416,8 @@ export function ProfilePage() {
                       />
                       <span>
                         {lang === 'ta'
-                          ? 'என் குழந்தை / பாதுகாப்பிலுள்ள மாணவர் EEE-TN வழிகாட்டல் தளத்தைப் பயன்படுத்த பெற்றோர் / பாதுகாவலராக முழு சம்மதம் அளிக்கிறேன்.'
-                          : 'I confirm that I am the legal parent/guardian and consent to my ward using EEE-TN educational guidance services.'}
+                          ? `என் குழந்தை / பாதுகாப்பிலுள்ள மாணவர் ${brand.name} வழிகாட்டல் தளத்தைப் பயன்படுத்த பெற்றோர் / பாதுகாவலராக முழு சம்மதம் அளிக்கிறேன்.`
+                          : `I confirm that I am the legal parent/guardian and consent to my ward using ${brand.name} educational guidance services.`}
                       </span>
                     </label>
                   </div>
@@ -2269,7 +2270,7 @@ export function ProfilePage() {
 
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: '1.6', marginBottom: '1.25rem' }}>
                 {t?.profile?.privacyIntro ||
-                  'EEE-TN is dedicated to student empowerment. Your personal information is kept strictly confidential.'}
+                  `${brand.name} is dedicated to student empowerment. Your personal information is kept strictly confidential.`}
               </p>
 
               <div className="data-privacy-card" style={{ marginBottom: '1.75rem' }}>

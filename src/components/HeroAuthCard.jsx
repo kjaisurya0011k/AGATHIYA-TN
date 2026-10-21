@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { brand } from '../data/brand';
 import {
   Sparkles,
   CheckCircle2,
@@ -167,7 +168,7 @@ export function HeroAuthCard() {
 
   // 2. Logged-out State: Sign-In Card
   return (
-    <div className="hero-auth-card hero-signin-card" role="region" aria-label="Sign In to EEE-TN">
+    <div className="hero-auth-card hero-signin-card" role="region" aria-label={`Sign In to ${brand.name}`}>
       {/* Friendly OAuth Error Banner */}
       {authError && (
         <div className="auth-error-banner" role="alert">

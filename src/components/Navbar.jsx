@@ -16,9 +16,11 @@ import {
   Compass,
   Clock,
   PlusCircle,
-  Home
+  Home,
+  Headphones
 } from 'lucide-react';
 import { UserAvatar } from './UserAvatar';
+import { brand } from '../data/brand';
 import './Navbar.css';
 
 export function Navbar() {
@@ -27,6 +29,7 @@ export function Navbar() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,6 +40,7 @@ export function Navbar() {
     opportunities: isTamil ? 'வாய்ப்புகள்' : 'Opportunities',
     sessions: isTamil ? 'வழிகாட்டல்' : 'Sessions',
     achievements: isTamil ? 'சாதனைகள்' : 'Achievements',
+    support: isTamil ? 'உதவி மையம்' : 'Support',
     dashboard: isTamil ? 'டாஷ்போர்டு' : 'Dashboard',
     login: isTamil ? 'உள்நுழைக' : 'Login',
     register: isTamil ? 'தொடங்குக' : 'Get Started',
@@ -78,14 +82,21 @@ export function Navbar() {
             closeMenus();
           }}
         >
-          <span className="brand-logo-cap-box" aria-label="EEE-TN logo">
-            <GraduationCap size={22} strokeWidth={2.4} />
-          </span>
+          {!logoError && (
+            <img
+              src={brand.logo}
+              alt="AGATHIYA logo"
+              style={{ height: '40px', width: 'auto', objectFit: 'contain' }}
+              onError={() => setLogoError(true)}
+            />
+          )}
           <div className="brand-name-group">
-            <span className="brand-primary-text">EEE-TN</span>
-            <span className="brand-tagline-text" title={labels.navbarSubtitle}>
-              {labels.navbarSubtitle}
-            </span>
+            <span className="brand-primary-text">{brand.name}</span>
+            {brand.tagline ? (
+              <span className="brand-tagline-text" title={brand.tagline}>
+                {brand.tagline}
+              </span>
+            ) : null}
           </div>
         </Link>
 
@@ -211,6 +222,16 @@ export function Navbar() {
                     <span>{labels.myProfile}</span>
                   </Link>
 
+                  <Link
+                    to="/contact"
+                    className="dropdown-menu-item"
+                    onClick={closeMenus}
+                    role="menuitem"
+                  >
+                    <Headphones size={16} />
+                    <span>{labels.support}</span>
+                  </Link>
+
                   <div className="dropdown-divider" />
 
                   <button
@@ -287,6 +308,15 @@ export function Navbar() {
             >
               <Award size={18} />
               <span>{labels.achievements}</span>
+            </NavLink>
+
+            <NavLink
+              to="/contact"
+              className={({ isActive }) => `mobile-pill-link ${isActive ? 'active' : ''}`}
+              onClick={closeMenus}
+            >
+              <Headphones size={18} />
+              <span>{labels.support}</span>
             </NavLink>
           </div>
 

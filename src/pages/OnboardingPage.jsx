@@ -1,3 +1,4 @@
+import { brand } from '../data/brand';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -312,8 +313,8 @@ export function OnboardingPage() {
     }
     if (!formData.consent_given) {
       return lang === 'ta'
-        ? 'தொடர EEE-TN தனியுரிமை மற்றும் தரவு சேமிப்பு சம்மதப் பெட்டியைத் தேர்வு செய்யவும்.'
-        : 'Please check the consent box to allow EEE-TN to process your details.';
+        ? `தொடர ${brand.name} தனியுரிமை மற்றும் தரவு சேமிப்பு சம்மதப் பெட்டியைத் தேர்வு செய்யவும்.`
+        : `Please check the consent box to allow ${brand.name} to process your details.`;
     }
     return null;
   };
@@ -973,8 +974,8 @@ export function OnboardingPage() {
                     />
                     <span>
                       {lang === 'ta'
-                        ? 'என் குழந்தை / பாதுகாப்பிலுள்ள மாணவர் EEE-TN வழிகாட்டல் தளத்தைப் பயன்படுத்த பெற்றோர் / பாதுகாவலராக முழு சம்மதம் அளிக்கிறேன்.'
-                        : 'I confirm that I am the legal parent/guardian and consent to my ward using EEE-TN educational guidance services.'}
+                        ? `என் குழந்தை / பாதுகாப்பிலுள்ள மாணவர் ${brand.name} வழிகாட்டல் தளத்தைப் பயன்படுத்த பெற்றோர் / பாதுகாவலராக முழு சம்மதம் அளிக்கிறேன்.`
+                        : `I confirm that I am the legal parent/guardian and consent to my ward using ${brand.name} educational guidance services.`}
                     </span>
                   </label>
                 </div>
@@ -984,7 +985,7 @@ export function OnboardingPage() {
               <div className="data-privacy-card" style={{ marginTop: '1.5rem' }}>
                 <div className="privacy-card-title">
                   <Lock size={16} color="#166534" />
-                  <strong>{lang === 'ta' ? '100% பாதுகாப்பான மாணவர் தனியுரிமை உறுதிமொழி' : 'EEE-TN Plain-Language Privacy Promise'}</strong>
+                  <strong>{lang === 'ta' ? '100% பாதுகாப்பான மாணவர் தனியுரிமை உறுதிமொழி' : `${brand.name} Plain-Language Privacy Promise`}</strong>
                 </div>
                 <ul className="privacy-card-list">
                   <li>
@@ -1016,8 +1017,8 @@ export function OnboardingPage() {
                   <span>
                     <strong>
                       {lang === 'ta'
-                        ? 'நான் EEE-TN வழிகாட்டல் நோக்கங்களுக்காக என் கல்வி விவரங்களை பாதுகாப்பாக சேமிக்க சம்மதிக்கிறேன்.'
-                        : 'I consent to EEE-TN securely processing my academic details for counseling and scholarship guidance.'}
+                        ? `நான் ${brand.name} வழிகாட்டல் நோக்கங்களுக்காக என் கல்வி விவரங்களை பாதுகாப்பாக சேமிக்க சம்மதிக்கிறேன்.`
+                        : `I consent to ${brand.name} securely processing my academic details for counseling and scholarship guidance.`}
                     </strong>
                   </span>
                 </label>

@@ -24,6 +24,7 @@ import {
   CheckCheck
 } from 'lucide-react';
 import { UserAvatar } from '../../components/UserAvatar';
+import { setAdminVerifiedPayment } from '../../lib/payments';
 
 export function AdminSessionsPage() {
   const { lang, t } = useLanguage();
@@ -197,6 +198,7 @@ export function AdminSessionsPage() {
     const newStatus = currentPayment === 'paid' ? 'pending' : 'paid';
     if (adminUpdateRegistrationPayment) {
       await adminUpdateRegistrationPayment(selectedSession.id, regId, newStatus);
+      setAdminVerifiedPayment(selectedSession.id, regId, newStatus);
       // Update selectedSession registrations locally
       setSelectedSession((prev) => {
         if (!prev) return prev;
@@ -956,6 +958,10 @@ export function AdminSessionsPage() {
                                   <span className="badge badge-green" style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
                                     <Check size={11} /> {admLang.paymentStatusPaid || 'Paid'}
                                   </span>
+                                ) : reg.payment_status === 'pending_verification' ? (
+                                  <span className="badge badge-purple" style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', background: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}>
+                                    <Clock size={11} /> {isTamil ? 'சரிபார்ப்பு நிலுவை' : 'Pending Verification'}
+                                  </span>
                                 ) : (
                                   <span className="badge badge-amber" style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
                                     <Clock size={11} /> {admLang.paymentStatusPending || 'Pending'}
@@ -972,6 +978,8 @@ export function AdminSessionsPage() {
                                   >
                                     {isPaid
                                       ? (admLang.markPendingBtn || (isTamil ? 'நிலுவை என மாற்று' : 'Mark Pending'))
+                                      : reg.payment_status === 'pending_verification'
+                                      ? (isTamil ? 'சரிபார் (Mark Paid)' : 'Verify Payment (Mark Paid)')
                                       : (admLang.markPaidBtn || (isTamil ? 'கட்டணம் செலுத்தப்பட்டது' : 'Mark Paid'))}
                                   </button>
                                 )}

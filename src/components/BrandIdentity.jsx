@@ -1,7 +1,8 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { brand, BRAND_NAME } from '../data/brand';
 
-export const BRAND_NAME = 'EEE-TN';
+export { BRAND_NAME };
 
 /**
  * Shared Brand component ensuring consistent acronym, typography,
@@ -9,7 +10,7 @@ export const BRAND_NAME = 'EEE-TN';
  */
 export function BrandIdentity({ variant = 'header', className = '' }) {
   const { lang, t } = useLanguage();
-  const fullName = t.brandFullName || t.siteFullName || 'Education Evolution and Empowerment – Tamil Nadu';
+  const tagline = brand.tagline || '';
 
   if (variant === 'hero') {
     return (
@@ -17,10 +18,14 @@ export function BrandIdentity({ variant = 'header', className = '' }) {
         <div className="hero-brand-title" translate="no">
           {BRAND_NAME}
         </div>
-        <div className="hero-brand-divider" aria-hidden="true" />
-        <p className="hero-brand-subtitle" lang={lang}>
-          {fullName}
-        </p>
+        {tagline && (
+          <>
+            <div className="hero-brand-divider" aria-hidden="true" />
+            <p className="hero-brand-subtitle" lang={lang}>
+              {tagline}
+            </p>
+          </>
+        )}
       </div>
     );
   }
@@ -31,9 +36,11 @@ export function BrandIdentity({ variant = 'header', className = '' }) {
       <div className="brand-name" translate="no">
         {BRAND_NAME}
       </div>
-      <div className="brand-sub" lang={lang} title={fullName}>
-        {fullName}
-      </div>
+      {tagline && (
+        <div className="brand-sub" lang={lang} title={tagline}>
+          {tagline}
+        </div>
+      )}
     </div>
   );
 }

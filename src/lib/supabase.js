@@ -9,7 +9,7 @@ const supabasePublishableKey =
 
 if (!supabasePublishableKey) {
   console.warn(
-    '[EEE-TN] Supabase Publishable Key is missing. Please set VITE_SUPABASE_PUBLISHABLE_KEY in .env.local'
+    '[AGATHIYA] Supabase Publishable Key is missing. Please set VITE_SUPABASE_PUBLISHABLE_KEY in .env.local'
   );
 }
 

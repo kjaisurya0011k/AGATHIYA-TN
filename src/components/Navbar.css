@@ -398,6 +398,21 @@
   cursor: pointer;
 }
 
+@media (max-width: 540px) {
+  .navbar-lang-pill-btn {
+    display: none;
+  }
+  .user-pill-name,
+  .user-role-badge {
+    display: none;
+  }
+  .navbar-user-pill-btn {
+    padding: 2px;
+    border: none;
+    background: transparent;
+  }
+}
+
 @media (min-width: 960px) {
   .navbar-mobile-toggle-btn {
     display: none;

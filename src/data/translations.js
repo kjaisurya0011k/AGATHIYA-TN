@@ -1,10 +1,11 @@
+import { brand } from './brand';
 
 export const translations = {
 
   ta: {
-    siteTitle: "EEE-TN",
-    siteFullName: "கல்வி பரிணாமம் மற்றும் அதிகாரம் – தமிழ்நாடு",
-    brandFullName: "கல்வி பரிணாமம் மற்றும் அதிகாரம் – தமிழ்நாடு",
+    siteTitle: brand.name,
+    siteFullName: (brand.tagline || brand.name),
+    brandFullName: (brand.tagline || brand.name),
     siteTagline: "12th முடித்த பிறகு, அடுத்து என்ன?",
     subTagline: "உங்கள் எதிர்காலத்துக்கான சரியான வழிகாட்டல்",
 
@@ -25,7 +26,7 @@ export const translations = {
       desc: "உங்களுக்கு ஏற்ற course, college மற்றும் scholarship வாய்ப்புகளை ஒரே இடத்தில் தெரிந்துகொள்ளுங்கள்.",
       exploreBtn: "படிப்பு வாய்ப்புகளைப் பாருங்கள்",
       cutoffBtn: "Cut-off கணக்கிடுங்கள்",
-      quickFactsTitle: "EEE-TN மூலம் தெரிந்துகொள்ளுங்கள்",
+      quickFactsTitle: `${brand.name} மூலம் தெரிந்துகொள்ளுங்கள்`,
       fact1: "பல்வேறு படிப்புகள் பற்றிய தகவல்கள்",
       fact2: "Scholarship வாய்ப்புகள்",
       fact3: "அடுத்த படிக்கான வழிகாட்டல்",
@@ -110,7 +111,7 @@ export const translations = {
     },
 
     footer: {
-      mission: "தமிழ்நாட்டு மாணவர்கள் தங்கள் உயர்கல்வி வாய்ப்புகளைப் புரிந்துகொண்டு, நம்பிக்கையுடன் அடுத்த படியைத் தேர்ந்தெடுக்க உதவுவதே EEE-TN-ன் நோக்கம்.",
+      mission: `தமிழ்நாட்டு மாணவர்கள் தங்கள் உயர்கல்வி வாய்ப்புகளைப் புரிந்துகொண்டு, நம்பிக்கையுடன் அடுத்த படியைத் தேர்ந்தெடுக்க உதவுவதே ${brand.name}-ன் நோக்கம்.`,
       quickLinks: "விரைவு இணைப்புகள்",
       govPortals: "அதிகாரப்பூர்வ இணையதளங்கள்",
       disclaimer: "இந்தத் தளத்தில் உள்ள தகவல்கள் வழிகாட்டலுக்காக வழங்கப்படுகின்றன. சேர்க்கை விதிமுறைகள், Scholarship தகுதிகள், கட்டணங்கள் மற்றும் கடைசி தேதிகளை சம்பந்தப்பட்ட அதிகாரப்பூர்வ இணையதளங்களில் சரிபார்க்கவும்.",
@@ -118,7 +119,7 @@ export const translations = {
     },
 
     auth: {
-      joinTitle: "EEE-TN-ல் இணையுங்கள்",
+      joinTitle: `${brand.name}-ல் இணையுங்கள்`,
       joinDesc: "உங்களுக்கான உதவித்தொகைகள், கட்-ஆஃப் விவரங்கள் மற்றும் கல்லூரி வழிகாட்டல்களைப் பெறுங்கள்.",
       continueWithGoogle: "Google மூலம் தொடரவும்",
       termsNotice: "தொடர்வதன் மூலம் எங்கள் விதிமுறைகள் மற்றும் தனியுரிமைக் கொள்கையை ஏற்றுக்கொள்கிறீர்கள்",
@@ -210,8 +211,8 @@ export const translations = {
       guardianPhone: "பெற்றோர் / பாதுகாவலர் தொலைபேசி எண்",
       guardianConsent: "நான் இந்த விவரங்களைப் பகிர என் பெற்றோர் அல்லது பாதுகாவலர் சம்மதித்துள்ளார்.",
       dataPrivacyTitle: "நாங்கள் என்ன தகவல்களைச் சேகரிக்கிறோம்? எதற்காக?",
-      dataPrivacyNote: "EEE-TN உங்கள் மாவட்டம், மதிப்பெண் மற்றும் ஆர்வங்களை 7.5% அரசுப் பள்ளி ஒதுக்கீடு, புதுமைப் பெண், தமிழ்ப் புதல்வன் போன்ற திட்டங்களை உங்களுக்கு வழிகாட்ட மட்டுமே பயன்படுத்துகிறது. உங்கள் தொடர்புத் தகவல் எந்தவொரு தனியார் கல்லூரிக்கோ அல்லது விளம்பர நிறுவனங்களுக்கோ ஒருபோதும் விற்கப்படாது.",
-      consentCheckbox: "எனக்கு வழிகாட்டல் மற்றும் உதவித்தொகை பரிந்துரைகளை வழங்க EEE-TN என் விவரங்களைச் சேமிக்க ஒப்புக்கொள்கிறேன்.",
+      dataPrivacyNote: `${brand.name} உங்கள் மாவட்டம், மதிப்பெண் மற்றும் ஆர்வங்களை 7.5% அரசுப் பள்ளி ஒதுக்கீடு, புதுமைப் பெண், தமிழ்ப் புதல்வன் போன்ற திட்டங்களை உங்களுக்கு வழிகாட்ட மட்டுமே பயன்படுத்துகிறது. உங்கள் தொடர்புத் தகவல் எந்தவொரு தனியார் கல்லூரிக்கோ அல்லது விளம்பர நிறுவனங்களுக்கோ ஒருபோதும் விற்கப்படாது.`,
+      consentCheckbox: `எனக்கு வழிகாட்டல் மற்றும் உதவித்தொகை பரிந்துரைகளை வழங்க ${brand.name} என் விவரங்களைச் சேமிக்க ஒப்புக்கொள்கிறேன்.`,
       next: "அடுத்து",
       back: "பின்செல்",
       saveProfile: "சுயவிவரத்தை நிறைவு செய்க",
@@ -240,7 +241,7 @@ export const translations = {
       discardPrompt: "சேமிக்கப்படாத மாற்றங்கள் உள்ளன. நிச்சயமாக வேறு தாவலுக்குச் செல்ல விரும்புகிறீர்களா?",
       retry: "மீண்டும் முயற்சி",
       privacyHeading: "நாங்கள் என்ன தகவல்களைச் சேமிக்கிறோம்? எதற்காக?",
-      privacyIntro: "EEE-TN மாணவர்களின் கல்வி முன்னேற்றத்திற்கு மட்டுமே செயல்படுகிறது. உங்கள் தனிப்பட்ட தகவல்கள் பாதுகாப்பாகப் பராமரிக்கப்படுகின்றன.",
+      privacyIntro: `${brand.name} மாணவர்களின் கல்வி முன்னேற்றத்திற்கு மட்டுமே செயல்படுகிறது. உங்கள் தனிப்பட்ட தகவல்கள் பாதுகாப்பாகப் பராமரிக்கப்படுகின்றன.`,
       privacyPoints: [
         "பூஜ்ஜிய வணிகப் பயன்பாடு: உங்கள் கைபேசி எண் அல்லது தனிப்பட்ட விவரங்கள் தனியார் கல்லூரிகளுக்கோ அல்லது விளம்பர நிறுவனங்களுக்கோ ஒருபோதும் விற்கப்படாது.",
         "கட்-ஆஃப் மற்றும் வருமான விவரங்கள் 7.5% அரசு பள்ளி ஒதுக்கீடு, புதுமைப் பெண், தமிழ்ப் புதல்வன் மற்றும் அரசு உதவித்தொகை வழிகாட்டலுக்கு மட்டுமே பயன்படுத்தப்படுகின்றன.",
@@ -592,7 +593,7 @@ export const translations = {
       fileTooLarge: "தயவுசெய்து 5 MB-க்கும் குறைவான புகைப்படத்தைத் தேர்ந்தெடுக்கவும்.",
       errorUpload: "புகைப்படத்தை பதிவேற்றுவதில் தோல்வி. மீண்டும் முயற்சிக்கவும்.",
       retry: "மீண்டும் முயற்சி",
-      privacyNoteStudent: "உங்கள் தெளிவான புகைப்படத்தைப் பயன்படுத்தவும். மற்றவர்களின் புகைப்படங்களை பதிவேற்ற வேண்டாம். மாணவர் புகைப்படங்கள் உங்களுக்கும் EEE-TN நிர்வாகிகளுக்கும் மட்டுமே தெரியும்.",
+      privacyNoteStudent: `உங்கள் தெளிவான புகைப்படத்தைப் பயன்படுத்தவும். மற்றவர்களின் புகைப்படங்களை பதிவேற்ற வேண்டாம். மாணவர் புகைப்படங்கள் உங்களுக்கும் ${brand.name} நிர்வாகிகளுக்கும் மட்டுமே தெரியும்.`,
       privacyNoteMentor: "உங்கள் தெளிவான புகைப்படத்தைப் பயன்படுத்தவும். மற்றவர்களின் புகைப்படங்களை பதிவேற்ற வேண்டாம். உங்கள் புகைப்படமானது நீங்கள் நடத்தும் அமர்வுகளில் மாணவர்களுக்குக் காட்டப்படும்.",
       privacyNoteAdmin: "உங்கள் தெளிவான புகைப்படத்தைப் பயன்படுத்தவும். மற்றவர்களின் புகைப்படங்களை பதிவேற்ற வேண்டாம். நிர்வாகி புகைப்படங்கள் அங்கீகரிக்கப்பட்ட ஊழியர்களுக்கு மட்டுமே தெரியும்."
     }
@@ -600,9 +601,9 @@ export const translations = {
 
 
   en: {
-    siteTitle: "EEE-TN",
-    siteFullName: "Education Evolution and Empowerment – Tamil Nadu",
-    brandFullName: "Education Evolution and Empowerment – Tamil Nadu",
+    siteTitle: brand.name,
+    siteFullName: (brand.tagline || brand.name),
+    brandFullName: (brand.tagline || brand.name),
     siteTagline: "Your Next Step After Class 12, Chosen with Confidence",
     subTagline: "A student-friendly guide to higher education opportunities across Tamil Nadu, including smaller towns and rural communities.",
 
@@ -709,14 +710,14 @@ export const translations = {
 
     footer: {
       mission: "A student-focused guidance platform helping young people across Tamil Nadu discover higher education options and choose their next step with confidence.",
-      quickLinks: "Explore EEE-TN",
+      quickLinks: `Explore ${brand.name}`,
       govPortals: "Official Government Websites",
-      disclaimer: "Disclaimer: EEE-TN is a guidance platform. Always verify current eligibility, scholarship benefits, fees, and admission details through the relevant official websites.",
-      rights: "© 2026 EEE-TN. All rights reserved."
+      disclaimer: `Disclaimer: ${brand.name} is a guidance platform. Always verify current eligibility, scholarship benefits, fees, and admission details through the relevant official websites.`,
+      rights: `© 2026 ${brand.name}. All rights reserved.`
     },
 
     auth: {
-      joinTitle: "Join EEE-TN",
+      joinTitle: `Join ${brand.name}`,
       joinDesc: "Discover personalized scholarships, cutoff recommendations, and college guidance.",
       continueWithGoogle: "Continue with Google",
       termsNotice: "By continuing you agree to our Terms and Privacy Policy",
@@ -773,7 +774,7 @@ export const translations = {
 
     onboarding: {
       title: "Student Profile & Opportunity Matcher",
-      subtitle: "Tell us a bit about your studies so EEE-TN can show you eligible scholarships, cutoffs, and guidance.",
+      subtitle: `Tell us a bit about your studies so ${brand.name} can show you eligible scholarships, cutoffs, and guidance.`,
       step1: "Basic Details",
       step2: "School & Marks",
       step3: "Preferences & Consent",
@@ -808,8 +809,8 @@ export const translations = {
       guardianPhone: "Parent / Guardian Phone Number",
       guardianConsent: "My parent or guardian has agreed that I can share these details.",
       dataPrivacyTitle: "What We Collect & Why",
-      dataPrivacyNote: "EEE-TN only collects your district, marks, and interests to suggest matching Tamil Nadu government quotas (like 7.5% preferential reservation), schemes (Pudhumai Penn, Tamil Pudhalvan), and TNEA cutoffs. Your personal contact information is never sold or shared with commercial coaching centers or private colleges.",
-      consentCheckbox: "I agree to EEE-TN storing my details to give me guidance and scholarship suggestions.",
+      dataPrivacyNote: `${brand.name} only collects your district, marks, and interests to suggest matching Tamil Nadu government quotas (like 7.5% preferential reservation), schemes (Pudhumai Penn, Tamil Pudhalvan), and TNEA cutoffs. Your personal contact information is never sold or shared with commercial coaching centers or private colleges.`,
+      consentCheckbox: `I agree to ${brand.name} storing my details to give me guidance and scholarship suggestions.`,
       next: "Continue",
       back: "Back",
       saveProfile: "Complete Profile",
@@ -838,7 +839,7 @@ export const translations = {
       discardPrompt: "You have unsaved changes. Are you sure you want to switch tabs without saving?",
       retry: "Retry",
       privacyHeading: "What We Store & Why",
-      privacyIntro: "EEE-TN is dedicated to student empowerment. Your personal information is kept strictly confidential.",
+      privacyIntro: `${brand.name} is dedicated to student empowerment. Your personal information is kept strictly confidential.`,
       privacyPoints: [
         "Zero commercial monetization: Your phone number and personal details are never sold or rented to private colleges or coaching brokers.",
         "Marks and income data are used solely to match eligibility for 7.5% government school quota, Pudhumai Penn, Tamil Pudhalvan, and scholarships.",
@@ -1190,7 +1191,7 @@ export const translations = {
       fileTooLarge: "Please select a photo smaller than 5 MB.",
       errorUpload: "Failed to upload photo. Please retry.",
       retry: "Retry",
-      privacyNoteStudent: "Use a clear photo of yourself. Don't upload photos of other people. Student photos are visible only to you and EEE-TN admins.",
+      privacyNoteStudent: `Use a clear photo of yourself. Don't upload photos of other people. Student photos are visible only to you and ${brand.name} admins.`,
       privacyNoteMentor: "Use a clear photo of yourself. Don't upload photos of other people. Your photo is shown to students on your sessions.",
       privacyNoteAdmin: "Use a clear photo of yourself. Don't upload photos of other people. Admin photos are visible only to authorized platform staff."
     }

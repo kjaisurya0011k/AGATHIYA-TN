@@ -20,6 +20,9 @@ import { ProfilePage } from './pages/ProfilePage';
 import { AdminMentorsPage } from './pages/AdminMentorsPage';
 import { OnboardingPage } from './pages/OnboardingPage';
 
+import { ContactPage } from './pages/ContactPage';
+import { LegalPage } from './pages/LegalPage';
+
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RoleRoute } from './components/RoleRoute';
 
@@ -62,6 +65,15 @@ export function App() {
         <Routes>
           {/* Public homepage */}
           <Route path="/" element={<HomePage />} />
+
+          {/* Public Contact & Support */}
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/support" element={<Navigate to="/contact" replace />} />
+
+          {/* Public Legal & Policy Pages */}
+          <Route path="/privacy" element={<LegalPage type="privacy" />} />
+          <Route path="/terms" element={<LegalPage type="terms" />} />
+          <Route path="/refund-policy" element={<LegalPage type="refund" />} />
 
           {/* Login and registration */}
           <Route

@@ -3,6 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { BrandIdentity } from '../components/BrandIdentity';
+import { brand } from '../data/brand';
 import { supabase } from '../lib/supabase';
 import {
   Globe,
@@ -84,6 +85,7 @@ export function LoginPage({ initialTab = 'login' }) {
   const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState(null);
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   // Remember redirect path if user tried to visit protected route
   const from = location.state?.from?.pathname;
@@ -290,15 +292,29 @@ export function LoginPage({ initialTab = 'login' }) {
         {/* 1. Header: Navy-to-teal gradient panel with large rounded bottom corners */}
         <header className="login-header-hero">
           <div className="login-header-top-row">
-            <div className="login-header-brand">
-              <div className="login-cap-icon-box" aria-hidden="true">
-                <GraduationCap size={22} color="#FFFFFF" />
-              </div>
+            <div className="login-header-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {!logoError && (
+                <img
+                  src={brand.logo}
+                  alt="AGATHIYA logo"
+                  style={{
+                    height: '42px',
+                    width: 'auto',
+                    objectFit: 'contain',
+                    background: '#ffffff',
+                    padding: '2px 6px',
+                    borderRadius: '8px'
+                  }}
+                  onError={() => setLogoError(true)}
+                />
+              )}
               <div className="login-brand-copy">
-                <span className="login-brand-acronym">EEE-TN</span>
-                <span className="login-brand-tagline">
-                  {t.brandFullName || t.siteFullName || 'Education Evolution and Empowerment – Tamil Nadu'}
-                </span>
+                <span className="login-brand-acronym">{brand.name}</span>
+                {brand.tagline ? (
+                  <span className="login-brand-tagline">
+                    {brand.tagline}
+                  </span>
+                ) : null}
               </div>
             </div>
 
@@ -325,7 +341,7 @@ export function LoginPage({ initialTab = 'login' }) {
 
             <p className="login-header-subtitle">
               {activeTab === 'signup'
-                ? (lang === 'ta' ? 'EEE-TN உடன் உங்கள் பயணத்தைத் தொடங்குங்கள்' : 'Start your journey with EEE-TN')
+                ? (lang === 'ta' ? `${brand.name} உடன் உங்கள் பயணத்தைத் தொடங்குங்கள்` : `Start your journey with ${brand.name}`)
                 : activeTab === 'forgot'
                   ? (lang === 'ta' ? 'உங்கள் கடவுச்சொல்லை மீட்டமைக்கவும்' : 'Reset your password securely')
                   : (t.auth.welcomeTagline || (lang === 'ta' ? 'உங்கள் பயணத்தைத் தொடர உள்நுழைக' : 'Login to continue your journey'))}
@@ -339,7 +355,7 @@ export function LoginPage({ initialTab = 'login' }) {
                 : activeTab === 'forgot'
                   ? (lang === 'ta'
                     ? 'உங்கள் கணக்கிற்கான அணுகலை மீண்டும் பெறுங்கள்.'
-                    : 'Recover access to your EEE-TN account.')
+                    : `Recover access to your ${brand.name} account.`)
                   : (t.auth.welcomeDesc || (lang === 'ta'
                     ? 'தமிழ்நாடு 12-ஆம் வகுப்பு மாணவர்களுக்கான உதவித்தொகை, கல்லூரி மற்றும் உயர்கல்வி வழிகாட்டல்.'
                     : 'Scholarships, colleges and career guidance for Tamil Nadu Class 12 students.'))}

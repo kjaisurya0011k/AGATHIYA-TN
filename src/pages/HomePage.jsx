@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
@@ -7,12 +7,14 @@ import {
   learningResources
 } from '../data/appData';
 import { streamsData } from '../data/guidanceData';
+import { helpline } from '../data/siteContact';
 import { OpportunityCard } from '../components/OpportunityCard';
 import { CutoffCalculator } from '../components/CutoffCalculator';
 import { EdnovaAI } from '../components/EdnovaAI';
 
 import heroStudents from '../assets/eee-tn-students.png';
 import { BrandIdentity } from '../components/BrandIdentity';
+import { brand } from '../data/brand';
 import './HomePage.css';
 
 import {
@@ -33,7 +35,15 @@ import {
   Cpu,
   Palette,
   Wrench,
-  Search
+  Search,
+  Phone,
+  PhoneCall,
+  Mail,
+  MessageCircle,
+  Copy,
+  Check,
+  Clock,
+  Headphones
 } from 'lucide-react';
 
 export function HomePage() {
@@ -42,6 +52,56 @@ export function HomePage() {
   const [selectedStreamCat, setSelectedStreamCat] = useState('all');
   const [featuredOpportunities, setFeaturedOpportunities] = useState(initialOpportunities.slice(0, 6));
   const [totalOppCount, setTotalOppCount] = useState(null);
+  const [copiedKey, setCopiedKey] = useState(null);
+  const copyTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleCopy = async (text, key) => {
+    let copied = false;
+    if (navigator?.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        copied = true;
+      } catch {
+        // Fallback below
+      }
+    }
+
+    if (!copied) {
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.top = '0';
+        textArea.style.left = '-9999px';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        copied = document.execCommand('copy');
+        document.body.removeChild(textArea);
+      } catch (err) {
+        console.warn('Fallback copy error:', err);
+      }
+    }
+
+    if (copied) {
+      setCopiedKey(key);
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopiedKey(null);
+      }, 2000);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -550,12 +610,12 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* 5.5 How EEE-TN Works Section */}
+      {/* 5.5 How AGATHIYA Works Section */}
       <section className="section-padding hp-section" id="how-it-works">
         <div className="container">
           <div className="section-header">
             <span className="section-tag cyan">
-              {isTamil ? 'எளிய வழிமுறை' : 'How EEE-TN Works'}
+              {isTamil ? 'எளிய வழிமுறை' : `How ${brand.name} Works`}
             </span>
             <h2 className="section-title">
               {isTamil ? '4 எளிய படிகளில் உங்கள் எதிர்காலம்' : 'Your Student Journey in 4 Simple Steps'}
@@ -622,8 +682,8 @@ export function HomePage() {
             </h2>
             <p className="hp-cta-subtext">
               {isTamil
-                ? 'EEE-TN தளத்தில் இலவசமாக இணைந்து தகுதியான உதவித்தொகைகள், கட்-ஆஃப் மற்றும் ஆலோசனை வழிகாட்டல்களைப் பெறுங்கள்.'
-                : 'Join EEE-TN to discover verified higher education pathways, fee waivers, and career counseling.'}
+                ? `${brand.name} தளத்தில் இலவசமாக இணைந்து தகுதியான உதவித்தொகைகள், கட்-ஆஃப் மற்றும் ஆலோசனை வழிகாட்டல்களைப் பெறுங்கள்.`
+                : `Join ${brand.name} to discover verified higher education pathways, fee waivers, and career counseling.`}
             </p>
 
             <div className="hp-cta-action-row">
@@ -636,6 +696,187 @@ export function HomePage() {
                 <span>{isTamil ? 'ஏற்கனவே கணக்கு உள்ளதா? உள்நுழையவும்' : 'Already have an account? Login'}</span>
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5.8 Contact & Support Section */}
+      <section className="section-padding hp-section hp-contact-section" id="contact" aria-labelledby="contact-heading">
+        <div className="container">
+          <div className="section-header hp-contact-header">
+            <span className="section-tag cyan">
+              <Headphones size={15} aria-hidden="true" />
+              <span>{isTamil ? 'உதவி மையம்' : 'Support Desk'}</span>
+            </span>
+            <h2 id="contact-heading" className="section-title">
+              Contact & Support
+            </h2>
+            <p className="section-subtitle">
+              Questions about workshops, payments or your account? We are here to help.
+            </p>
+          </div>
+
+          <div className="hp-contact-grid">
+            {/* Card 1: Call us */}
+            <div className="card hp-contact-card">
+              <div className="hp-contact-card-top">
+                <div className="hp-contact-icon-wrap hp-icon-call">
+                  <Phone size={22} aria-hidden="true" />
+                </div>
+                <span className="badge badge-navy">{isTamil ? 'தொலைபேசி' : 'Call Support'}</span>
+              </div>
+              <h3 className="hp-contact-card-title">Call us</h3>
+              <p className="hp-contact-card-desc">
+                {isTamil
+                  ? 'மாணவர் சேர்க்கை மற்றும் கல்வி உதவித்தொகை தொடர்பான நேரடி ஆலோசனைக்கு அழைக்கவும்.'
+                  : 'Speak directly with our counseling and guidance team.'}
+              </p>
+
+              <div className="hp-contact-list">
+                {helpline.phones.map((phone, idx) => (
+                  <div key={phone.tel} className="hp-contact-item">
+                    <a
+                      href={`tel:${phone.tel}`}
+                      className="hp-contact-link hp-tel-link"
+                      aria-label={`Call ${phone.display}`}
+                    >
+                      <PhoneCall size={16} aria-hidden="true" />
+                      <span className="hp-phone-num">{phone.display}</span>
+                    </a>
+                    <button
+                      type="button"
+                      className={`hp-copy-btn ${copiedKey === `phone-${idx}` ? 'copied' : ''}`}
+                      onClick={() => handleCopy(phone.display, `phone-${idx}`)}
+                      aria-label={
+                        copiedKey === `phone-${idx}`
+                          ? `Copied ${phone.display} to clipboard`
+                          : `Copy phone number ${phone.display}`
+                      }
+                    >
+                      {copiedKey === `phone-${idx}` ? (
+                        <>
+                          <Check size={14} aria-hidden="true" />
+                          <span>Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={14} aria-hidden="true" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="hp-contact-hours">
+                <Clock size={16} aria-hidden="true" />
+                <span>{helpline.hours}</span>
+              </div>
+            </div>
+
+            {/* Card 2: WhatsApp */}
+            <div className="card hp-contact-card">
+              <div className="hp-contact-card-top">
+                <div className="hp-contact-icon-wrap hp-icon-wa">
+                  <MessageCircle size={22} aria-hidden="true" />
+                </div>
+                <span className="badge badge-cyan">{isTamil ? 'வாட்ஸ்அப்' : 'WhatsApp'}</span>
+              </div>
+              <h3 className="hp-contact-card-title">WhatsApp</h3>
+              <p className="hp-contact-card-desc">
+                {isTamil
+                  ? 'கட்-ஆஃப் மற்றும் சேர்க்கை விபரங்களை உடனுக்குடன் வாட்ஸ்அப்பில் அறியலாம்.'
+                  : 'Instant chat support for questions on courses, cutoffs, and sessions.'}
+              </p>
+
+              <div className="hp-contact-list hp-wa-list">
+                {helpline.phones.map((phone) => (
+                  <a
+                    key={phone.whatsapp}
+                    href={`https://wa.me/${phone.whatsapp}?text=Hi%20${encodeURIComponent(brand.name)}%2C%20I%20need%20help`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hp-wa-btn"
+                    aria-label={`Chat with ${phone.display} on WhatsApp`}
+                  >
+                    <MessageCircle size={18} aria-hidden="true" />
+                    <span className="hp-wa-btn-content">
+                      <span className="hp-wa-btn-title">Chat on WhatsApp</span>
+                      <span className="hp-wa-btn-num">{phone.display}</span>
+                    </span>
+                  </a>
+                ))}
+              </div>
+
+              <div className="hp-contact-hours">
+                <Clock size={16} aria-hidden="true" />
+                <span>{helpline.hours}</span>
+              </div>
+            </div>
+
+            {/* Card 3: Email us */}
+            <div className="card hp-contact-card">
+              <div className="hp-contact-card-top">
+                <div className="hp-contact-icon-wrap hp-icon-email">
+                  <Mail size={22} aria-hidden="true" />
+                </div>
+                <span className="badge badge-purple">{isTamil ? 'மின்னஞ்சல்' : 'Email'}</span>
+              </div>
+              <h3 className="hp-contact-card-title">Email us</h3>
+              <p className="hp-contact-card-desc">
+                {isTamil
+                  ? 'கல்லூரி ஆவண சரிபார்ப்பு, சந்தேகங்கள் மற்றும் விபரங்களுக்கு எழுதவும்.'
+                  : 'Send detailed queries, verification requests, or workshop partnership notes.'}
+              </p>
+
+              <div className="hp-contact-list">
+                <div className="hp-contact-item hp-email-item">
+                  <a
+                    href={`mailto:${helpline.email}?subject=${encodeURIComponent(brand.name)}%20Support`}
+                    className="hp-contact-link hp-email-link"
+                    aria-label={`Email us at ${helpline.email}`}
+                  >
+                    <Mail size={16} aria-hidden="true" />
+                    <span className="hp-email-num">{helpline.email}</span>
+                  </a>
+                  <button
+                    type="button"
+                    className={`hp-copy-btn ${copiedKey === 'email' ? 'copied' : ''}`}
+                    onClick={() => handleCopy(helpline.email, 'email')}
+                    aria-label={
+                      copiedKey === 'email'
+                        ? `Copied ${helpline.email} to clipboard`
+                        : `Copy email address ${helpline.email}`
+                    }
+                  >
+                    {copiedKey === 'email' ? (
+                      <>
+                        <Check size={14} aria-hidden="true" />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} aria-hidden="true" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="hp-contact-hours">
+                <Clock size={16} aria-hidden="true" />
+                <span>{helpline.hours}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Thin line below the cards */}
+          <div className="hp-contact-bottom-line">
+            <p className="hp-contact-copyright">
+              © {brand.name}. {brand.tagline}
+            </p>
           </div>
         </div>
       </section>

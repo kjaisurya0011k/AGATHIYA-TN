@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { brand } from '../data/brand';
+import { getPaymentStatus, submitStudentPayment } from '../lib/payments';
+import { PaymentModal } from './PaymentModal';
 import {
   Calendar,
   Clock,
@@ -9,11 +13,9 @@ import {
   CheckCircle2,
   Sparkles,
   UserCheck,
-  ExternalLink,
   CalendarPlus,
   AlertCircle,
-  XCircle,
-  Tag
+  XCircle
 } from 'lucide-react';
 import { UserAvatar } from './UserAvatar';
 
@@ -23,23 +25,62 @@ export function SessionCard({ session }) {
     registeredSessions,
     registerForSession,
     cancelStudentRegistration,
-    user
+    user,
+    profile
   } = useAuth();
+  const navigate = useNavigate();
 
   const isTamil = lang === 'ta';
   const sessLang = t?.studentSessions || {};
 
   const isRegistered = registeredSessions.includes(session.id);
-  const [showPaidNotice, setShowPaidNotice] = useState(false);
   const [feedbackToast, setFeedbackToast] = useState(null);
+  const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+
+  const price = session.price_inr !== undefined ? session.price_inr : session.price || 0;
+  const isFree = price === 0;
+
+  // Track payment status for this session
+  const [paymentStatus, setPaymentStatus] = useState(() => {
+    return getPaymentStatus(session.id, user?.id);
+  });
+
+  // Sync payment status when session registrations or storage update
+  useEffect(() => {
+    const syncStatus = () => {
+      const localSt = getPaymentStatus(session.id, user?.id);
+      const reg = (session.registrations || []).find(
+        (r) => (user?.id && r.student_id === user.id) || r.student_id === 'demo-student-id'
+      );
+      if (reg?.payment_status === 'paid' || localSt === 'paid') {
+        setPaymentStatus('paid');
+      } else if (reg?.payment_status === 'pending_verification' || localSt === 'pending_verification') {
+        setPaymentStatus('pending_verification');
+      } else if (localSt && localSt !== 'none') {
+        setPaymentStatus(localSt);
+      }
+    };
+
+    syncStatus();
+
+    const handlePaymentUpdated = (e) => {
+      if (!e.detail || e.detail.sessionId === session.id) {
+        if (e.detail?.status) {
+          setPaymentStatus(e.detail.status);
+        } else {
+          syncStatus();
+        }
+      }
+    };
+
+    window.addEventListener('agathiya-payment-updated', handlePaymentUpdated);
+    return () => window.removeEventListener('agathiya-payment-updated', handlePaymentUpdated);
+  }, [session.id, session.registrations, user?.id]);
 
   const title = (isTamil && session.title_ta ? session.title_ta : session.title_en) || session.title_en;
   const description = (isTamil && session.description_ta ? session.description_ta : session.description_en) || session.description_en || '';
   const mentorName = session.mentor_name || session.profiles?.full_name || 'Verified Career Mentor';
   const mentorRole = session.mentor_headline || (isTamil ? 'அங்கீகரிக்கப்பட்ட வழிகாட்டி' : 'Verified Mentor');
-  
-  const price = session.price_inr !== undefined ? session.price_inr : session.price || 0;
-  const isFree = price === 0;
 
   const capacity = session.capacity || session.seats_total || 100;
   const registeredCount = session.registrations?.length || session.seats_booked || 0;
@@ -52,8 +93,8 @@ export function SessionCard({ session }) {
   const endTime = session.end_time || '11:30';
   const timeDisplay = session.time || `${startTime} - ${endTime} IST`;
 
-  // Meeting Link (revealed ONLY if student is registered)
-  const meetingLink = session.meeting_link || session.session_links?.meeting_link || 'https://meet.google.com/eee-tn-live';
+  // Meeting Link
+  const meetingLink = session.meeting_link || session.session_links?.meeting_link || 'https://meet.google.com/agathiya-live';
 
   // Google Calendar URL generator
   const getGoogleCalendarUrl = () => {
@@ -61,12 +102,32 @@ export function SessionCard({ session }) {
     const cleanStart = (startTime || '10:00').replace(':', '') + '00';
     const cleanEnd = (endTime || '11:30').replace(':', '') + '00';
     const dates = `${cleanDate}T${cleanStart}/${cleanDate}T${cleanEnd}`;
-    const text = encodeURIComponent(title || 'EEE-TN Guidance Session');
-    const details = encodeURIComponent(`${description}\n\nJoin Link: ${meetingLink}\nPlatform: EEE-TN Higher Education Guidance`);
+    const text = encodeURIComponent(title || `${brand.name} Guidance Session`);
+    const details = encodeURIComponent(`${description}\n\nJoin Link: ${meetingLink}\nPlatform: ${brand.name} Higher Education Guidance`);
     const location = encodeURIComponent(meetingLink);
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&details=${details}&location=${location}`;
   };
 
+  // Handler for student submitting payment
+  const handleConfirmPaid = async () => {
+    await submitStudentPayment({
+      sessionId: session.id,
+      user,
+      profile,
+      sessionObj: session
+    });
+
+    if (!isRegistered && registerForSession) {
+      await registerForSession(session.id, session);
+    }
+
+    setIsPayModalOpen(false);
+    setPaymentStatus('pending_verification');
+    setFeedbackToast('Thanks! Your access will be confirmed after the admin verifies your payment.');
+    setTimeout(() => setFeedbackToast(null), 5000);
+  };
+
+  // Handler for free session seat registration / cancellation
   const handleRegisterClick = async () => {
     if (isRegistered) {
       const confirmCancel = window.confirm(
@@ -80,9 +141,6 @@ export function SessionCard({ session }) {
         setTimeout(() => setFeedbackToast(null), 3000);
       }
     } else {
-      if (!isFree) {
-        setShowPaidNotice(true);
-      }
       if (registerForSession) {
         await registerForSession(session.id, session);
       }
@@ -91,8 +149,16 @@ export function SessionCard({ session }) {
     }
   };
 
+  // Should the meeting link be released?
+  // For free sessions: released once registered.
+  // For paid sessions: released ONLY once registered AND admin verified payment (paymentStatus === 'paid').
+  const canAccessMeetingLink = isRegistered && (isFree || paymentStatus === 'paid');
+
   return (
-    <div className={`card session-card ${isRegistered ? 'session-registered-border' : ''}`} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+    <div
+      className={`card session-card ${isRegistered ? 'session-registered-border' : ''}`}
+      style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+    >
       <div>
         {/* Top Bar: Date, Price Badge, & Target Audience */}
         <div className="session-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
@@ -168,8 +234,8 @@ export function SessionCard({ session }) {
           </p>
         )}
 
-        {/* REGISTERED STUDENT EXCLUSIVE: Revealed Meeting Link & Add to Calendar */}
-        {isRegistered && (
+        {/* REVEALED MEETING LINK & CALENDAR (Only when authorized) */}
+        {canAccessMeetingLink && (
           <div
             style={{
               background: '#f0fdf4',
@@ -181,7 +247,11 @@ export function SessionCard({ session }) {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#166534', fontWeight: 700, fontSize: '0.825rem', marginBottom: '0.4rem' }}>
               <CheckCircle2 size={16} />
-              <span>{sessLang.alreadyRegistered || (isTamil ? 'உங்கள் பதிவு உறுதியானது' : 'Seat Confirmed')}</span>
+              <span>
+                {paymentStatus === 'paid'
+                  ? (isTamil ? 'கட்டணம் சரிபார்க்கப்பட்டது • இருக்கை உறுதியானது' : 'Payment Verified • Seat Confirmed')
+                  : sessLang.alreadyRegistered || (isTamil ? 'உங்கள் பதிவு உறுதியானது' : 'Seat Confirmed')}
+              </span>
             </div>
 
             <div style={{ fontSize: '0.78rem', color: '#14532d', marginBottom: '0.65rem' }}>
@@ -214,16 +284,34 @@ export function SessionCard({ session }) {
           </div>
         )}
 
-        {/* Paid Notice Callout if applicable */}
-        {!isFree && (
-          <div style={{ fontSize: '0.75rem', color: '#64748b', background: '#f8fafc', padding: '0.5rem 0.75rem', borderRadius: '4px', marginBottom: '1rem', border: '1px solid #e2e8f0' }}>
-            ℹ️ {sessLang.paidNotice || (isTamil ? 'பதிவு செய்த பிறகு கட்டணம் செலுத்துவதற்கான வழிமுறைகள் பகிரப்படும்.' : 'Payment instructions will be shared after you register (gateway in sandbox).')}
+        {/* Pending Verification Notice for Paid Sessions */}
+        {!isFree && isRegistered && paymentStatus === 'pending_verification' && (
+          <div
+            style={{
+              fontSize: '0.8rem',
+              color: '#92400e',
+              background: '#fffbeb',
+              padding: '0.65rem 0.85rem',
+              borderRadius: '6px',
+              marginBottom: '1rem',
+              border: '1px solid #fde68a',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem'
+            }}
+          >
+            <Clock size={16} color="#d97706" style={{ flexShrink: 0 }} />
+            <span>
+              {isTamil
+                ? 'கட்டண சரிபார்ப்பு நிலுவையில் உள்ளது. நிர்வாகி சரிபார்த்த பின் கூகுள் மீட் இணைப்பு வெளியிடப்படும்.'
+                : 'Payment submitted (pending verification). Access will be confirmed after admin verifies your payment.'}
+            </span>
           </div>
         )}
       </div>
 
       {/* Footer: Seats Indicator & Action Buttons */}
-      <div className="session-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--border-subtle)' }}>
+      <div className="session-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: '0.5rem' }}>
         <div className="seats-indicator" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: '#64748b' }}>
           <Users size={14} />
           {isFull ? (
@@ -237,42 +325,136 @@ export function SessionCard({ session }) {
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={handleRegisterClick}
-          disabled={!isRegistered && isFull}
-          className={`btn btn-sm ${isRegistered ? 'btn-outline' : 'btn-primary'}`}
-          style={{
-            fontSize: '0.825rem',
-            padding: '0.4rem 0.9rem',
-            ...(isRegistered ? { color: '#b91c1c', borderColor: '#fca5a5' } : {})
-          }}
-        >
-          {isRegistered ? (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-              <XCircle size={14} />
-              <span>{sessLang.cancelRegBtn || (isTamil ? 'பதிவை ரத்துசெய்' : 'Cancel Seat')}</span>
-            </span>
-          ) : isFull ? (
-            <span>{sessLang.seatsFull || 'Full'}</span>
-          ) : isFree ? (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-              <UserCheck size={14} />
-              <span>{sessLang.registerFreeBtn || (isTamil ? 'இலவச பதிவு' : 'Register Free')}</span>
-            </span>
+        {/* Action Button: Free vs Paid Flows */}
+        {isFree ? (
+          /* Free Sessions: No Pay button */
+          <button
+            type="button"
+            onClick={handleRegisterClick}
+            disabled={!isRegistered && isFull}
+            className={`btn btn-sm ${isRegistered ? 'btn-outline' : 'btn-pay-green'}`}
+            style={{
+              fontSize: '0.825rem',
+              minHeight: '44px',
+              padding: '0.4rem 0.9rem',
+              fontWeight: 700,
+              ...(isRegistered
+                ? { color: '#b91c1c', borderColor: '#fca5a5' }
+                : { backgroundColor: '#16a34a', borderColor: '#15803d', color: '#ffffff' })
+            }}
+          >
+            {isRegistered ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                <XCircle size={14} />
+                <span>{sessLang.cancelRegBtn || (isTamil ? 'பதிவை ரத்துசெய்' : 'Cancel Seat')}</span>
+              </span>
+            ) : isFull ? (
+              <span>{sessLang.seatsFull || 'Full'}</span>
+            ) : (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                <UserCheck size={14} />
+                <span>{sessLang.registerFreeBtn || (isTamil ? 'இலவச பதிவு' : 'Register Free')}</span>
+              </span>
+            )}
+          </button>
+        ) : (
+          /* Paid Sessions: Pay Button for logged-in students viewing or registered for session */
+          user ? (
+            paymentStatus === 'paid' ? (
+              <button
+                type="button"
+                disabled
+                className="btn btn-sm"
+                aria-label="Payment verified"
+                style={{
+                  fontSize: '0.825rem',
+                  fontWeight: 700,
+                  minHeight: '44px',
+                  padding: '0.4rem 1rem',
+                  background: '#dcfce7',
+                  color: '#166534',
+                  border: '1.5px solid #86efac',
+                  cursor: 'default'
+                }}
+              >
+                ✓ {isTamil ? 'கட்டணம் செலுத்தப்பட்டது' : 'Paid'}
+              </button>
+            ) : paymentStatus === 'pending_verification' ? (
+              <button
+                type="button"
+                disabled
+                className="btn btn-sm btn-outline"
+                aria-label="Payment submitted pending verification"
+                style={{
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  minHeight: '44px',
+                  padding: '0.4rem 0.85rem',
+                  opacity: 0.9,
+                  cursor: 'not-allowed',
+                  color: '#b45309',
+                  borderColor: '#fcd34d',
+                  background: '#fffbeb'
+                }}
+              >
+                Payment submitted (pending verification)
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsPayModalOpen(true)}
+                disabled={isFull && !isRegistered}
+                className="btn btn-sm btn-pay-green"
+                aria-label={`Pay ₹${price} for session`}
+                style={{
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  minHeight: '44px',
+                  padding: '0.4rem 1.15rem',
+                  backgroundColor: '#16a34a',
+                  borderColor: '#15803d',
+                  color: '#ffffff'
+                }}
+              >
+                Pay ₹{price}
+              </button>
+            )
           ) : (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-              <UserCheck size={14} />
-              <span>{sessLang.registerPaidBtn ? sessLang.registerPaidBtn.replace('{price}', price) : `Register (₹${price})`}</span>
-            </span>
-          )}
-        </button>
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="btn btn-sm btn-pay-green"
+              style={{
+                fontSize: '0.825rem',
+                fontWeight: 700,
+                minHeight: '44px',
+                padding: '0.4rem 0.9rem',
+                backgroundColor: '#16a34a',
+                borderColor: '#15803d',
+                color: '#ffffff'
+              }}
+            >
+              Login to Register (₹{price})
+            </button>
+          )
+        )}
       </div>
 
       {feedbackToast && (
         <div className="session-toast" style={{ marginTop: '0.75rem' }}>
           ✓ {feedbackToast}
         </div>
+      )}
+
+      {/* Payment Modal: Only rendered in DOM when Pay is clicked */}
+      {isPayModalOpen && (
+        <PaymentModal
+          isOpen={isPayModalOpen}
+          onClose={() => setIsPayModalOpen(false)}
+          session={session}
+          onConfirmPaid={handleConfirmPaid}
+          isTamil={isTamil}
+        />
       )}
     </div>
   );
