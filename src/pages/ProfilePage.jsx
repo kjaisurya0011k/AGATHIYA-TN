@@ -305,22 +305,6 @@ export function ProfilePage() {
   const currentAge = calculateAge(formData.date_of_birth);
   const isMinor = currentAge !== null && currentAge < 18;
 
-  // Cutoff calculation: Maths/2 + Physics/4 + Chemistry/4
-  const calculateCutoff = (m, p, c) => {
-    const maths = parseFloat(m);
-    const physics = parseFloat(p);
-    const chem = parseFloat(c);
-    if (!isNaN(maths) && !isNaN(physics) && !isNaN(chem)) {
-      return ((maths / 2) + (physics / 4) + (chem / 4)).toFixed(2);
-    }
-    return null;
-  };
-
-  const calculatedCutoff = calculateCutoff(
-    formData.maths_marks,
-    formData.physics_marks,
-    formData.chemistry_marks
-  );
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -782,8 +766,8 @@ export function ProfilePage() {
           <h2>{lang === 'ta' ? 'சுயவிவரத்தைக் காண உள்நுழையவும்' : 'Sign in to View Your Profile'}</h2>
           <p>
             {lang === 'ta'
-              ? 'உங்கள் கல்வித் தகுதிகள், கட்-ஆஃப் மதிப்பெண்கள் மற்றும் உதவித்தொகைகளை நிர்வகிக்க உள்நுழையவும்.'
-              : 'Sign in to access your profile settings, view personalized cutoff calculations, and manage preferences.'}
+              ? 'உங்கள் கல்வித் தகுதிகள், விருப்பங்கள் மற்றும் உதவித்தொகைகளை நிர்வகிக்க உள்நுழையவும்.'
+              : 'Sign in to access your profile settings, view personalized scholarship matches, and manage preferences.'}
           </p>
           <button
             type="button"
@@ -1200,10 +1184,10 @@ export function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Marks & Cutoff */}
+                {/* Marks */}
                 <div className="form-section-header" style={{ marginTop: '1.75rem' }}>
                   <Award size={16} color="var(--cyan-700)" />
-                  <strong>{lang === 'ta' ? 'மதிப்பெண்கள் & கட்-ஆஃப்' : 'Class 12 Marks & Engineering Cutoff'}</strong>
+                  <strong>{lang === 'ta' ? '12-ஆம் வகுப்பு மதிப்பெண்கள்' : 'Class 12 Marks'}</strong>
                 </div>
 
                 <div className="form-row-3">
@@ -1276,20 +1260,6 @@ export function ProfilePage() {
                       className="form-input"
                       placeholder="e.g. 85.5"
                     />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">
-                      {lang === 'ta' ? 'கணக்கிடப்பட்ட பொறியியல் கட்-ஆஃப் (/200)' : 'Engineering Cutoff (/200)'}
-                    </label>
-                    <div className="cutoff-display-box" role="status" aria-live="polite">
-                      <span className="cutoff-calc-value">
-                        {calculatedCutoff !== null ? calculatedCutoff : '—'}
-                      </span>
-                      <small className="cutoff-formula-note">
-                        Maths/2 + Physics/4 + Chemistry/4
-                      </small>
-                    </div>
                   </div>
                 </div>
 

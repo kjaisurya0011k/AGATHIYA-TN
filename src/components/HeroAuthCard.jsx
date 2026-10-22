@@ -226,7 +226,7 @@ export function HeroAuthCard() {
         </div>
         <div className="signin-benefit-item">
           <CheckCircle2 size={14} color="var(--cyan-700)" />
-          <span>{lang === 'ta' ? 'TNEA & மருத்துவ கட்-ஆஃப் வழிகாட்டல்' : 'Engineering & Medical cutoff calculators'}</span>
+          <span>{lang === 'ta' ? 'TNEA & மருத்துவ சேர்க்கை வழிகாட்டல்' : 'Engineering & Medical admission guidance'}</span>
         </div>
       </div>
 

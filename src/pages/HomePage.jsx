@@ -9,7 +9,6 @@ import {
 import { streamsData } from '../data/guidanceData';
 import { helpline } from '../data/siteContact';
 import { OpportunityCard } from '../components/OpportunityCard';
-import { CutoffCalculator } from '../components/CutoffCalculator';
 import { EdnovaAI } from '../components/EdnovaAI';
 
 import heroStudents from '../assets/eee-tn-students.png';
@@ -195,7 +194,7 @@ export function HomePage() {
       {
         num: '02',
         title: 'தகுதியை அறிந்து கொள்ளுங்கள்',
-        desc: 'TNEA கட்-ஆஃப் சூத்திரம், தகுதி விதிமுறைகள் மற்றும் 7.5% அரசு பள்ளி ஒதுக்கீட்டின் பலன்களைக் கணக்கிடுங்கள்.'
+        desc: 'ஒற்றைச் சாளர கலந்தாய்வு விதிமுறைகள், அரசு ஒதுக்கீடுகள் மற்றும் சேர்க்கை தகுதிகளை எளிதாக ஆராயுங்கள்.'
       },
       {
         num: '03',
@@ -216,8 +215,8 @@ export function HomePage() {
       },
       {
         num: '02',
-        title: 'Understand Eligibility & Cutoffs',
-        desc: 'Calculate your exact TNEA cutoff score and explore government quota criteria with ease.'
+        title: 'Understand Eligibility & Admissions',
+        desc: 'Explore single-window counseling rules, quota thresholds, and government school reservations.'
       },
       {
         num: '03',
@@ -268,14 +267,13 @@ export function HomePage() {
                 <ArrowRight size={17} />
               </Link>
 
-              <button
-                type="button"
+              <Link
+                to="/sessions"
                 className="hp-btn-secondary"
-                onClick={() => scrollTo('colleges')}
               >
                 <GraduationCap size={18} />
-                <span>{t.hero.cutoffBtn || (isTamil ? 'Cut-off கணக்கிடுங்கள்' : 'Estimate My Cutoff')}</span>
-              </button>
+                <span>{isTamil ? 'நேரலை வழிகாட்டல் அமர்வுகள்' : 'Live Guidance Sessions'}</span>
+              </Link>
             </div>
 
             {/* Trust points */}
@@ -438,7 +436,7 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* 5.2 Find Your College Section & Cutoff Calculator */}
+      {/* 5.2 Find Your College Section */}
       <section className="section-padding bg-alt-section hp-section" id="colleges">
         <div className="container">
           <div className="section-header">
@@ -447,52 +445,49 @@ export function HomePage() {
             </span>
             <h2 className="section-title">
               {isTamil
-                ? 'உங்கள் மதிப்பெண்ணுக்கு ஏற்ற கல்லூரியைத் தேர்ந்தெடுங்கள்'
+                ? 'உங்கள் இலக்குக்கு ஏற்ற கல்லூரியைத் தேர்ந்தெடுங்கள்'
                 : 'Choose the College and Course That Fit Your Goals'}
             </h2>
             <p className="section-subtitle">
               {isTamil
                 ? 'அரசு ஒற்றைச் சாளர கலந்தாய்வு மூலம் நியாயமான கட்டணத்தில் தரமான கல்லூரியைத் தேர்வு செய்ய வழிகாட்டுதல்.'
-                : 'Compare counseling options, statutory fee structures, and calculate your TNEA cutoff accurately.'}
+                : 'Compare counseling options, statutory fee structures, and verified admission guidelines.'}
             </p>
           </div>
 
-          <div className="colleges-split-layout">
-            {/* Cutoff Calculator Integrated */}
-            <div className="colleges-calculator-col">
-              <CutoffCalculator />
-            </div>
-
+          <div style={{ maxWidth: '840px', margin: '0 auto' }}>
             {/* Checklist Guide */}
-            <div className="colleges-checklist-col">
-              <div className="card hp-checklist-card">
-                <div className="hp-checklist-header">
-                  <GraduationCap size={22} className="text-teal" />
-                  <h3>{isTamil ? 'கல்லூரி சேரும் முன் கவனிக்க வேண்டியவை' : 'College Selection Checklist'}</h3>
-                </div>
-                <div className="hp-checklist-items">
-                  {t.checklist.points.slice(0, 4).map((point, index) => (
-                    <div key={index} className="hp-check-row">
-                      <span className="hp-check-num">{index + 1}</span>
-                      <div>
-                        <strong>{point.title}</strong>
-                        <p>{point.desc}</p>
-                      </div>
+            <div className="card hp-checklist-card">
+              <div className="hp-checklist-header">
+                <GraduationCap size={22} className="text-teal" />
+                <h3>{isTamil ? 'கல்லூரி சேரும் முன் கவனிக்க வேண்டியவை' : 'College Selection Checklist'}</h3>
+              </div>
+              <div className="hp-checklist-items">
+                {t.checklist.points.slice(0, 4).map((point, index) => (
+                  <div key={index} className="hp-check-row">
+                    <span className="hp-check-num">{index + 1}</span>
+                    <div>
+                      <strong>{point.title}</strong>
+                      <p>{point.desc}</p>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
+              </div>
 
-                <div className="hp-checklist-footer">
-                  <a
-                    href="https://www.tneaonline.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-outline btn-sm"
-                  >
-                    <span>{isTamil ? 'அதிகாரப்பூர்வ TNEA தளம்' : 'Official TNEA Counseling'}</span>
-                    <ExternalLink size={13} />
-                  </a>
-                </div>
+              <div className="hp-checklist-footer" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+                <a
+                  href="https://www.tneaonline.org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-outline btn-sm"
+                >
+                  <span>{isTamil ? 'அதிகாரப்பூர்வ TNEA தளம்' : 'Official TNEA Counseling'}</span>
+                  <ExternalLink size={13} />
+                </a>
+                <Link to="/sessions" className="btn btn-primary btn-sm">
+                  <span>{isTamil ? 'நேரலை வழிகாட்டல் அமர்வுகள்' : 'Join Guidance Sessions'}</span>
+                  <ArrowRight size={13} />
+                </Link>
               </div>
             </div>
           </div>

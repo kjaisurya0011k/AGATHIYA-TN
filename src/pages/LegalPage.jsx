@@ -55,7 +55,7 @@ export function LegalPage({ type = 'privacy' }) {
           </p>
           <h3>2. Purpose & Use of Data</h3>
           <p>
-            We use your information exclusively to provide verified higher education pathways, cutoff estimations, mentorship session access, and support response. We never sell, monetize, or disclose student data to commercial advertising brokers or third-party marketing agencies.
+            We use your information exclusively to provide verified higher education pathways, counseling admission guidance, mentorship session access, and support response. We never sell, monetize, or disclose student data to commercial advertising brokers or third-party marketing agencies.
           </p>
           <h3>3. Support Enquiries & Security</h3>
           <p>
@@ -141,7 +141,7 @@ export function LegalPage({ type = 'privacy' }) {
           </div>
           <h3>1. Free Public Webinars</h3>
           <p>
-            The majority of ${brand.name} career counseling webinars, college cutoff reviews, and scholarship guidance events are offered free of cost to students.
+            The majority of ${brand.name} career counseling webinars, college admission reviews, and scholarship guidance events are offered free of cost to students.
           </p>
           <h3>2. Workshop Cancellations by Organizer</h3>
           <p>

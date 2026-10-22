@@ -20,7 +20,7 @@ export const helpline = {
       label_ta: "பள்ளி & கூட்டாண்மை வினவல்கள்"
     }
   ],
-  email: "eeetnofficial148@gmail.com",
+  email: "agathiyaofficial148@gmail.com",
   hours: "Mon-Sat, 9 AM - 7 PM IST",
   hours_ta: "திங்கள்–சனி, காலை 9:00 – மாலை 7:00 IST",
   responseEstimate: "Replies typically within 24 business hours",

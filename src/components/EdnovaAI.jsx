@@ -17,13 +17,13 @@ export function EdnovaAI({ compact = false }) {
 
   const samplePrompts = isTamil
     ? [
-        { q: 'பொறியியல் TNEA கட்-ஆஃப் எப்படி கணக்கிடுவது?', a: 'TNEA பொறியியல் கட்-ஆஃப்: கணிதம் (100) + இயற்பியல் (50) + வேதியியல் (50) = 200 மதிப்பெண்கள். முகப்பில் உள்ள Cutoff Calculator-ஐ பயன்படுத்தி கணக்கிடலாம்.' },
+        { q: 'பொறியியல் TNEA சேர்க்கை முறை என்ன?', a: 'TNEA பொறியியல் ஒற்றைச் சாளர கலந்தாய்வு tneaonline.org மூலம் நடைபெறுகிறது. கணிதம் (100) + இயற்பியல் (50) + வேதியியல் (50) அடிப்படையில் தரவரிசை வெளியிடப்படும்.' },
         { q: '7.5% அரசுப் பள்ளி இடஒதுக்கீடு யாருக்கு கிடைக்கும்?', a: 'தமிழ்நாடு அரசுப் பள்ளிகளில் 6 முதல் 12-ஆம் வகுப்பு வரை தொடர்ந்து பயின்ற மாணவர்களுக்கு 7.5% இடஒதுக்கீட்டின் கீழ் 100% இலவசக் கல்வி வழங்கப்படுகிறது.' },
         { q: 'கலை மற்றும் அறிவியல் படிப்புகளுக்கான சேர்க்கை எப்போது?', a: 'TNGASA (tngasa.in) இணையதளம் மூலம் அரசு கலை மற்றும் அறிவியல் கல்லூரிகளுக்கான சேர்க்கை ஒற்றைச் சாளர முறையில் நடைபெறுகிறது.' },
         { q: 'வளர்ந்து வரும் AI & Data Science வேலைவாய்ப்புகள் என்ன?', a: 'AI & Data Science துறையில் Machine Learning, Cloud Computing, Data Analytics போன்ற உயர் ஊதிய வாய்ப்புகள் வேகமாக வளர்ந்து வருகின்றன.' }
       ]
     : [
-        { q: 'How to calculate TNEA engineering cutoff?', a: 'TNEA Engineering Cutoff: Mathematics (100) + Physics (50) + Chemistry (50) = 200 marks. You can use our Cutoff Calculator directly on this page.' },
+        { q: 'How does TNEA engineering counseling work?', a: 'Single-window TNEA counseling is conducted online via tneaonline.org based on your Class 12 PCM normalized rank list.' },
         { q: 'Who is eligible for 7.5% Govt school quota?', a: 'Students who studied continuously from Classes 6 to 12 in Tamil Nadu Government schools are eligible for 100% fee exemption including tuition and hostel.' },
         { q: 'How does Arts & Science college admission work?', a: 'Single-window admissions for Government Arts & Science colleges take place through the official TNGASA portal (tngasa.in).' },
         { q: 'What are emerging opportunities in AI & Tech?', a: 'Fields like AI, Machine Learning, Data Analytics, and Cloud Computing offer high-growth global and domestic career opportunities.' }

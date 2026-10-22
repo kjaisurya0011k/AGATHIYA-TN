@@ -73,8 +73,8 @@ export function AchievementsPage() {
   const milestones = [
     {
       id: 'm1',
-      title_ta: 'TNEA பொறியியல் கட்-ஆஃப் கணக்கிடப்பட்டது',
-      title_en: 'TNEA Engineering Cutoff Calculated',
+      title_ta: 'உயர்கல்வி இலக்கு மற்றும் படிப்பு விருப்பங்கள் பதிவு செய்யப்பட்டது',
+      title_en: 'Higher Education Path & Stream Goal Set',
       status: 'completed',
       date: '2026-05-12'
     },

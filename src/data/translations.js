@@ -11,7 +11,7 @@ export const translations = {
 
     nav: {
       streams: "படிப்புகள்",
-      calculator: "Cut-off கணக்கீடு",
+      calculator: "வழிகாட்டல் அமர்வுகள்",
       schemes: "Scholarships",
       checklist: "College தேர்வு",
       admissions: "சேர்க்கை",
@@ -25,7 +25,7 @@ export const translations = {
       headingHighlight: "அடுத்து என்ன படிக்கலாம்?",
       desc: "உங்களுக்கு ஏற்ற course, college மற்றும் scholarship வாய்ப்புகளை ஒரே இடத்தில் தெரிந்துகொள்ளுங்கள்.",
       exploreBtn: "படிப்பு வாய்ப்புகளைப் பாருங்கள்",
-      cutoffBtn: "Cut-off கணக்கிடுங்கள்",
+      cutoffBtn: "நேரலை வழிகாட்டல் அமர்வுகள்",
       quickFactsTitle: `${brand.name} மூலம் தெரிந்துகொள்ளுங்கள்`,
       fact1: "பல்வேறு படிப்புகள் பற்றிய தகவல்கள்",
       fact2: "Scholarship வாய்ப்புகள்",
@@ -609,7 +609,7 @@ export const translations = {
 
     nav: {
       streams: "Explore Courses",
-      calculator: "Cutoff Calculator",
+      calculator: "Guidance Sessions",
       schemes: "Scholarships & Support",
       checklist: "Choosing a College",
       admissions: "Admission Guide",
@@ -623,7 +623,7 @@ export const translations = {
       headingHighlight: "Let's Explore Your Options Together.",
       desc: "Choosing a course, finding the right college, or understanding scholarships can feel confusing. Explore the options available to you, get clear information, and take your next step with greater confidence.",
       exploreBtn: "Explore My Options",
-      cutoffBtn: "Estimate My Cutoff",
+      cutoffBtn: "Live Guidance Sessions",
       quickFactsTitle: "A Few Things Worth Knowing",
       fact1: "Explore the eligibility rules and benefits of the 7.5% preferential quota for eligible government-school students.",
       fact2: "Learn about eligibility and support under schemes such as Pudhumai Penn and Tamil Pudhalvan.",

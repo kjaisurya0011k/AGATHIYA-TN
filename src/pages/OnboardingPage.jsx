@@ -18,7 +18,7 @@ import {
   AlertCircle,
   ArrowRight,
   ArrowLeft,
-  Calculator,
+  BookOpen,
   ShieldCheck,
   Lock,
   Heart,
@@ -201,22 +201,6 @@ export function OnboardingPage() {
   const currentAge = calculateAge(formData.date_of_birth);
   const isMinor = currentAge !== null && currentAge < 18;
 
-  // Cutoff calculation: Maths/2 + Physics/4 + Chemistry/4 (out of 200)
-  const calculateCutoff = (m, p, c) => {
-    const maths = parseFloat(m);
-    const physics = parseFloat(p);
-    const chem = parseFloat(c);
-    if (!isNaN(maths) && !isNaN(physics) && !isNaN(chem)) {
-      return ((maths / 2) + (physics / 4) + (chem / 4)).toFixed(2);
-    }
-    return null;
-  };
-
-  const calculatedCutoff = calculateCutoff(
-    formData.maths_marks,
-    formData.physics_marks,
-    formData.chemistry_marks
-  );
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -434,8 +418,8 @@ export function OnboardingPage() {
             </h1>
             <p className="onboarding-page-desc">
               {lang === 'ta'
-                ? 'உங்கள் கட்-ஆஃப் மதிப்பெண்களைக் கணக்கிடவும், 7.5% அரசு பள்ளி ஒதுக்கீடு மற்றும் உதவித்தொகைகளை அடையாளம் காணவும் உங்கள் விவரங்களை பதிவு செய்யவும்.'
-                : 'Enter your basic details and marks to calculate your college cutoff and match with eligible scholarships across Tamil Nadu.'}
+                ? '7.5% அரசு பள்ளி ஒதுக்கீடு, தகுதி மற்றும் உதவித்தொகைகளை அடையாளம் காண உங்கள் விவரங்களை பதிவு செய்யவும்.'
+                : 'Enter your basic details and academic info to match with eligible scholarships and guidance opportunities across Tamil Nadu.'}
             </p>
           </div>
 
@@ -749,9 +733,9 @@ export function OnboardingPage() {
 
               {/* Marks Inputs */}
               <div className="form-section-header" style={{ marginTop: '1.5rem' }}>
-                <Calculator size={16} color="var(--cyan-700)" />
+                <BookOpen size={16} color="var(--cyan-700)" />
                 <strong>
-                  {lang === 'ta' ? 'மதிப்பெண்கள் & கட்-ஆஃப் (விருப்பத்திற்குரியது)' : 'Marks & Cutoff (Optional)'}
+                  {lang === 'ta' ? '12-ஆம் வகுப்பு மதிப்பெண்கள் (விருப்பத்திற்குரியது)' : 'Class 12 Marks (Optional)'}
                 </strong>
               </div>
 
@@ -825,21 +809,6 @@ export function OnboardingPage() {
                     className="form-input"
                     placeholder="e.g. 85.5"
                   />
-                </div>
-
-                {/* Auto Calculated Cutoff Box */}
-                <div className="form-group">
-                  <label className="form-label">
-                    {lang === 'ta' ? 'கணக்கிடப்பட்ட பொறியியல் கட்-ஆஃப் (/200)' : 'Engineering Cutoff (/200)'}
-                  </label>
-                  <div className="cutoff-display-box" role="status" aria-live="polite">
-                    <span className="cutoff-calc-value">
-                      {calculatedCutoff !== null ? calculatedCutoff : '—'}
-                    </span>
-                    <small className="cutoff-formula-note">
-                      Maths/2 + Physics/4 + Chemistry/4
-                    </small>
-                  </div>
                 </div>
               </div>
             </div>

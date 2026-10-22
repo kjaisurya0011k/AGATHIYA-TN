@@ -21,7 +21,7 @@ import {
   AlertTriangle,
   ArrowRight,
   ArrowLeft,
-  Calculator,
+  BookOpen,
   Lock,
   Heart
 } from 'lucide-react';
@@ -85,22 +85,6 @@ export function OnboardingModal() {
   const currentAge = calculateAge(formData.date_of_birth);
   const isMinor = currentAge !== null && currentAge < 18;
 
-  // Auto-calculate cutoff: Maths/2 + Physics/4 + Chemistry/4
-  const calculateCutoff = (m, p, c) => {
-    const maths = parseFloat(m);
-    const physics = parseFloat(p);
-    const chem = parseFloat(c);
-    if (!isNaN(maths) && !isNaN(physics) && !isNaN(chem)) {
-      return ((maths / 2) + (physics / 4) + (chem / 4)).toFixed(2);
-    }
-    return null;
-  };
-
-  const calculatedCutoff = calculateCutoff(
-    formData.maths_marks,
-    formData.physics_marks,
-    formData.chemistry_marks
-  );
 
   // Initialize form with existing studentDetails or Google OAuth prefill
   useEffect(() => {
@@ -618,10 +602,10 @@ export function OnboardingModal() {
                 </div>
               </div>
 
-              {/* Optional Marks & Live Cutoff Calculator */}
+              {/* Optional Marks */}
               <div className="marks-card-subbox">
                 <div className="marks-box-header">
-                  <Calculator size={17} color="var(--cyan-700)" />
+                  <BookOpen size={17} color="var(--cyan-700)" />
                   <div>
                     <h4>{t.onboarding.marksTitle}</h4>
                     <p>{t.onboarding.marksHelp}</p>
@@ -674,24 +658,6 @@ export function OnboardingModal() {
                     />
                   </div>
                 </div>
-
-                {/* Read-Only Auto-Calculated Cutoff Score */}
-                <div className="cutoff-live-display">
-                  <div className="cutoff-live-label">
-                    <Sparkles size={16} color="var(--purple-600)" />
-                    <span>{t.onboarding.cutoff}</span>
-                  </div>
-                  <div className="cutoff-live-val">
-                    {calculatedCutoff !== null ? (
-                      <strong>{calculatedCutoff} <small>/ 200</small></strong>
-                    ) : (
-                      <span className="cutoff-pending">{lang === 'ta' ? 'மதிப்பெண்களை உள்ளிடவும்' : 'Enter M, P, C to view'}</span>
-                    )}
-                  </div>
-                </div>
-                <small className="field-hint" style={{ marginTop: '0.4rem', display: 'block' }}>
-                  {t.onboarding.cutoffNote}
-                </small>
               </div>
             </div>
           )}

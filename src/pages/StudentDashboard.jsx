@@ -16,7 +16,6 @@ import {
   Building,
   Sparkles,
   ArrowRight,
-  Calculator,
   Download,
   LogOut,
   UserCheck
@@ -125,22 +124,22 @@ export function StudentDashboard() {
           </div>
         </div>
 
-        {/* Quick Cutoff Summary Widget */}
+        {/* Quick Guidance Sessions Widget */}
         <div className="dash-cutoff-widget">
           <div className="widget-header">
-            <Calculator size={15} />
-            <span>{lang === 'ta' ? 'உங்கள் கட்-ஆஃப்' : 'Calculated Cutoff'}</span>
+            <Calendar size={15} />
+            <span>{lang === 'ta' ? 'வழிகாட்டல் அமர்வுகள்' : 'Guidance Sessions'}</span>
           </div>
           <div className="widget-score">
-            <strong>182.50</strong>
-            <span>/ 200</span>
+            <strong>{registeredSessions?.length || 0}</strong>
+            <span style={{ fontSize: '0.85rem', marginLeft: '0.35rem', fontWeight: 600 }}>{lang === 'ta' ? 'பதிவு செய்தவை' : 'Registered'}</span>
           </div>
           <p className="widget-note">
-            {lang === 'ta' ? 'பொறியியல் ரவுண்ட் 1 / 2 சேர்க்கைக்கான வாய்ப்பு' : 'Eligible for TNEA Counseling Rounds'}
+            {lang === 'ta' ? 'நேரலை ஆலோசனை மற்றும் வழிகாட்டல்' : 'Live Guidance & Counseling'}
           </p>
-          <a href="/#cutoff-calculator" className="widget-link">
-            {lang === 'ta' ? 'மீண்டும் கணக்கிட →' : 'Recalculate →'}
-          </a>
+          <Link to="/sessions" className="widget-link">
+            {lang === 'ta' ? 'அமர்வுகள் பார்க்க →' : 'View Sessions →'}
+          </Link>
         </div>
       </div>
 
