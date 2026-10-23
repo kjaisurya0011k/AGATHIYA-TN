@@ -23,6 +23,7 @@ import {
   Check,
   EyeOff
 } from 'lucide-react';
+import { formatDisplayDate } from '../../lib/dateUtils';
 
 export function AdminAchievementsPage() {
   const { lang, t } = useLanguage();
@@ -377,7 +378,7 @@ export function AdminAchievementsPage() {
             </p>
           </div>
         ) : (
-          <div className="table-responsive" style={{ overflowX: 'auto' }}>
+          <div className="table-responsive">
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
@@ -398,47 +399,47 @@ export function AdminAchievementsPage() {
 
                   return (
                     <tr key={ach.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '0.85rem 0.75rem', fontWeight: 700, color: 'var(--navy-900)', maxWidth: '280px' }}>
+                      <td data-label={isTamil ? 'தலைப்பு' : 'Title'} style={{ padding: '0.85rem 0.75rem', fontWeight: 700, color: 'var(--navy-900)' }}>
                         {title}
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem' }}>
+                      <td data-label={isTamil ? 'வகை' : 'Category'} style={{ padding: '0.85rem 0.75rem' }}>
                         {getCategoryBadge(ach.achievement_type)}
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem', color: '#475569' }}>
+                      <td data-label={isTamil ? 'பள்ளி & ஊர்' : 'School & Town'} style={{ padding: '0.85rem 0.75rem', color: '#475569' }}>
                         <div>{ach.school_name}</div>
                         <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{ach.town}</div>
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem', color: '#64748b' }}>
-                        {ach.event_date}
+                      <td data-label={isTamil ? 'தேதி' : 'Date'} style={{ padding: '0.85rem 0.75rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                        {formatDisplayDate(ach.event_date)}
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.78rem', color: '#475569' }}>
+                      <td data-label={isTamil ? 'புகைப்படங்கள்' : 'Photos'} style={{ padding: '0.85rem 0.75rem' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.78rem', color: '#475569', whiteSpace: 'nowrap' }}>
                           <ImageIcon size={13} />
                           <span>{ach.images?.length || 0}</span>
                         </span>
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem' }}>
+                      <td data-label={isTamil ? 'ஒப்புதல் நிலை' : 'Consent'} style={{ padding: '0.85rem 0.75rem' }}>
                         {ach.photo_consent_confirmed ? (
-                          <span className="badge badge-green" style={{ fontSize: '0.7rem' }}>✓ Verified</span>
+                          <span className="badge badge-green" style={{ fontSize: '0.7rem', whiteSpace: 'nowrap' }}>✓ Verified</span>
                         ) : (
-                          <span className="badge badge-amber" style={{ fontSize: '0.7rem' }}>Pending</span>
+                          <span className="badge badge-amber" style={{ fontSize: '0.7rem', whiteSpace: 'nowrap' }}>Pending</span>
                         )}
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem' }}>
+                      <td data-label={isTamil ? 'நிலை' : 'Status'} style={{ padding: '0.85rem 0.75rem' }}>
                         {isPublished ? (
-                          <span className="badge badge-green" style={{ fontSize: '0.7rem' }}>Published</span>
+                          <span className="badge badge-green" style={{ fontSize: '0.7rem', whiteSpace: 'nowrap' }}>Published</span>
                         ) : (
-                          <span className="badge badge-gray" style={{ fontSize: '0.7rem' }}>Draft</span>
+                          <span className="badge badge-gray" style={{ fontSize: '0.7rem', whiteSpace: 'nowrap' }}>Draft</span>
                         )}
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', gap: '0.4rem' }}>
+                      <td data-label={isTamil ? 'நடவடிக்கைகள்' : 'Actions'} style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
+                        <div style={{ display: 'inline-flex', gap: '0.4rem', width: '100%' }}>
                           {/* Publish/Unpublish toggle */}
                           <button
                             type="button"
                             onClick={() => handleTogglePublish(ach)}
                             className={`btn btn-sm ${isPublished ? 'btn-outline' : 'btn-primary'}`}
-                            style={{ fontSize: '0.72rem', padding: '0.25rem 0.55rem' }}
+                            style={{ fontSize: '0.8rem', minHeight: '44px', padding: '0.4rem 0.75rem', flex: 1, justifyContent: 'center', whiteSpace: 'nowrap' }}
                             title={isPublished ? 'Unpublish' : 'Publish'}
                           >
                             {isPublished ? (admLang.btnUnpublish || 'Unpublish') : (admLang.btnPublish || 'Publish')}
@@ -449,10 +450,10 @@ export function AdminAchievementsPage() {
                             type="button"
                             onClick={() => handleOpenEdit(ach)}
                             className="btn btn-sm btn-outline"
-                            style={{ fontSize: '0.72rem', padding: '0.25rem 0.55rem' }}
+                            style={{ fontSize: '0.8rem', minHeight: '44px', padding: '0.4rem 0.75rem', justifyContent: 'center', whiteSpace: 'nowrap' }}
                             title="Edit"
                           >
-                            <Edit size={12} />
+                            <Edit size={14} />
                           </button>
 
                           {/* Delete button */}
@@ -460,10 +461,10 @@ export function AdminAchievementsPage() {
                             type="button"
                             onClick={() => handleDelete(ach.id)}
                             className="btn btn-sm btn-outline"
-                            style={{ fontSize: '0.72rem', padding: '0.25rem 0.55rem', color: '#b91c1c', borderColor: '#fecaca' }}
+                            style={{ fontSize: '0.8rem', minHeight: '44px', padding: '0.4rem 0.75rem', color: '#b91c1c', borderColor: '#fecaca', justifyContent: 'center', whiteSpace: 'nowrap' }}
                             title="Delete"
                           >
-                            <Trash2 size={12} />
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </td>

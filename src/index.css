@@ -76,36 +76,418 @@
 *::after {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+/* Long free-text blocks wrap naturally without breaking mid-word */
+body {
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+/* Keep Tamil text readable with appropriate line height */
+:lang(ta),
+[lang="ta"],
+.font-tamil {
+  line-height: 1.6;
+}
+
+/* Buttons, badges, status pills, tabs, dates, times, and prices must NEVER wrap mid-word */
+button,
+.btn,
+.badge,
+.pill,
+.status-badge,
+.mentor-status-badge,
+.role-badge,
+.filter-pill-btn,
+.nav-pill-item,
+.expertise-tag,
+.profile-tab-btn,
+.session-schedule,
+.session-date,
+.date-badge,
+.price-badge,
+time {
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+/* Table cells must never split words letter-by-letter */
+td,
+th {
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
 }
 
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overflow-x: clip;
 }
 
 body {
   background-color: var(--bg-page);
-  line-height: 1.6;
+  line-height: 1.5;
   -moz-osx-font-smoothing: grayscale;
-  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+  overflow-x: clip;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/*Tamil font specific adjustments for line height & readability*/
+/* Fluid Headings with clamp() */
+h1, .h1 {
+  font-size: clamp(1.65rem, 5vw + 0.4rem, 2.75rem);
+  line-height: 1.25;
+}
+h2, .h2 {
+  font-size: clamp(1.35rem, 4vw + 0.3rem, 2.15rem);
+  line-height: 1.3;
+}
+h3, .h3 {
+  font-size: clamp(1.15rem, 3vw + 0.2rem, 1.6rem);
+  line-height: 1.35;
+}
+h4, .h4 {
+  font-size: clamp(1rem, 2vw + 0.2rem, 1.25rem);
+  line-height: 1.4;
+}
+
+/* Base image & media constraints */
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Universal Input & Control Rules to Prevent iOS / Android Auto-Zoom & ensure 44px tap target */
+input,
+select,
+textarea,
+.form-input,
+.auth-card-input {
+  font-size: 16px !important;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea,
+.form-input,
+.auth-card-input {
+  min-height: 44px;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  min-width: 20px;
+  min-height: 20px;
+  cursor: pointer;
+}
+
+/* Tamil font specific adjustments for line height & readability */
 [lang="ta"] body,
 .tamil-text {
   font-family: var(--font-tamil);
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
-img,
-svg {
-  display: block;
-  max-width: 100%;
+/* Mobile Touch Target and Layout Ergonomics (< 768px) */
+@media (max-width: 767px) {
+  button,
+  .btn,
+  .tab-btn,
+  .filter-pill,
+  .filter-pill-btn,
+  .profile-tab-btn,
+  .navbar-mobile-toggle-btn,
+  .navbar-user-pill-btn,
+  .lang-toggle-btn,
+  a.btn {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Full-width action buttons on mobile cards and forms */
+  form button[type="submit"],
+  form .btn-primary,
+  .login-card-form button,
+  .session-card .btn,
+  .session-card button {
+    width: 100%;
+  }
+
+  .session-actions,
+  .hp-hero-actions,
+  .modal-actions,
+  .form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px !important;
+  }
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+/* Responsive Grids (Tablet: 2 columns, Mobile: 1 column) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .streams-grid,
+  .opportunities-grid,
+  .skills-grid-clean,
+  .journey-steps-grid,
+  .hp-contact-grid,
+  .dashboard-stats-grid,
+  .sessions-grid,
+  .mentor-stats-grid,
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .streams-grid,
+  .opportunities-grid,
+  .skills-grid-clean,
+  .journey-steps-grid,
+  .hp-contact-grid,
+  .dashboard-stats-grid,
+  .sessions-grid,
+  .mentor-stats-grid,
+  .admin-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tables become stacked cards on mobile (< 768px) */
+  .table-responsive {
+    overflow-x: visible !important;
+  }
+
+  .table-responsive table,
+  table.responsive-table {
+    display: block !important;
+    width: 100% !important;
+    border-collapse: separate !important;
+  }
+
+  .table-responsive thead,
+  table.responsive-table thead {
+    display: none !important;
+  }
+
+  .table-responsive tbody,
+  table.responsive-table tbody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.85rem !important;
+    width: 100% !important;
+  }
+
+  .table-responsive tr,
+  table.responsive-table tr {
+    display: flex !important;
+    flex-direction: column !important;
+    background: #ffffff !important;
+    border: 1px solid var(--border-subtle, #e2e8f0) !important;
+    border-radius: 12px !important;
+    padding: 0.85rem 1rem !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+    gap: 0.4rem !important;
+  }
+
+  .table-responsive td,
+  table.responsive-table td {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0.45rem 0 !important;
+    border-bottom: 1px dashed #f1f5f9 !important;
+    font-size: 0.85rem !important;
+    max-width: 100% !important;
+    text-align: left !important;
+    min-height: 38px !important;
+  }
+
+  .table-responsive td[data-label]::before,
+  table.responsive-table td[data-label]::before {
+    content: attr(data-label);
+    font-weight: 700;
+    font-size: 0.785rem;
+    color: var(--text-muted, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    flex-shrink: 0;
+    margin-right: 0.75rem;
+    white-space: nowrap !important;
+  }
+
+  /* When td is the first item or title, make it prominent as the card title */
+  .table-responsive tr > td:first-child,
+  table.responsive-table tr > td:first-child {
+    font-size: 1.05rem !important;
+    font-weight: 800 !important;
+    color: var(--navy-900) !important;
+    border-bottom: 1.5px solid #e2e8f0 !important;
+    padding-bottom: 0.65rem !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.35rem !important;
+    width: 100% !important;
+  }
+
+  .table-responsive tr > td:first-child::before,
+  table.responsive-table tr > td:first-child::before {
+    display: none !important;
+  }
+
+  .table-responsive td:last-child,
+  table.responsive-table td:last-child {
+    border-bottom: none !important;
+    padding-top: 0.5rem !important;
+    justify-content: stretch !important;
+  }
+
+  .table-responsive td:last-child::before,
+  table.responsive-table td:last-child::before {
+    display: none !important;
+  }
+
+  .table-responsive td:last-child button,
+  .table-responsive td:last-child .btn,
+  .table-responsive td:last-child select {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 44px !important;
+  }
+
+  /* Profile Header Card Stack on Mobile */
+  .profile-header-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 1.25rem 1rem !important;
+    gap: 1.25rem !important;
+    border-radius: var(--radius-lg) !important;
+  }
+
+  .profile-header-left {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+    width: 100% !important;
+  }
+
+  .profile-header-actions {
+    width: 100% !important;
+  }
+
+  .profile-header-actions button,
+  .profile-header-actions .btn {
+    width: 100% !important;
+    min-height: 44px !important;
+  }
+
+  /* Onboarding Fixed Bottom Actions */
+  .onboarding-form-actions {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: #ffffff !important;
+    border-top: 1px solid var(--border-subtle) !important;
+    padding: 10px 16px max(12px, env(safe-area-inset-bottom)) !important;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1) !important;
+    z-index: 1000 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-top: 0 !important;
+  }
+  .onboarding-form-card {
+    padding-bottom: 95px !important;
+  }
+
+  /* Sessions Page Mobile Sticky Pay Bar */
+  .sessions-mobile-sticky-pay-bar {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: #ffffff !important;
+    border-top: 1.5px solid var(--border-subtle) !important;
+    padding: 10px 16px max(12px, env(safe-area-inset-bottom)) !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08) !important;
+    z-index: 999 !important;
+  }
+  .has-student-bottom-bar .sessions-mobile-sticky-pay-bar {
+    bottom: calc(56px + max(8px, env(safe-area-inset-bottom))) !important;
+  }
+  .sms-pay-info {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+  }
+  .sms-pay-title {
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    color: var(--navy-900) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .sms-pay-price {
+    font-size: 1.05rem !important;
+    font-weight: 850 !important;
+    color: #0b1a48 !important;
+  }
+  .sms-pay-btn {
+    flex-shrink: 0 !important;
+    min-height: 44px !important;
+    padding: 0.5rem 1.15rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 750 !important;
+    border-radius: 999px !important;
+    background: var(--brand-gradient) !important;
+    color: #ffffff !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+}
+
+.sessions-mobile-sticky-pay-bar {
+  display: none;
+}
+
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /*Container*/
@@ -2340,7 +2722,7 @@ a {
    Login Page
    ==========================================================================*/
 .login-page-wrapper {
-  min-height: calc(100vh - 68px);
+  min-height: calc(100dvh - 68px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2530,9 +2912,10 @@ a {
 .dashboard-hero-card {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   margin-bottom: 2rem;
-  padding: 2rem;
+  padding: 1.25rem 1rem;
+  border-radius: var(--radius-lg);
 }
 
 @media (min-width: 768px) {
@@ -2540,6 +2923,7 @@ a {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    padding: 2rem;
   }
 }
 
@@ -2548,10 +2932,13 @@ a {
 }
 
 .dash-hero-title {
-  font-size: 1.75rem;
+  font-size: clamp(1.35rem, 5vw, 1.85rem);
   font-weight: 800;
   color: var(--navy-900);
   margin: 0.5rem 0 0.35rem;
+  word-break: normal;
+  overflow-wrap: break-word;
+  line-height: 1.25;
 }
 
 .dash-hero-sub {
@@ -2684,9 +3071,10 @@ a {
 .mentor-profile-banner {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 2rem;
+  gap: 1.25rem;
+  padding: 1.25rem 1rem;
   margin-bottom: 2rem;
+  border-radius: var(--radius-lg);
 }
 
 @media (min-width: 768px) {
@@ -2694,13 +3082,26 @@ a {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    padding: 2rem;
+    gap: 1.5rem;
   }
 }
 
 .mentor-banner-left {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .mentor-banner-left {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5rem;
+    width: auto;
+  }
 }
 
 .mentor-avatar-lg {
@@ -2714,19 +3115,26 @@ a {
   justify-content: center;
   font-weight: 800;
   font-size: 1.75rem;
+  flex-shrink: 0;
 }
 
 .mentor-banner-name {
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 4.5vw, 1.75rem);
   font-weight: 800;
   color: var(--navy-900);
-  margin: 0.35rem 0 0.2rem;
+  margin: 0.25rem 0;
+  word-break: normal;
+  overflow-wrap: break-word;
+  line-height: 1.25;
 }
 
 .mentor-banner-role {
   font-size: 0.9rem;
   color: var(--text-secondary);
   margin-bottom: 0.5rem;
+  line-height: 1.5;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .mentor-expertise-tags {
@@ -2740,13 +3148,23 @@ a {
   font-weight: 700;
   background-color: var(--purple-100);
   color: var(--purple-700);
-  padding: 0.15rem 0.5rem;
+  padding: 0.2rem 0.6rem;
   border-radius: var(--radius-full);
+  white-space: nowrap !important;
 }
 
 .mentor-banner-stats {
   display: flex;
-  gap: 1rem;
+  flex-direction: column !important;
+  gap: 0.65rem !important;
+  width: 100% !important;
+}
+
+@media (min-width: 768px) {
+  .mentor-banner-stats {
+    width: 290px !important;
+    flex-shrink: 0 !important;
+  }
 }
 
 .m-stat-box {
@@ -3010,7 +3428,7 @@ a {
 }
 
 .callback-wrapper {
-  min-height: calc(100vh - 68px);
+  min-height: calc(100dvh - 68px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3547,7 +3965,7 @@ body {
 /*Shared application layout*/
 #root,
 .app-shell {
-  min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
 }
 
@@ -3825,7 +4243,7 @@ h3 {
 
 /*Global page foundation*/
 .app-shell {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: radial-gradient(ellipse at 0% 0%,
       rgba(20, 184, 166, 0.07),
       transparent 35%),
@@ -4794,7 +5212,7 @@ textarea:focus-visible {
    ==========================================================================*/
 .profile-page-wrapper {
   padding: 2.5rem 0 4rem;
-  min-height: calc(100vh - 180px);
+  min-height: calc(100dvh - 180px);
 }
 
 .profile-container {
@@ -5127,7 +5545,8 @@ textarea:focus-visible {
   background: transparent;
   border: none;
   cursor: pointer;
-  white-space: nowrap;
+  white-space: nowrap !important;
+  flex-shrink: 0;
   transition: all var(--transition-fast);
 }
 
@@ -5387,7 +5806,7 @@ textarea:focus-visible {
    ==========================================================================*/
 .onboarding-page-wrapper {
   padding: 2.5rem 1rem 5rem;
-  min-height: calc(100vh - 80px);
+  min-height: calc(100dvh - 80px);
   background: linear-gradient(180deg, rgba(224, 246, 249, 0.35) 0%, rgba(248, 250, 252, 0.7) 100%);
 }
 
@@ -5482,7 +5901,7 @@ textarea:focus-visible {
    Full-Page Login Screen (/ and /login)
    ==========================================================================*/
 .login-screen-wrapper {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: radial-gradient(ellipse at 50% 20%, rgba(224, 246, 249, 0.55) 0%, rgba(248, 250, 252, 0.98) 75%);
@@ -7771,7 +8190,7 @@ a {
 /*2. Landing page: predictable layout*/
 .lp-page {
   width: 100%;
-  min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: clip;
   background: var(--eee-page);
 }

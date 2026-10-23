@@ -1,45 +1,49 @@
 
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import Navbar from './components/Navbar.jsx';
 import { Footer } from './components/Footer';
 
 import { HomePage } from './pages/HomePage';
-import { OpportunitiesPage } from './pages/OpportunitiesPage';
-import { OpportunityDetailPage } from './pages/OpportunityDetailPage';
-import { SessionsPage } from './pages/SessionsPage';
-import { AchievementsPage } from './pages/AchievementsPage';
 import { LoginPage } from './pages/LoginPage';
-import { ResetPasswordPage } from './pages/ResetPasswordPage';
-import { StudentDashboard } from './pages/StudentDashboard';
-import { MentorDashboard } from './pages/MentorDashboard';
-import { AdminDashboard } from './pages/AdminDashboard';
-import { AuthCallback } from './pages/AuthCallback';
-import { ProfilePage } from './pages/ProfilePage';
-import { AdminMentorsPage } from './pages/AdminMentorsPage';
-import { OnboardingPage } from './pages/OnboardingPage';
+import { SessionsPage } from './pages/SessionsPage';
 
-import { ContactPage } from './pages/ContactPage';
-import { LegalPage } from './pages/LegalPage';
+// Lazy-loaded routes for code-splitting
+const OpportunitiesPage = lazy(() => import('./pages/OpportunitiesPage').then(m => ({ default: m.OpportunitiesPage })));
+const OpportunityDetailPage = lazy(() => import('./pages/OpportunityDetailPage').then(m => ({ default: m.OpportunityDetailPage })));
+const AchievementsPage = lazy(() => import('./pages/AchievementsPage').then(m => ({ default: m.AchievementsPage })));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
+const StudentDashboard = lazy(() => import('./pages/StudentDashboard').then(m => ({ default: m.StudentDashboard })));
+const MentorDashboard = lazy(() => import('./pages/MentorDashboard').then(m => ({ default: m.MentorDashboard })));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const AuthCallback = lazy(() => import('./pages/AuthCallback').then(m => ({ default: m.AuthCallback })));
+const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const AdminMentorsPage = lazy(() => import('./pages/AdminMentorsPage').then(m => ({ default: m.AdminMentorsPage })));
+const OnboardingPage = lazy(() => import('./pages/OnboardingPage').then(m => ({ default: m.OnboardingPage })));
+
+const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
+const LegalPage = lazy(() => import('./pages/LegalPage').then(m => ({ default: m.LegalPage })));
+
+const MentorSessionsPage = lazy(() => import('./pages/mentor/MentorSessionsPage').then(m => ({ default: m.MentorSessionsPage })));
+const MentorCreateSessionPage = lazy(() => import('./pages/mentor/MentorCreateSessionPage').then(m => ({ default: m.MentorCreateSessionPage })));
+const MentorEditSessionPage = lazy(() => import('./pages/mentor/MentorEditSessionPage').then(m => ({ default: m.MentorEditSessionPage })));
+
+const AdminSessionsPage = lazy(() => import('./pages/admin/AdminSessionsPage').then(m => ({ default: m.AdminSessionsPage })));
+const AdminAchievementsPage = lazy(() => import('./pages/admin/AdminAchievementsPage').then(m => ({ default: m.AdminAchievementsPage })));
+const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })));
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RoleRoute } from './components/RoleRoute';
 
-import { MentorSessionsPage } from './pages/mentor/MentorSessionsPage';
-import { MentorCreateSessionPage } from './pages/mentor/MentorCreateSessionPage';
-import { MentorEditSessionPage } from './pages/mentor/MentorEditSessionPage';
-
-import { AdminSessionsPage } from './pages/admin/AdminSessionsPage';
-import { AdminAchievementsPage } from './pages/admin/AdminAchievementsPage';
-import { AdminUsersPage } from './pages/admin/AdminUsersPage';
-
 import { OnboardingModal } from './components/OnboardingModal';
 import { FullScreenLoader } from './components/FullScreenLoader';
+import { StudentBottomTabBar } from './components/StudentBottomTabBar';
+import { OfflineBanner } from './components/OfflineBanner';
 import { useAuth } from './context/AuthContext';
 
 export function App() {
-  const { loading } = useAuth();
+  const { loading, user, userRole } = useAuth();
   const location = useLocation();
 
   // Wait for the authentication session to resolve.
@@ -54,17 +58,22 @@ export function App() {
     '/reset-password',
   ].includes(location.pathname);
 
+  const isStudentUser = Boolean(user && (!userRole || userRole === 'student'));
+
   return (
     <div className="app-shell">
+      <OfflineBanner />
       {!isAuthScreen && <Navbar />}
 
       <main
-        className={`main-content ${isAuthScreen ? 'auth-main-content' : ''
-          }`}
+        className={`main-content ${isAuthScreen ? 'auth-main-content' : ''} ${
+          isStudentUser && !isAuthScreen ? 'has-student-bottom-bar' : ''
+        }`}
       >
-        <Routes>
-          {/* Public homepage */}
-          <Route path="/" element={<HomePage />} />
+        <Suspense fallback={<FullScreenLoader />}>
+          <Routes>
+            {/* Public homepage */}
+            <Route path="/" element={<HomePage />} />
 
           {/* Public Contact & Support */}
           <Route path="/contact" element={<ContactPage />} />
@@ -270,9 +279,12 @@ export function App() {
             element={<Navigate to="/" replace />}
           />
         </Routes>
-      </main>
+      </Suspense>
+    </main>
 
       {!isAuthScreen && <Footer />}
+
+      {!isAuthScreen && <StudentBottomTabBar />}
 
       <OnboardingModal />
     </div>

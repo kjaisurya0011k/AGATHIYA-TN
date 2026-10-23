@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { helpline } from '../data/siteContact';
 import { brand } from '../data/brand';
-import { Mail, Phone, ShieldCheck } from 'lucide-react';
+import { Mail, Phone, ShieldCheck, MessageCircle } from 'lucide-react';
 import './Footer.css';
 
 export function Footer() {
@@ -15,6 +15,36 @@ export function Footer() {
   return (
     <footer className="footer-wrapper" role="contentinfo">
       <div className="container footer-content">
+        {/* Mobile quick-contact buttons for students on phones */}
+        <div className="footer-mobile-touch-actions">
+          <a
+            href={`tel:${helpline.phones[0]?.tel}`}
+            className="footer-touch-btn footer-touch-call"
+            aria-label="Call Support"
+          >
+            <Phone size={18} aria-hidden="true" />
+            <span>{isTamil ? 'அழைக்க: ' : 'Call: '}{helpline.phones[0]?.display}</span>
+          </a>
+          <a
+            href={`https://wa.me/${helpline.phones[0]?.whatsapp}?text=Hi%20AGATHIYA`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-touch-btn footer-touch-wa"
+            aria-label="Chat on WhatsApp"
+          >
+            <MessageCircle size={18} aria-hidden="true" />
+            <span>{isTamil ? 'வாட்ஸ்அப் உதவி' : 'Chat on WhatsApp'}</span>
+          </a>
+          <a
+            href={`mailto:${helpline.email}`}
+            className="footer-touch-btn footer-touch-email"
+            aria-label="Email Support"
+          >
+            <Mail size={18} aria-hidden="true" />
+            <span>{isTamil ? 'மின்னஞ்சல்: ' : 'Email: '}{helpline.email}</span>
+          </a>
+        </div>
+
         {/* Column 1: Brand */}
         <div className="footer-col brand-col">
           <div className="footer-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

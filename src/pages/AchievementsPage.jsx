@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { initialOpportunities, initialSessions } from '../data/appData';
 import { OpportunityCard } from '../components/OpportunityCard';
 import { SessionCard } from '../components/SessionCard';
+import { formatDisplayDate } from '../lib/dateUtils';
 import {
   Award,
   Bookmark,
@@ -273,9 +274,9 @@ export function AchievementsPage() {
                       {/* Category Badge & Date */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                         {getCategoryBadge(ach.achievement_type)}
-                        <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
                           <Calendar size={12} />
-                          <span>{ach.event_date}</span>
+                          <span>{formatDisplayDate(ach.event_date)}</span>
                         </span>
                       </div>
 

@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { UserAvatar } from '../../components/UserAvatar';
 import { setAdminVerifiedPayment } from '../../lib/payments';
+import { formatDisplayDate } from '../../lib/dateUtils';
 
 export function AdminSessionsPage() {
   const { lang, t } = useLanguage();
@@ -407,17 +408,17 @@ export function AdminSessionsPage() {
 
                   return (
                     <tr key={s.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '0.85rem 0.75rem', maxWidth: '280px' }}>
-                        <div style={{ fontWeight: 700, color: 'var(--navy-900)', marginBottom: '0.15rem' }}>
+                      <td data-label={isTamil ? 'அமர்வு தலைப்பு' : 'Session Title'} style={{ padding: '0.85rem 0.75rem' }}>
+                        <div style={{ fontWeight: 700, color: 'var(--navy-900)', marginBottom: '0.25rem', lineHeight: 1.35 }}>
                           {title}
                         </div>
                         {s.topic && (
-                          <span style={{ fontSize: '0.72rem', color: '#008394', background: 'rgba(0,166,191,0.1)', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>
+                          <span style={{ fontSize: '0.72rem', color: '#008394', background: 'rgba(0,166,191,0.1)', padding: '0.15rem 0.4rem', borderRadius: '4px', whiteSpace: 'nowrap' }}>
                             {s.topic}
                           </span>
                         )}
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem', color: '#334155', fontWeight: 600 }}>
+                      <td data-label={isTamil ? 'வழிகாட்டி' : 'Mentor'} style={{ padding: '0.85rem 0.75rem', color: '#334155', fontWeight: 600 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
                           <UserAvatar
                             name={s.mentor_name || 'Verified Mentor'}
@@ -430,31 +431,31 @@ export function AdminSessionsPage() {
                           <span>{s.mentor_name || 'Verified Mentor'}</span>
                         </div>
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem', color: '#64748b' }}>
-                        {s.session_date || s.date} <br />
-                        <span style={{ fontSize: '0.78rem' }}>{s.start_time || '10:00'} - {s.end_time || '11:30'}</span>
+                      <td data-label={isTamil ? 'தேதி & நேரம்' : 'Schedule'} style={{ padding: '0.85rem 0.75rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                        {formatDisplayDate(s.session_date || s.date)}{' '}
+                        <span style={{ fontSize: '0.78rem' }}>({s.start_time || '10:00'} - {s.end_time || '11:30'})</span>
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem' }}>
+                      <td data-label={isTamil ? 'கட்டணம்' : 'Fee'} style={{ padding: '0.85rem 0.75rem' }}>
                         {price === 0 ? (
-                          <span className="badge badge-green" style={{ fontSize: '0.72rem' }}>Free</span>
+                          <span className="badge badge-green" style={{ fontSize: '0.72rem', whiteSpace: 'nowrap' }}>Free</span>
                         ) : (
-                          <span className="badge badge-purple" style={{ fontSize: '0.72rem' }}>₹{price}</span>
+                          <span className="badge badge-purple" style={{ fontSize: '0.72rem', whiteSpace: 'nowrap' }}>₹{price}</span>
                         )}
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem', color: '#475569' }}>
+                      <td data-label={isTamil ? 'இருக்கைகள்' : 'Seats'} style={{ padding: '0.85rem 0.75rem', color: '#475569', whiteSpace: 'nowrap' }}>
                         <strong>{registeredCount}</strong> / {capacity}
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem' }}>
+                      <td data-label={isTamil ? 'நிலை' : 'Status'} style={{ padding: '0.85rem 0.75rem' }}>
                         {getStatusBadge(s.status)}
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
+                      <td data-label={isTamil ? 'நடவடிக்கை' : 'Actions'} style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
                         <button
                           type="button"
                           onClick={() => handleOpenSession(s)}
                           className="btn btn-sm btn-primary"
-                          style={{ fontSize: '0.78rem', padding: '0.35rem 0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                          style={{ fontSize: '0.85rem', minHeight: '44px', padding: '0.5rem 1rem', width: '100%', justifyContent: 'center', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                         >
-                          <Edit size={13} />
+                          <Edit size={14} />
                           <span>{admLang.btnEditSession || (isTamil ? 'மதிப்பாய்வு & திருத்து' : 'Review & Edit')}</span>
                         </button>
                       </td>
@@ -920,7 +921,7 @@ export function AdminSessionsPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="table-responsive" style={{ overflowX: 'auto' }}>
+                  <div className="table-responsive">
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem', textAlign: 'left' }}>
                       <thead>
                         <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
@@ -938,43 +939,43 @@ export function AdminSessionsPage() {
 
                           return (
                             <tr key={reg.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                              <td style={{ padding: '0.65rem', fontWeight: 700, color: 'var(--navy-900)' }}>
+                              <td data-label={isTamil ? 'மாணவர் பெயர்' : 'Student Name'} style={{ padding: '0.65rem', fontWeight: 700, color: 'var(--navy-900)' }}>
                                 {reg.student_name || 'TN Student'}
                               </td>
-                              <td style={{ padding: '0.65rem', color: '#64748b' }}>
-                                {reg.registered_at ? reg.registered_at.split('T')[0] : '2026-07-02'}
+                              <td data-label={isTamil ? 'பதிவு தேதி' : 'Reg Date'} style={{ padding: '0.65rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                                {formatDisplayDate(reg.registered_at) || '2 Jul 2026'}
                               </td>
-                              <td style={{ padding: '0.65rem' }}>
-                                <span className="badge badge-green" style={{ fontSize: '0.7rem' }}>
+                              <td data-label={isTamil ? 'நிலை' : 'Status'} style={{ padding: '0.65rem' }}>
+                                <span className="badge badge-green" style={{ fontSize: '0.7rem', whiteSpace: 'nowrap' }}>
                                   {reg.status || 'registered'}
                                 </span>
                               </td>
-                              <td style={{ padding: '0.65rem' }}>
+                              <td data-label={isTamil ? 'கட்டண நிலை' : 'Payment Status'} style={{ padding: '0.65rem' }}>
                                 {isFree ? (
-                                  <span className="badge badge-gray" style={{ fontSize: '0.7rem' }}>
+                                  <span className="badge badge-gray" style={{ fontSize: '0.7rem', whiteSpace: 'nowrap' }}>
                                     {admLang.paymentStatusNotRequired || 'Free'}
                                   </span>
                                 ) : isPaid ? (
-                                  <span className="badge badge-green" style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+                                  <span className="badge badge-green" style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap' }}>
                                     <Check size={11} /> {admLang.paymentStatusPaid || 'Paid'}
                                   </span>
                                 ) : reg.payment_status === 'pending_verification' ? (
-                                  <span className="badge badge-purple" style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', background: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}>
+                                  <span className="badge badge-purple" style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', background: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d', whiteSpace: 'nowrap' }}>
                                     <Clock size={11} /> {isTamil ? 'சரிபார்ப்பு நிலுவை' : 'Pending Verification'}
                                   </span>
                                 ) : (
-                                  <span className="badge badge-amber" style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+                                  <span className="badge badge-amber" style={{ fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap' }}>
                                     <Clock size={11} /> {admLang.paymentStatusPending || 'Pending'}
                                   </span>
                                 )}
                               </td>
-                              <td style={{ padding: '0.65rem', textAlign: 'right' }}>
+                              <td data-label={isTamil ? 'நடவடிக்கை' : 'Action'} style={{ padding: '0.65rem', textAlign: 'right' }}>
                                 {!isFree && (
                                   <button
                                     type="button"
                                     onClick={() => handleTogglePayment(reg.id, reg.payment_status)}
                                     className="btn btn-sm btn-outline"
-                                    style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem' }}
+                                    style={{ fontSize: '0.8rem', minHeight: '44px', padding: '0.4rem 0.8rem', width: '100%', justifyContent: 'center', whiteSpace: 'nowrap' }}
                                   >
                                     {isPaid
                                       ? (admLang.markPendingBtn || (isTamil ? 'நிலுவை என மாற்று' : 'Mark Pending'))

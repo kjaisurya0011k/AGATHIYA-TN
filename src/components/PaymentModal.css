@@ -1,0 +1,246 @@
+/* =========================================================
+   AGATHIYA Payment Modal & Mobile Bottom Sheet
+   Slides up from bottom on mobile (< 768px), centered on desktop
+   ========================================================= */
+
+.agathiya-payment-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  background-color: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.agathiya-payment-sheet {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.payment-sheet-drag-handle {
+  display: none;
+}
+
+.payment-modal-close-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #475569;
+  transition: background 0.15s ease;
+  touch-action: manipulation;
+  z-index: 10;
+}
+
+.payment-modal-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.payment-modal-title {
+  font-size: 1.1rem;
+  font-weight: 750;
+  color: #0f172a;
+  margin: 0.2rem 0 0.15rem 0;
+  text-align: center;
+  padding: 0 1.5rem;
+  line-height: 1.35;
+}
+
+.payment-modal-amount {
+  font-size: 1.85rem;
+  font-weight: 850;
+  color: #0b1a48;
+  margin: 0.2rem 0 0.6rem 0;
+  letter-spacing: -0.02em;
+}
+
+.payment-qr-container {
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 14px;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 240px;
+  height: 240px;
+  max-width: 75vw;
+  max-height: 75vw;
+  box-sizing: content-box;
+  margin-bottom: 0.75rem;
+}
+
+.payment-qr-img {
+  width: 240px;
+  height: 240px;
+  max-width: 75vw;
+  max-height: 75vw;
+  object-fit: contain;
+  display: block;
+}
+
+.payment-instructions {
+  font-size: 0.85rem;
+  color: #475569;
+  text-align: center;
+  margin: 0 0 1rem 0;
+  line-height: 1.45;
+  padding: 0 0.5rem;
+}
+
+.payment-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.payment-btn-upi {
+  min-height: 48px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  text-decoration: none !important;
+  font-size: 0.95rem;
+  font-weight: 750;
+  border-radius: 10px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  touch-action: manipulation;
+}
+
+.payment-btn-upi:hover {
+  filter: brightness(1.08);
+}
+
+.payment-btn-save {
+  min-height: 44px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none !important;
+  font-size: 0.9rem;
+  font-weight: 650;
+  border-radius: 10px;
+  box-sizing: border-box;
+  background: #f8fafc;
+  color: #334155 !important;
+  border: 1.5px solid #cbd5e1;
+  touch-action: manipulation;
+}
+
+.payment-btn-paid {
+  min-height: 48px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 750;
+  border-radius: 10px;
+  box-sizing: border-box;
+  background: #16a34a !important;
+  border: 1px solid #15803d !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+  touch-action: manipulation;
+}
+
+/* Mobile Bottom Sheet (< 768px) */
+@media (max-width: 767px) {
+  .agathiya-payment-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .agathiya-payment-sheet {
+    max-width: 100%;
+    border-radius: 24px 24px 0 0;
+    max-height: 90dvh;
+    padding: 0.75rem 1.25rem max(1.25rem, env(safe-area-inset-bottom));
+    animation: paymentSlideUpSheet 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .payment-sheet-drag-handle {
+    display: block;
+    width: 44px;
+    height: 5px;
+    background: #cbd5e1;
+    border-radius: 999px;
+    margin: 4px auto 10px auto;
+  }
+
+  .payment-modal-close-btn {
+    top: 0.65rem;
+    right: 0.85rem;
+  }
+
+  .payment-qr-container {
+    width: 220px;
+    height: 220px;
+    padding: 8px;
+    margin-bottom: 0.65rem;
+  }
+
+  .payment-qr-img {
+    width: 220px;
+    height: 220px;
+  }
+
+  .payment-modal-title {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+
+  .payment-modal-amount {
+    font-size: 1.65rem;
+    margin-bottom: 0.4rem;
+  }
+}
+
+@keyframes paymentSlideUpSheet {
+  from {
+    transform: translateY(100%);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

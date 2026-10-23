@@ -19,6 +19,7 @@ import {
   GraduationCap
 } from 'lucide-react';
 import { UserAvatar } from '../../components/UserAvatar';
+import { formatDisplayDate } from '../../lib/dateUtils';
 
 export function AdminUsersPage() {
   const { lang, t } = useLanguage();
@@ -287,7 +288,7 @@ export function AdminUsersPage() {
             </p>
           </div>
         ) : (
-          <div className="table-responsive" style={{ overflowX: 'auto' }}>
+          <div className="table-responsive">
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
@@ -301,11 +302,11 @@ export function AdminUsersPage() {
               <tbody>
                 {filteredUsers.map((u) => {
                   const isCaller = u.id === callerId;
-                  const joinedDate = u.created_at ? u.created_at.split('T')[0] : '2026-06-01';
+                  const joinedDate = u.created_at ? formatDisplayDate(u.created_at) : '1 Jun 2026';
 
                   return (
                     <tr key={u.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '0.85rem 0.75rem', fontWeight: 700, color: 'var(--navy-900)' }}>
+                      <td data-label={admLang.colName || (isTamil ? 'பயனர் பெயர்' : 'User Name')} style={{ padding: '0.85rem 0.75rem', fontWeight: 700, color: 'var(--navy-900)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                           <UserAvatar
                             name={u.full_name || 'TN User'}
@@ -326,18 +327,18 @@ export function AdminUsersPage() {
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem', color: '#475569' }}>
+                      <td data-label={admLang.colEmail || (isTamil ? 'மின்னஞ்சல்' : 'Email')} style={{ padding: '0.85rem 0.75rem', color: '#475569', wordBreak: 'break-all' }}>
                         {u.email || 'user@eeetn.org'}
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem' }}>
+                      <td data-label={admLang.colRole || (isTamil ? 'தற்போதைய பாத்திரம்' : 'Current Role')} style={{ padding: '0.85rem 0.75rem' }}>
                         {getRoleBadge(u.role)}
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem', color: '#64748b' }}>
+                      <td data-label={admLang.colJoinedDate || (isTamil ? 'இணைந்த தேதி' : 'Joined Date')} style={{ padding: '0.85rem 0.75rem', color: '#64748b', whiteSpace: 'nowrap' }}>
                         {joinedDate}
                       </td>
-                      <td style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
+                      <td data-label={admLang.colActions || (isTamil ? 'பாத்திரம் மாற்று' : 'Assign Role')} style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
                         {isCaller ? (
-                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontStyle: 'italic' }}>
+                          <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic', whiteSpace: 'nowrap' }}>
                             {isTamil ? 'பாதுகாக்கப்பட்டது' : 'Caller Role Locked'}
                           </span>
                         ) : (
@@ -346,11 +347,12 @@ export function AdminUsersPage() {
                             value={u.role}
                             onChange={(e) => handleRoleChange(u, e.target.value)}
                             style={{
-                              fontSize: '0.78rem',
-                              padding: '0.25rem 0.5rem',
-                              height: '32px',
-                              borderRadius: '4px',
-                              border: '1px solid #cbd5e1',
+                              fontSize: '0.9rem',
+                              padding: '0.4rem 0.65rem',
+                              minHeight: '44px',
+                              width: '100%',
+                              borderRadius: '8px',
+                              border: '1.5px solid #cbd5e1',
                               cursor: 'pointer',
                               fontWeight: 600
                             }}

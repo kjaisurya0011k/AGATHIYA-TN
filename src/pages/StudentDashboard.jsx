@@ -84,19 +84,19 @@ export function StudentDashboard() {
               {lang === 'ta' ? 'மாணவர் கட்டுப்பாட்டு மையம்' : 'Student Dashboard'}
             </span>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Link to="/profile" className="btn btn-sm btn-outline" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
-                <UserCheck size={14} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <Link to="/profile" className="btn btn-sm btn-outline" style={{ padding: '0.45rem 0.85rem', fontSize: '0.85rem', minHeight: '44px', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap' }}>
+                <UserCheck size={15} />
                 <span>{lang === 'ta' ? 'என் சுயவிவரம்' : 'My Profile'}</span>
               </Link>
               <button
                 type="button"
                 onClick={handleSignOut}
                 className="btn btn-sm btn-outline"
-                style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', color: '#dc2626', borderColor: '#fca5a5' }}
+                style={{ padding: '0.45rem 0.85rem', fontSize: '0.85rem', minHeight: '44px', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#dc2626', borderColor: '#fca5a5', whiteSpace: 'nowrap' }}
                 title={lang === 'ta' ? 'வெளியேற' : 'Sign Out'}
               >
-                <LogOut size={14} />
+                <LogOut size={15} />
                 <span>{lang === 'ta' ? 'வெளியேற' : 'Sign Out'}</span>
               </button>
             </div>
@@ -205,9 +205,21 @@ export function StudentDashboard() {
           </div>
 
           <div className="dash-cards-stack">
-            {savedList.slice(0, 2).map((opp) => (
-              <OpportunityCard key={opp.id} opportunity={opp} />
-            ))}
+            {savedList.length > 0 ? (
+              savedList.slice(0, 2).map((opp) => (
+                <OpportunityCard key={opp.id} opportunity={opp} />
+              ))
+            ) : (
+              <div className="card dash-empty-state" style={{ padding: '2rem 1rem', textAlign: 'center', background: '#FFFFFF', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
+                <Bookmark size={28} color="#94a3b8" style={{ margin: '0 auto 0.5rem auto' }} />
+                <p style={{ margin: '0 0 0.85rem 0', fontSize: '0.88rem', color: '#64748b', fontWeight: 600 }}>
+                  {lang === 'ta' ? 'வாய்ப்புகள் எதுவும் சேமிக்கப்படவில்லை' : 'No saved opportunities yet'}
+                </p>
+                <Link to="/opportunities" className="btn btn-sm btn-outline">
+                  <span>{lang === 'ta' ? 'வாய்ப்புகளைப் பார்க்க' : 'Browse Opportunities'}</span>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 
@@ -228,9 +240,21 @@ export function StudentDashboard() {
           </div>
 
           <div className="dash-cards-stack">
-            {registeredList.slice(0, 2).map((s) => (
-              <SessionCard key={s.id} session={s} />
-            ))}
+            {registeredList.length > 0 ? (
+              registeredList.slice(0, 2).map((s) => (
+                <SessionCard key={s.id} session={s} />
+              ))
+            ) : (
+              <div className="card dash-empty-state" style={{ padding: '2rem 1rem', textAlign: 'center', background: '#FFFFFF', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
+                <Calendar size={28} color="#94a3b8" style={{ margin: '0 auto 0.5rem auto' }} />
+                <p style={{ margin: '0 0 0.85rem 0', fontSize: '0.88rem', color: '#64748b', fontWeight: 600 }}>
+                  {lang === 'ta' ? 'அமர்வுகள் எதுவும் பதிவு செய்யப்படவில்லை' : 'No sessions registered yet'}
+                </p>
+                <Link to="/sessions" className="btn btn-sm btn-primary">
+                  <span>{lang === 'ta' ? 'பயிலரங்குகளைப் பார்க்க' : 'Browse Workshops'}</span>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

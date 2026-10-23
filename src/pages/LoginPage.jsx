@@ -480,6 +480,8 @@ export function LoginPage({ initialTab = 'login' }) {
                       id="login-email"
                       name="email"
                       type="email"
+                      inputMode="email"
+                      enterKeyHint="next"
                       autoComplete="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -500,6 +502,7 @@ export function LoginPage({ initialTab = 'login' }) {
                       id="login-password"
                       name="password"
                       type={showPassword ? 'text' : 'password'}
+                      enterKeyHint="done"
                       autoComplete="current-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -599,6 +602,8 @@ export function LoginPage({ initialTab = 'login' }) {
                       id="signup-name"
                       name="name"
                       type="text"
+                      inputMode="text"
+                      enterKeyHint="next"
                       autoComplete="name"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
@@ -619,6 +624,8 @@ export function LoginPage({ initialTab = 'login' }) {
                       id="signup-email"
                       name="email"
                       type="email"
+                      inputMode="email"
+                      enterKeyHint="next"
                       autoComplete="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -639,6 +646,7 @@ export function LoginPage({ initialTab = 'login' }) {
                       id="signup-password"
                       name="password"
                       type={showPassword ? 'text' : 'password'}
+                      enterKeyHint="next"
                       autoComplete="new-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -667,6 +675,7 @@ export function LoginPage({ initialTab = 'login' }) {
                       id="signup-confirm-password"
                       name="confirmPassword"
                       type={showConfirmPassword ? 'text' : 'password'}
+                      enterKeyHint="done"
                       autoComplete="new-password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
@@ -755,6 +764,8 @@ export function LoginPage({ initialTab = 'login' }) {
                         id="forgot-email"
                         name="email"
                         type="email"
+                        inputMode="email"
+                        enterKeyHint="done"
                         autoComplete="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}

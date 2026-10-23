@@ -4,6 +4,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { SessionCard } from '../components/SessionCard';
 import { brand } from '../data/brand';
+import { SkeletonLoader } from '../components/SkeletonLoader';
+import { PaymentModal } from '../components/PaymentModal';
 import {
   Calendar,
   Users,
@@ -14,7 +16,8 @@ import {
   GraduationCap,
   Search,
   Filter,
-  X
+  X,
+  ArrowRight
 } from 'lucide-react';
 
 export function SessionsPage() {
@@ -111,6 +114,16 @@ export function SessionsPage() {
     setSelectedTopic('all');
     setActiveTab('all');
   };
+
+  const [stickyPaySession, setStickyPaySession] = useState(null);
+
+  // Identify next upcoming workshop for mobile sticky bar
+  const stickyTargetSession = useMemo(() => {
+    return filteredSessions.find((s) => {
+      const p = s.price_inr !== undefined ? s.price_inr : s.price || 0;
+      return p > 0 && !registeredSessions.includes(s.id);
+    }) || filteredSessions[0];
+  }, [filteredSessions, registeredSessions]);
 
   return (
     <div className="page-wrapper container" style={{ maxWidth: '1240px', margin: '0 auto', padding: '1.5rem 1rem' }}>
@@ -263,9 +276,8 @@ export function SessionsPage() {
 
       {/* Sessions Grid */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3.5rem 1rem', color: '#64748b' }}>
-          <div className="spinner" style={{ margin: '0 auto 1rem auto' }} />
-          <p>{isTamil ? 'அமர்வுகள் ஏற்றப்படுகின்றன...' : 'Loading upcoming sessions...'}</p>
+        <div style={{ padding: '1rem 0' }}>
+          <SkeletonLoader type="card" count={3} />
         </div>
       ) : filteredSessions.length > 0 ? (
         <div className="sessions-grid">
@@ -337,6 +349,56 @@ export function SessionsPage() {
           {isTamil ? 'வழிகாட்டியாக இணைய' : 'Join as Mentor'}
         </Link>
       </div>
+
+      {/* Sticky Mobile Pay Bar on Sessions Page (< 768px) */}
+      {stickyTargetSession && (
+        <div className="sessions-mobile-sticky-pay-bar">
+          <div className="sms-pay-info">
+            <span className="sms-pay-title">
+              {isTamil && stickyTargetSession.title_ta ? stickyTargetSession.title_ta : stickyTargetSession.title_en}
+            </span>
+            <span className="sms-pay-price">
+              {(stickyTargetSession.price_inr !== undefined ? stickyTargetSession.price_inr : stickyTargetSession.price || 0) > 0
+                ? `₹${stickyTargetSession.price_inr !== undefined ? stickyTargetSession.price_inr : stickyTargetSession.price || 0}`
+                : (isTamil ? 'இலவசம்' : 'Free')}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const p = stickyTargetSession.price_inr !== undefined ? stickyTargetSession.price_inr : stickyTargetSession.price || 0;
+              if (p > 0) {
+                setStickyPaySession(stickyTargetSession);
+              } else {
+                const el = document.getElementById(`session-${stickyTargetSession.id}`);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }}
+            className="btn btn-primary sms-pay-btn"
+          >
+            <span>
+              {(stickyTargetSession.price_inr !== undefined ? stickyTargetSession.price_inr : stickyTargetSession.price || 0) > 0
+                ? (isTamil ? `₹${stickyTargetSession.price_inr || stickyTargetSession.price} செலுத்து` : `Pay ₹${stickyTargetSession.price_inr || stickyTargetSession.price}`)
+                : (isTamil ? 'இணையுங்கள்' : 'Register')}
+            </span>
+            <ArrowRight size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* Payment Modal if triggered from sticky pay bar */}
+      {stickyPaySession && (
+        <PaymentModal
+          isOpen={Boolean(stickyPaySession)}
+          onClose={() => setStickyPaySession(null)}
+          session={stickyPaySession}
+          onConfirmPaid={() => {
+            setStickyPaySession(null);
+            window.dispatchEvent(new CustomEvent('agathiya-payment-updated', { detail: { sessionId: stickyPaySession.id } }));
+          }}
+          isTamil={isTamil}
+        />
+      )}
     </div>
   );
 }

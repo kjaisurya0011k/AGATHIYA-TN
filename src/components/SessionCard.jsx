@@ -18,6 +18,7 @@ import {
   XCircle
 } from 'lucide-react';
 import { UserAvatar } from './UserAvatar';
+import { formatDisplayDate } from '../lib/dateUtils';
 
 export function SessionCard({ session }) {
   const { lang, t } = useLanguage();
@@ -162,9 +163,9 @@ export function SessionCard({ session }) {
       <div>
         {/* Top Bar: Date, Price Badge, & Target Audience */}
         <div className="session-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
-          <div className="session-date-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+          <div className="session-date-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}>
             <Calendar size={13} />
-            <span>{sessionDate}</span>
+            <span>{formatDisplayDate(sessionDate)}</span>
           </div>
 
           <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>

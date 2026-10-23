@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Download, AlertCircle } from 'lucide-react';
+import { X, Download, AlertCircle, Smartphone, CheckCircle2 } from 'lucide-react';
+import './PaymentModal.css';
 
 export function PaymentModal({ isOpen, onClose, session, onConfirmPaid, isTamil }) {
   const [qrError, setQrError] = useState(false);
@@ -12,13 +13,17 @@ export function PaymentModal({ isOpen, onClose, session, onConfirmPaid, isTamil 
     (isTamil && session?.title_ta ? session.title_ta : session?.title_en) ||
     session?.title_en ||
     session?.title ||
-    'Guidance Session';
+    'Guidance Workshop';
+
+  // Construct standard UPI deep link for Android/iOS UPI applications
+  const upiDeepLink = `upi://pay?pa=bhavananthanm80@okicici&pn=AGATHIYA&am=${price}&cu=INR&tn=${encodeURIComponent(
+    sessionTitle.slice(0, 36)
+  )}`;
 
   // Handle Escape key and focus trap
   useEffect(() => {
     if (!isOpen) return;
 
-    // Focus the close button initially
     const timer = setTimeout(() => {
       if (closeButtonRef.current) {
         closeButtonRef.current.focus();
@@ -78,24 +83,6 @@ export function PaymentModal({ isOpen, onClose, session, onConfirmPaid, isTamil 
     <div
       className="agathiya-payment-overlay"
       onClick={onClose}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: '100vw',
-        height: '100vh',
-        backgroundColor: 'rgba(15, 23, 42, 0.78)',
-        backdropFilter: 'blur(5px)',
-        WebkitBackdropFilter: 'blur(5px)',
-        zIndex: 999999,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-        boxSizing: 'border-box'
-      }}
       role="presentation"
     >
       <div
@@ -104,119 +91,48 @@ export function PaymentModal({ isOpen, onClose, session, onConfirmPaid, isTamil 
         aria-modal="true"
         aria-labelledby="payment-modal-title"
         onClick={(e) => e.stopPropagation()}
-        style={{
-          background: '#ffffff',
-          backgroundColor: '#ffffff',
-          borderRadius: '16px',
-          width: '100%',
-          maxWidth: '360px',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.08)',
-          padding: '1.5rem',
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          boxSizing: 'border-box',
-          opacity: 1
-        }}
+        className="agathiya-payment-sheet"
       >
-        {/* Close Button (X) with 44px min touch target */}
+        {/* Mobile Drag Handle */}
+        <div className="payment-sheet-drag-handle" aria-hidden="true" />
+
+        {/* Close Button with min 44x44px touch target */}
         <button
           ref={closeButtonRef}
           type="button"
           onClick={onClose}
-          aria-label="Close payment modal"
-          style={{
-            position: 'absolute',
-            top: '0.75rem',
-            right: '0.75rem',
-            width: '44px',
-            height: '44px',
-            minWidth: '44px',
-            minHeight: '44px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: '#f1f5f9',
-            border: 'none',
-            borderRadius: '50%',
-            cursor: 'pointer',
-            color: '#475569',
-            transition: 'background 0.15s ease'
-          }}
+          aria-label={isTamil ? 'மூடு' : 'Close payment modal'}
+          className="payment-modal-close-btn"
         >
-          <X size={20} />
+          <X size={18} />
         </button>
 
         {/* Title */}
-        <h2
-          id="payment-modal-title"
-          style={{
-            fontSize: '1.15rem',
-            fontWeight: 700,
-            color: '#0f172a',
-            margin: '0.5rem 0 0.25rem 0',
-            textAlign: 'center',
-            paddingRight: '1.5rem',
-            paddingLeft: '1.5rem',
-            lineHeight: 1.3
-          }}
-        >
-          Pay for {sessionTitle}
+        <h2 id="payment-modal-title" className="payment-modal-title">
+          {isTamil ? 'பயிலரங்குக் கட்டணம்:' : 'Pay for'} {sessionTitle}
         </h2>
 
-        {/* Amount in large text */}
-        <div
-          style={{
-            fontSize: '2.25rem',
-            fontWeight: 800,
-            color: '#0b1a48',
-            margin: '0.5rem 0 1rem 0',
-            letterSpacing: '-0.02em'
-          }}
-        >
+        {/* Amount */}
+        <div className="payment-modal-amount">
           ₹{price}
         </div>
 
-        {/* QR Code Container on a white padded background */}
-        <div
-          style={{
-            background: '#ffffff',
-            backgroundColor: '#ffffff',
-            padding: '12px',
-            borderRadius: '12px',
-            border: '1.5px solid #e2e8f0',
-            boxShadow: '0 4px 12px rgba(15, 23, 42, 0.08)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '240px',
-            height: '240px',
-            boxSizing: 'content-box',
-            marginBottom: '1rem'
-          }}
-        >
+        {/* QR Code Container ~240px */}
+        <div className="payment-qr-container">
           {!qrError ? (
             <img
               src="/payments/upi-qr.png?v=20261020"
               alt="AGATHIYA UPI QR Code"
               width="240"
               height="240"
-              style={{
-                width: '240px',
-                height: '240px',
-                objectFit: 'contain',
-                display: 'block'
-              }}
+              className="payment-qr-img"
               onError={() => setQrError(true)}
             />
           ) : (
             <div
               style={{
-                width: '240px',
-                height: '240px',
+                width: '100%',
+                height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -228,74 +144,53 @@ export function PaymentModal({ isOpen, onClose, session, onConfirmPaid, isTamil 
                 textAlign: 'center'
               }}
             >
-              <AlertCircle size={36} color="#94a3b8" style={{ marginBottom: '0.5rem' }} />
-              <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>Payment QR coming soon</span>
+              <AlertCircle size={32} color="#94a3b8" style={{ marginBottom: '0.5rem' }} />
+              <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Payment QR coming soon</span>
             </div>
           )}
         </div>
 
         {/* Instructions */}
-        <p
-          style={{
-            fontSize: '0.85rem',
-            color: '#475569',
-            textAlign: 'center',
-            margin: '0 0 1.25rem 0',
-            lineHeight: 1.45,
-            padding: '0 0.5rem'
-          }}
-        >
-          Scan with any UPI app (PhonePe, Google Pay, Paytm) and pay the exact amount.
+        <p className="payment-instructions">
+          {isTamil
+            ? 'ஏதேனும் ஒரு UPI ஆப் (Google Pay, PhonePe, Paytm) மூலம் ஸ்கேன் செய்து சரியாக ₹' + price + ' செலுத்தவும்.'
+            : 'Scan with any UPI app (GPay, PhonePe, Paytm) or tap below to open directly.'}
         </p>
 
-        {/* Save QR Download Link */}
-        <a
-          href="/payments/upi-qr.png"
-          download="agathiya-payment-qr.png"
-          className="btn btn-outline"
-          aria-label="Save QR Code to gallery"
-          style={{
-            minHeight: '44px',
-            width: '100%',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            marginBottom: '0.75rem',
-            textDecoration: 'none',
-            fontSize: '0.9rem',
-            fontWeight: 600,
-            borderRadius: '8px',
-            boxSizing: 'border-box'
-          }}
-        >
-          <Download size={17} />
-          <span>Save QR</span>
-        </a>
+        {/* Action Buttons */}
+        <div className="payment-actions-group">
+          {/* 1. Open UPI App Button */}
+          <a
+            href={upiDeepLink}
+            className="payment-btn-upi"
+            aria-label="Open UPI Payment App directly"
+          >
+            <Smartphone size={18} aria-hidden="true" />
+            <span>{isTamil ? 'UPI ஆப்பில் திறக்க' : 'Open UPI app'}</span>
+          </a>
 
-        {/* "I have paid" Button */}
-        <button
-          type="button"
-          onClick={onConfirmPaid}
-          className="btn btn-pay-green"
-          aria-label="Confirm payment submitted"
-          style={{
-            minHeight: '44px',
-            width: '100%',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '0.95rem',
-            fontWeight: 700,
-            borderRadius: '8px',
-            boxSizing: 'border-box',
-            backgroundColor: '#16a34a',
-            borderColor: '#15803d',
-            color: '#ffffff'
-          }}
-        >
-          I have paid
-        </button>
+          {/* 2. Save QR Button */}
+          <a
+            href="/payments/upi-qr.png"
+            download="agathiya-payment-qr.png"
+            className="payment-btn-save"
+            aria-label="Save QR Code image to device gallery"
+          >
+            <Download size={17} aria-hidden="true" />
+            <span>{isTamil ? 'QR படத்தை சேமிக்க' : 'Save QR'}</span>
+          </a>
+
+          {/* 3. "I have paid" Button */}
+          <button
+            type="button"
+            onClick={onConfirmPaid}
+            className="payment-btn-paid"
+            aria-label="Confirm payment completed"
+          >
+            <CheckCircle2 size={18} aria-hidden="true" />
+            <span>{isTamil ? 'நான் பணம் செலுத்திவிட்டேன்' : 'I have paid'}</span>
+          </button>
+        </div>
       </div>
     </div>
   );
