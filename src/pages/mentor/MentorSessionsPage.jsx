@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
+import { formatDisplayDate } from '../../lib/dateUtils';
 import {
   Calendar,
   PlusCircle,
@@ -467,7 +468,7 @@ export function MentorSessionsPage() {
             </div>
 
             {registeredStudents.length > 0 ? (
-              <div style={{ maxHeight: '280px', overflowY: 'auto', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)' }}>
+              <div className="table-responsive" style={{ maxHeight: '340px', overflowY: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
                   <thead>
                     <tr style={{ background: '#f1f5f9', borderBottom: '1.5px solid var(--border-subtle)' }}>
@@ -486,17 +487,17 @@ export function MentorSessionsPage() {
                   <tbody>
                     {registeredStudents.map((st, idx) => (
                       <tr key={st.id || idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                        <td style={{ padding: '0.65rem 0.85rem', color: '#64748b' }}>{idx + 1}</td>
-                        <td style={{ padding: '0.65rem 0.85rem', fontWeight: 600, color: 'var(--navy-900)' }}>
+                        <td data-label="#" style={{ padding: '0.65rem 0.85rem', color: '#64748b' }}>{idx + 1}</td>
+                        <td data-label={hub.regStudentName || (isTamil ? 'மாணவர் பெயர்' : 'Student Name')} style={{ padding: '0.65rem 0.85rem', fontWeight: 600, color: 'var(--navy-900)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                             <UserCheck size={14} color="var(--cyan-700)" />
                             <span>{st.student_name || 'TN Student'}</span>
                           </div>
                         </td>
-                        <td style={{ padding: '0.65rem 0.85rem', color: '#64748b', fontSize: '0.8rem' }}>
-                          {st.registered_at ? new Date(st.registered_at).toLocaleDateString() : 'Active'}
+                        <td data-label={hub.regDate || (isTamil ? 'பதிவு தேதி' : 'Date')} style={{ padding: '0.65rem 0.85rem', color: '#64748b', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
+                          {st.registered_at ? formatDisplayDate(st.registered_at) : 'Active'}
                         </td>
-                        <td style={{ padding: '0.65rem 0.85rem' }}>
+                        <td data-label={hub.regStatus || (isTamil ? 'நிலை' : 'Status')} style={{ padding: '0.65rem 0.85rem' }}>
                           <span
                             style={{
                               fontSize: '0.72rem',
@@ -505,7 +506,8 @@ export function MentorSessionsPage() {
                               borderRadius: '9999px',
                               background: '#dcfce7',
                               color: '#166534',
-                              border: '1px solid #bbf7d0'
+                              border: '1px solid #bbf7d0',
+                              whiteSpace: 'nowrap'
                             }}
                           >
                             {isTamil ? 'பதிவு உறுதியானது' : 'Confirmed'}

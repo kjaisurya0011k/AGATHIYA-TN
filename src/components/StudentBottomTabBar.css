@@ -1,0 +1,80 @@
+/* =========================================================
+   STUDENT BOTTOM TAB BAR (MOBILE ONLY < 768px)
+   Ergonomic thumb-friendly navigation for logged-in students
+   ========================================================= */
+
+.student-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid #e2e8f0;
+  box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.06);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (min-width: 768px) {
+  .student-bottom-nav {
+    display: none !important;
+  }
+}
+
+.student-bottom-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 56px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.bottom-tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  min-width: 44px;
+  color: #64748b;
+  text-decoration: none;
+  transition: color 0.15s ease, transform 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-tab-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  margin-bottom: 2px;
+  transition: transform 0.15s ease;
+}
+
+.bottom-tab-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.bottom-tab-item.active {
+  color: #1d4ed8;
+}
+
+.bottom-tab-item.active .bottom-tab-icon-wrap {
+  transform: translateY(-1px);
+}
+
+.bottom-tab-item.active .bottom-tab-label {
+  font-weight: 750;
+}
+
+.bottom-tab-item:active {
+  transform: scale(0.95);
+}

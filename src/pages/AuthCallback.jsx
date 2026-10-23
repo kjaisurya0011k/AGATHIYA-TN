@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -19,76 +19,147 @@ export function AuthCallback() {
   } = useAuth();
 
   const [callbackError, setCallbackError] = useState(null);
+  const handledRef = useRef(false);
 
   useEffect(() => {
     let mounted = true;
+    let authSubscription = null;
 
-    async function handleAuthVerification() {
-      // Catch any error in hash or query parameters
-      try {
-        const fullParams = new URLSearchParams(window.location.search || window.location.hash.replace('#', '?'));
-        const errorDesc = fullParams.get('error_description') || fullParams.get('error');
-        if (errorDesc) {
-          if (mounted) setCallbackError(errorDesc);
-          return;
-        }
-      } catch {
-        // ignore
-      }
-
-      // If session is still loading from AuthContext, wait
-      if (loading) return;
-
-      // If user & session are established, route according to role and onboarding status
-      if (user || session) {
-        const savedTarget = sessionStorage.getItem('eee_tn_redirect_after_login');
-        if (savedTarget) {
-          sessionStorage.removeItem('eee_tn_redirect_after_login');
-        }
-
-        const userRole = profile?.role || 'student';
-        if (userRole === 'admin') {
-          const target = savedTarget && savedTarget !== '/' && savedTarget !== '/login' ? savedTarget : '/admin';
-          navigate(target, { replace: true });
-        } else if (userRole === 'mentor') {
-          const target = savedTarget && savedTarget !== '/' && savedTarget !== '/login' ? savedTarget : '/mentor';
-          navigate(target, { replace: true });
-        } else {
-          // student
-          if (!isProfileComplete) {
-            navigate('/onboarding', { replace: true });
-          } else {
-            const target = savedTarget && savedTarget !== '/' && savedTarget !== '/login' ? savedTarget : '/home';
-            navigate(target, { replace: true });
-          }
+    // 1. Check for any OAuth errors in URL query or hash parameters
+    try {
+      const fullParams = new URLSearchParams(window.location.search || window.location.hash.replace('#', '?'));
+      const errorDesc = fullParams.get('error_description') || fullParams.get('error');
+      if (errorDesc) {
+        // Clear sensitive URL params immediately without logging tokens
+        window.history.replaceState({}, document.title, window.location.pathname);
+        if (mounted) {
+          setCallbackError(errorDesc);
         }
         return;
       }
+    } catch {
+      // ignore
+    }
 
-      // If no user yet, perform a direct getSession check
-      try {
-        if (supabase?.auth?.getSession) {
-          const { data: { session: directSession }, error } = await supabase.auth.getSession();
-          if (error) {
-            if (mounted) setCallbackError(error.message);
-            return;
+    // Helper: route user to their respective destination based on role & profile completeness
+    async function routeAuthenticatedUser(activeUser, activeProfile, activeIsProfileComplete) {
+      if (handledRef.current) return;
+      handledRef.current = true;
+
+      // Clean URL hash and search params without logging or exposing tokens
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      const savedTarget = sessionStorage.getItem('eee_tn_redirect_after_login');
+      if (savedTarget) {
+        sessionStorage.removeItem('eee_tn_redirect_after_login');
+      }
+
+      let currentRole = activeProfile?.role;
+      let isComplete = activeIsProfileComplete;
+
+      // If profile is not yet resolved in context, fetch directly from Supabase
+      if (!currentRole && supabase?.from) {
+        try {
+          const { data: prof } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', activeUser.id)
+            .maybeSingle();
+          if (prof?.role) {
+            currentRole = prof.role;
           }
-          if (!directSession) {
-            // No session returned after callback: redirect back to login
-            navigate('/login', { replace: true });
-          }
+        } catch {
+          // fallback to student
         }
-      } catch (err) {
-        if (mounted) setCallbackError(err?.message || 'Authentication failed');
+      }
+
+      currentRole = currentRole || 'student';
+
+      if (currentRole === 'admin') {
+        const target = savedTarget && savedTarget.startsWith('/admin') ? savedTarget : '/admin';
+        navigate(target, { replace: true });
+        return;
+      }
+
+      if (currentRole === 'mentor') {
+        const target = savedTarget && (savedTarget.startsWith('/mentor') || savedTarget.startsWith('/profile')) ? savedTarget : '/mentor';
+        navigate(target, { replace: true });
+        return;
+      }
+
+      // Student role: verify whether onboarding / profile is complete
+      if (isComplete === undefined && supabase?.from) {
+        try {
+          const { data: stData } = await supabase
+            .from('student_details')
+            .select('consent_given')
+            .eq('id', activeUser.id)
+            .maybeSingle();
+          isComplete = Boolean(stData?.consent_given);
+        } catch {
+          isComplete = false;
+        }
+      }
+
+      if (!isComplete) {
+        navigate('/onboarding', { replace: true });
+      } else {
+        const target = savedTarget && !savedTarget.startsWith('/admin') && !savedTarget.startsWith('/mentor') && savedTarget !== '/login' ? savedTarget : '/home';
+        navigate(target, { replace: true });
       }
     }
 
-    handleAuthVerification();
+    // 2. If AuthContext has already resolved user & session
+    if (!loading && (user || session)) {
+      routeAuthenticatedUser(user || session.user, profile, isProfileComplete);
+      return;
+    }
+
+    // 3. Listen to Supabase auth state change (handles OAuth hash & PKCE exchanges)
+    if (supabase?.auth?.onAuthStateChange) {
+      const { data: subData } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+        if (!mounted) return;
+        if (newSession?.user) {
+          await routeAuthenticatedUser(newSession.user, profile, isProfileComplete);
+        }
+      });
+      authSubscription = subData?.subscription;
+    }
+
+    // 4. Also check getSession() directly
+    if (supabase?.auth?.getSession) {
+      supabase.auth.getSession().then(({ data, error }) => {
+        if (!mounted) return;
+        if (error) {
+          setCallbackError(error.message);
+          return;
+        }
+        if (data?.session?.user) {
+          routeAuthenticatedUser(data.session.user, profile, isProfileComplete);
+        }
+      }).catch((err) => {
+        if (!mounted) return;
+        setCallbackError(err?.message || 'Authentication failed');
+      });
+    }
+
+    // 5. Fallback timer if no session is detected after 7 seconds
+    const timeoutId = setTimeout(() => {
+      if (!mounted || handledRef.current) return;
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setCallbackError(
+        lang === 'ta'
+          ? 'உள்நுழைவு அமர்வை நிறுவ முடியவில்லை. தயவுசெய்து மீண்டும் உள்நுழையவும்.'
+          : 'Unable to establish sign-in session. Please try signing in again.'
+      );
+    }, 7000);
 
     return () => {
       mounted = false;
+      authSubscription?.unsubscribe?.();
+      clearTimeout(timeoutId);
     };
-  }, [loading, user, session, isProfileComplete, navigate]);
+  }, [loading, user, session, profile, isProfileComplete, navigate, lang]);
 
   if (profileNetworkError) {
     return (
@@ -143,12 +214,12 @@ export function AuthCallback() {
         <div className="brand-icon" style={{ margin: '0 auto 1.5rem', width: '56px', height: '56px' }}>
           <GraduationCap size={32} color="#FFFFFF" />
         </div>
-        <h2>{lang === 'ta' ? 'அங்கீகரிக்கப்படுகிறது...' : 'Signing You In...'}</h2>
+        <h2>{lang === 'ta' ? 'அங்கீகரிக்கப்படுகிறது...' : 'Signing you in...'}</h2>
         <div className="loader-ring" style={{ margin: '1.25rem auto' }} aria-hidden="true" />
         <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem', fontSize: '0.92rem' }}>
           {lang === 'ta'
             ? 'உங்கள் Google கணக்கு சரிபார்க்கப்பட்டு உங்கள் பக்கத்திற்கு அழைத்துச் செல்லப்படுகிறீர்கள்.'
-            : 'Verifying your credentials and directing you to the student portal.'}
+            : 'Verifying your credentials and directing you to your portal...'}
         </p>
       </div>
     </div>

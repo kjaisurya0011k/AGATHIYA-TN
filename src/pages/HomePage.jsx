@@ -54,6 +54,42 @@ export function HomePage() {
   const [copiedKey, setCopiedKey] = useState(null);
   const copyTimeoutRef = useRef(null);
 
+  // Next Live Workshop teaser for mobile hero
+  const [nextSession, setNextSession] = useState({
+    id: 'sess-101',
+    title_en: 'TNEA Counseling 2026: Strategy for Top 50 Engineering Colleges',
+    title_ta: 'TNEA கலந்தாய்வு 2026: சிறந்த 50 பொறியியல் கல்லூரிகளைத் தேர்ந்தெடுப்பது எப்படி?',
+    session_date: '2026-10-25',
+    start_time: '10:00',
+    end_time: '11:30',
+    price_inr: 100,
+    mentor_name: 'Er. K. Senthil Nathan',
+    mentor_headline: 'Senior Lead Systems Engineer @ Zoho'
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadNextSession() {
+      try {
+        const { data, error } = await supabase
+          .from('mentor_sessions')
+          .select('*')
+          .eq('status', 'approved')
+          .order('session_date', { ascending: true })
+          .limit(1);
+        if (!error && data && data.length > 0 && isMounted) {
+          setNextSession(data[0]);
+        }
+      } catch (err) {
+        // Fallback to default session
+      }
+    }
+    loadNextSession();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   useEffect(() => {
     return () => {
       if (copyTimeoutRef.current) {
@@ -261,20 +297,55 @@ export function HomePage() {
             </p>
 
             <div className="hp-hero-actions">
-              <Link to="/opportunities" className="hp-btn-primary">
+              {/* Desktop primary button */}
+              <Link to="/opportunities" className="hp-btn-primary hp-btn-desktop-only">
                 <Compass size={18} />
                 <span>{t.hero.exploreBtn || (isTamil ? 'படிப்பு வாய்ப்புகளைப் பாருங்கள்' : 'Explore My Options')}</span>
                 <ArrowRight size={17} />
               </Link>
 
+              {/* Desktop secondary button */}
               <Link
                 to="/sessions"
-                className="hp-btn-secondary"
+                className="hp-btn-secondary hp-btn-desktop-only"
               >
                 <GraduationCap size={18} />
                 <span>{isTamil ? 'நேரலை வழிகாட்டல் அமர்வுகள்' : 'Live Guidance Sessions'}</span>
               </Link>
+
+              {/* Mobile one main button */}
+              <Link
+                to="/sessions"
+                className="hp-btn-primary hp-btn-mobile-hero"
+              >
+                <Sparkles size={18} />
+                <span>{isTamil ? 'அடுத்த பயிலரங்கில் இணையுங்கள்' : 'Join the next workshop'}</span>
+                <ArrowRight size={17} />
+              </Link>
             </div>
+
+            {/* Next session visible without scrolling on mobile */}
+            {nextSession && (
+              <div className="hp-hero-next-workshop-card">
+                <div className="hp-nw-header">
+                  <span className="hp-nw-pill">
+                    <span className="hp-nw-dot" />
+                    {isTamil ? 'அடுத்த நேரலை பயிலரங்கம்' : 'Next Workshop'}
+                  </span>
+                  <span className="hp-nw-date">{nextSession.session_date} • {nextSession.start_time} IST</span>
+                </div>
+                <div className="hp-nw-title">
+                  {isTamil && nextSession.title_ta ? nextSession.title_ta : nextSession.title_en}
+                </div>
+                <div className="hp-nw-footer">
+                  <span className="hp-nw-mentor">{nextSession.mentor_name}</span>
+                  <Link to="/sessions" className="hp-nw-cta">
+                    <span>{nextSession.price_inr ? `₹${nextSession.price_inr} • ${isTamil ? 'பதிவு' : 'Book'}` : (isTamil ? 'இலவசம்' : 'Free')}</span>
+                    <ArrowRight size={13} />
+                  </Link>
+                </div>
+              </div>
+            )}
 
             {/* Trust points */}
             <div className="hp-hero-trust-row">

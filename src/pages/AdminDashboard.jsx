@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { formatDisplayDate } from '../lib/dateUtils';
 import {
   ShieldCheck,
   Users,
@@ -353,7 +354,7 @@ export function AdminDashboard() {
             </div>
           </div>
         ) : (
-          <div className="table-responsive" style={{ overflowX: 'auto' }}>
+          <div className="table-responsive">
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#475569', background: '#f8fafc' }}>
@@ -367,25 +368,25 @@ export function AdminDashboard() {
               <tbody>
                 {pendingSessionsList.slice(0, 4).map((s) => (
                   <tr key={s.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '0.85rem 0.75rem', fontWeight: 700, color: 'var(--navy-900)' }}>
+                    <td data-label={isTamil ? 'அமர்வு தலைப்பு' : 'Session Title'} style={{ padding: '0.85rem 0.75rem', fontWeight: 700, color: 'var(--navy-900)' }}>
                       {(isTamil && s.title_ta ? s.title_ta : s.title_en) || s.title_en}
                     </td>
-                    <td style={{ padding: '0.85rem 0.75rem', color: '#334155' }}>
+                    <td data-label={isTamil ? 'வழிகாட்டி' : 'Mentor'} style={{ padding: '0.85rem 0.75rem', color: '#334155' }}>
                       {s.mentor_name || 'Verified Mentor'}
                     </td>
-                    <td style={{ padding: '0.85rem 0.75rem', color: '#64748b' }}>
-                      {s.session_date || s.date} ({s.start_time || '10:00'})
+                    <td data-label={isTamil ? 'தேதி & நேரம்' : 'Schedule'} style={{ padding: '0.85rem 0.75rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                      {formatDisplayDate(s.session_date || s.date)} ({s.start_time || '10:00'})
                     </td>
-                    <td style={{ padding: '0.85rem 0.75rem' }}>
-                      <span className="badge badge-purple" style={{ fontSize: '0.72rem' }}>
+                    <td data-label={isTamil ? 'துறை' : 'Topic'} style={{ padding: '0.85rem 0.75rem' }}>
+                      <span className="badge badge-purple" style={{ fontSize: '0.72rem', whiteSpace: 'nowrap' }}>
                         {s.topic || 'General'}
                       </span>
                     </td>
-                    <td style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
+                    <td data-label={isTamil ? 'நடவடிக்கை' : 'Action'} style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
                       <Link
                         to="/admin/sessions"
                         className="btn btn-sm btn-outline"
-                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.65rem' }}
+                        style={{ fontSize: '0.85rem', minHeight: '44px', padding: '0.5rem 1rem', width: '100%', justifyContent: 'center', whiteSpace: 'nowrap' }}
                       >
                         {isTamil ? 'மதிப்பாய்வு செய்' : 'Review & Edit'}
                       </Link>

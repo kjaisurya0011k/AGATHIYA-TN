@@ -557,6 +557,8 @@ export function OnboardingPage() {
                     id="phone_number"
                     name="phone_number"
                     type="tel"
+                    inputMode="tel"
+                    enterKeyHint="next"
                     maxLength={10}
                     value={formData.phone_number}
                     onChange={handleChange}
@@ -748,6 +750,8 @@ export function OnboardingPage() {
                     id="maths_marks"
                     name="maths_marks"
                     type="number"
+                    inputMode="decimal"
+                    enterKeyHint="next"
                     min="0"
                     max="100"
                     value={formData.maths_marks}
@@ -765,6 +769,8 @@ export function OnboardingPage() {
                     id="physics_marks"
                     name="physics_marks"
                     type="number"
+                    inputMode="decimal"
+                    enterKeyHint="next"
                     min="0"
                     max="100"
                     value={formData.physics_marks}
@@ -782,6 +788,8 @@ export function OnboardingPage() {
                     id="chemistry_marks"
                     name="chemistry_marks"
                     type="number"
+                    inputMode="decimal"
+                    enterKeyHint="next"
                     min="0"
                     max="100"
                     value={formData.chemistry_marks}
@@ -801,6 +809,8 @@ export function OnboardingPage() {
                     id="total_percentage"
                     name="total_percentage"
                     type="number"
+                    inputMode="decimal"
+                    enterKeyHint="next"
                     step="0.1"
                     min="0"
                     max="100"
@@ -922,6 +932,8 @@ export function OnboardingPage() {
                         id="guardian_phone"
                         name="guardian_phone"
                         type="tel"
+                        inputMode="tel"
+                        enterKeyHint="done"
                         maxLength={10}
                         value={formData.guardian_phone}
                         onChange={handleChange}

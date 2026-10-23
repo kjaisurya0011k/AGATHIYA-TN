@@ -62,6 +62,25 @@ export function Navbar() {
     setUserDropdownOpen(false);
   };
 
+  // Close drawer on Escape key and lock body scroll
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        closeMenus();
+      }
+    };
+    if (mobileMenuOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const getDashboardPath = () => {
     if (userRole === 'admin') return '/admin';
     if (userRole === 'mentor') return '/mentor';
@@ -269,129 +288,163 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Navigation Drawer */}
+      {/* Mobile Navigation Drawer with Backdrop */}
       {mobileMenuOpen && (
-        <div className="navbar-mobile-drawer" role="dialog" aria-modal="true">
-          <div className="mobile-nav-pill-list">
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) => `mobile-pill-link ${isActive ? 'active' : ''}`}
-              onClick={closeMenus}
-            >
-              <Home size={18} />
-              <span>{labels.home}</span>
-            </NavLink>
-
-            <NavLink
-              to="/opportunities"
-              className={({ isActive }) => `mobile-pill-link ${isActive ? 'active' : ''}`}
-              onClick={closeMenus}
-            >
-              <Compass size={18} />
-              <span>{labels.opportunities}</span>
-            </NavLink>
-
-            <NavLink
-              to="/sessions"
-              className={({ isActive }) => `mobile-pill-link ${isActive ? 'active' : ''}`}
-              onClick={closeMenus}
-            >
-              <Calendar size={18} />
-              <span>{labels.sessions}</span>
-            </NavLink>
-
-            <NavLink
-              to="/achievements"
-              className={({ isActive }) => `mobile-pill-link ${isActive ? 'active' : ''}`}
-              onClick={closeMenus}
-            >
-              <Award size={18} />
-              <span>{labels.achievements}</span>
-            </NavLink>
-
-            <NavLink
-              to="/contact"
-              className={({ isActive }) => `mobile-pill-link ${isActive ? 'active' : ''}`}
-              onClick={closeMenus}
-            >
-              <Headphones size={18} />
-              <span>{labels.support}</span>
-            </NavLink>
-          </div>
-
-          <div className="mobile-drawer-footer">
-            <button
-              type="button"
-              onClick={() => {
-                toggleLanguage();
-                closeMenus();
-              }}
-              className="mobile-lang-btn"
-            >
-              <Globe size={16} />
-              <span>{isTamil ? 'Switch to English' : 'தமிழுக்கு மாறவும்'}</span>
-            </button>
-
-            {user ? (
-              <div className="mobile-user-actions">
-                <div className="mobile-user-info-card">
-                  <UserAvatar
-                    name={profile?.full_name || user?.user_metadata?.full_name || user?.email || 'User'}
-                    avatarPath={profile?.avatar_path}
-                    avatarUrl={user.user_metadata?.avatar_url || user.user_metadata?.picture || profile?.avatar_url}
-                    avatarUpdatedAt={profile?.avatar_updated_at}
-                    role={userRole}
-                    size={38}
+        <div
+          className="navbar-mobile-backdrop"
+          onClick={closeMenus}
+          role="presentation"
+        >
+          <div
+            className="navbar-mobile-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation Menu"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mobile-drawer-header">
+              <div className="mobile-drawer-brand">
+                {!logoError && (
+                  <img
+                    src={brand.logo}
+                    alt="AGATHIYA logo"
+                    style={{ height: '32px', width: 'auto', objectFit: 'contain' }}
+                    onError={() => setLogoError(true)}
                   />
-                  <div>
-                    <strong className="mobile-user-name">{profile?.full_name || 'User'}</strong>
-                    <span className="mobile-user-role">{(userRole || 'student').toUpperCase()}</span>
+                )}
+                <span className="brand-primary-text" style={{ fontSize: '1.25rem' }}>{brand.name}</span>
+              </div>
+              <button
+                type="button"
+                className="mobile-drawer-close-btn"
+                onClick={closeMenus}
+                aria-label="Close menu"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="mobile-nav-pill-list">
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) => `mobile-pill-link ${isActive ? 'active' : ''}`}
+                onClick={closeMenus}
+              >
+                <Home size={18} />
+                <span>{labels.home}</span>
+              </NavLink>
+
+              <NavLink
+                to="/opportunities"
+                className={({ isActive }) => `mobile-pill-link ${isActive ? 'active' : ''}`}
+                onClick={closeMenus}
+              >
+                <Compass size={18} />
+                <span>{labels.opportunities}</span>
+              </NavLink>
+
+              <NavLink
+                to="/sessions"
+                className={({ isActive }) => `mobile-pill-link ${isActive ? 'active' : ''}`}
+                onClick={closeMenus}
+              >
+                <Calendar size={18} />
+                <span>{labels.sessions}</span>
+              </NavLink>
+
+              <NavLink
+                to="/achievements"
+                className={({ isActive }) => `mobile-pill-link ${isActive ? 'active' : ''}`}
+                onClick={closeMenus}
+              >
+                <Award size={18} />
+                <span>{labels.achievements}</span>
+              </NavLink>
+
+              <NavLink
+                to="/contact"
+                className={({ isActive }) => `mobile-pill-link ${isActive ? 'active' : ''}`}
+                onClick={closeMenus}
+              >
+                <Headphones size={18} />
+                <span>{labels.support}</span>
+              </NavLink>
+            </div>
+
+            <div className="mobile-drawer-footer">
+              <button
+                type="button"
+                onClick={() => {
+                  toggleLanguage();
+                  closeMenus();
+                }}
+                className="mobile-lang-btn"
+              >
+                <Globe size={16} />
+                <span>{isTamil ? 'Switch to English' : 'தமிழுக்கு மாறவும்'}</span>
+              </button>
+
+              {user ? (
+                <div className="mobile-user-actions">
+                  <div className="mobile-user-info-card">
+                    <UserAvatar
+                      name={profile?.full_name || user?.user_metadata?.full_name || user?.email || 'User'}
+                      avatarPath={profile?.avatar_path}
+                      avatarUrl={user.user_metadata?.avatar_url || user.user_metadata?.picture || profile?.avatar_url}
+                      avatarUpdatedAt={profile?.avatar_updated_at}
+                      role={userRole}
+                      size={38}
+                    />
+                    <div>
+                      <strong className="mobile-user-name">{profile?.full_name || 'User'}</strong>
+                      <span className="mobile-user-role">{(userRole || 'student').toUpperCase()}</span>
+                    </div>
                   </div>
+
+                  <Link
+                    to={getDashboardPath()}
+                    className="btn btn-outline"
+                    style={{ width: '100%', marginBottom: '0.5rem', justifyContent: 'center' }}
+                    onClick={closeMenus}
+                  >
+                    <LayoutDashboard size={16} />
+                    <span>{labels.dashboard}</span>
+                  </Link>
+
+                  <Link
+                    to="/profile"
+                    className="btn btn-outline"
+                    style={{ width: '100%', marginBottom: '0.5rem', justifyContent: 'center' }}
+                    onClick={closeMenus}
+                  >
+                    <UserCheck size={16} />
+                    <span>{labels.myProfile}</span>
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="btn btn-outline"
+                    style={{ width: '100%', color: '#dc2626', borderColor: '#fca5a5', justifyContent: 'center' }}
+                  >
+                    <LogOut size={16} />
+                    <span>{labels.signOut}</span>
+                  </button>
                 </div>
-
-                <Link
-                  to={getDashboardPath()}
-                  className="btn btn-outline"
-                  style={{ width: '100%', marginBottom: '0.5rem', justifyContent: 'center' }}
-                  onClick={closeMenus}
-                >
-                  <LayoutDashboard size={16} />
-                  <span>{labels.dashboard}</span>
-                </Link>
-
-                <Link
-                  to="/profile"
-                  className="btn btn-outline"
-                  style={{ width: '100%', marginBottom: '0.5rem', justifyContent: 'center' }}
-                  onClick={closeMenus}
-                >
-                  <UserCheck size={16} />
-                  <span>{labels.myProfile}</span>
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="btn btn-outline"
-                  style={{ width: '100%', color: '#dc2626', borderColor: '#fca5a5', justifyContent: 'center' }}
-                >
-                  <LogOut size={16} />
-                  <span>{labels.signOut}</span>
-                </button>
-              </div>
-            ) : (
-              <div className="mobile-auth-actions">
-                <Link
-                  to="/register"
-                  className="btn-nav-combined-cta"
-                  style={{ width: '100%', justifyContent: 'center' }}
-                  onClick={closeMenus}
-                >
-                  <span className="btn-nav-cta-text">{labels.register}</span>
-                </Link>
-              </div>
-            )}
+              ) : (
+                <div className="mobile-auth-actions">
+                  <Link
+                    to="/register"
+                    className="btn-nav-combined-cta"
+                    style={{ width: '100%', justifyContent: 'center' }}
+                    onClick={closeMenus}
+                  >
+                    <span className="btn-nav-cta-text">{labels.register}</span>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
