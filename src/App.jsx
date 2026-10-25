@@ -41,11 +41,25 @@ import { OnboardingModal } from './components/OnboardingModal';
 import { FullScreenLoader } from './components/FullScreenLoader';
 import { StudentBottomTabBar } from './components/StudentBottomTabBar';
 import { OfflineBanner } from './components/OfflineBanner';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { useAuth } from './context/AuthContext';
 
 export function App() {
   const { loading, user, userRole } = useAuth();
   const location = useLocation();
+
+  // If user lands with Supabase OAuth tokens or error in the hash on any page other than /auth/callback or /reset-password, forward them to /auth/callback to resolve their session and route properly
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hash &&
+    (window.location.hash.includes('access_token=') ||
+      window.location.hash.includes('error=') ||
+      window.location.hash.includes('error_description=')) &&
+    location.pathname !== '/auth/callback' &&
+    location.pathname !== '/reset-password'
+  ) {
+    return <Navigate to={`/auth/callback${window.location.hash}`} replace />;
+  }
 
   // Wait for the authentication session to resolve.
   if (loading) {
@@ -71,10 +85,11 @@ export function App() {
           isStudentUser && !isAuthScreen ? 'has-student-bottom-bar' : ''
         }`}
       >
-        <Suspense fallback={<FullScreenLoader />}>
-          <Routes>
-            {/* Public homepage */}
-            <Route path="/" element={<HomePage />} />
+        <ErrorBoundary>
+          <Suspense fallback={<FullScreenLoader />}>
+            <Routes>
+              {/* Public homepage */}
+              <Route path="/" element={<HomePage />} />
 
           {/* Public Contact & Support */}
           <Route path="/contact" element={<ContactPage />} />
@@ -290,7 +305,8 @@ export function App() {
           />
         </Routes>
       </Suspense>
-    </main>
+    </ErrorBoundary>
+  </main>
 
       {!isAuthScreen && <Footer />}
 
