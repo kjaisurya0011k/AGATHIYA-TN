@@ -17,10 +17,6 @@ import {
   User,
   ArrowRight,
   RefreshCw,
-  UserCheck,
-  UserPlus,
-  Users,
-  Shield,
   Send,
   GraduationCap
 } from 'lucide-react';
@@ -59,8 +55,7 @@ export function LoginPage({ initialTab = 'login' }) {
     authError,
     clearAuthError,
     profileNetworkError,
-    retryFetchProfile,
-    loginAsDemoRole
+    retryFetchProfile
   } = useAuth();
 
   const location = useLocation();
@@ -824,53 +819,6 @@ export function LoginPage({ initialTab = 'login' }) {
             )}
           </p>
 
-          {/* Role Testing Shortcuts (For fast preview of roles) */}
-          <div className="login-demo-roles-panel">
-            <span className="demo-roles-hint">
-              {lang === 'ta' ? 'விரைவு முன்னோட்ட பாத்திரங்கள் (Testing Shortcuts):' : 'Instant Role Previews (For Testing):'}
-            </span>
-            <div className="demo-roles-pills">
-              <button
-                type="button"
-                onClick={() => loginAsDemoRole('new_student')}
-                className="demo-pill-btn"
-                title="Test New Student without Onboarding"
-              >
-                <UserPlus size={13} color="var(--purple-600)" />
-                <span>{lang === 'ta' ? 'புதிய மாணவர் (To Onboard)' : 'New Student (To Onboard)'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => loginAsDemoRole('student')}
-                className="demo-pill-btn"
-                title="Test Student with Completed Profile"
-              >
-                <UserCheck size={13} color="var(--cyan-700)" />
-                <span>{lang === 'ta' ? 'மாணவர் (Onboarded)' : 'Student (Onboarded)'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => loginAsDemoRole('mentor')}
-                className="demo-pill-btn"
-                title="Test Mentor Role"
-              >
-                <Users size={13} color="var(--purple-600)" />
-                <span>{lang === 'ta' ? 'வழிகாட்டி (Mentor)' : 'Mentor'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => loginAsDemoRole('admin')}
-                className="demo-pill-btn"
-                title="Test Admin Role"
-              >
-                <Shield size={13} color="var(--navy-900)" />
-                <span>{lang === 'ta' ? 'நிர்வாகி (Admin)' : 'Admin'}</span>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

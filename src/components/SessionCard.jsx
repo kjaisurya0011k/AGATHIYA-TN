@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { brand } from '../data/brand';
-import { getPaymentStatus, submitStudentPayment } from '../lib/payments';
+import { getPaymentStatus, getPaymentRecord, submitStudentPayment } from '../lib/payments';
 import { PaymentModal } from './PaymentModal';
 import {
   Calendar,
@@ -15,7 +15,9 @@ import {
   UserCheck,
   CalendarPlus,
   AlertCircle,
-  XCircle
+  XCircle,
+  HelpCircle,
+  RotateCcw
 } from 'lucide-react';
 import { UserAvatar } from './UserAvatar';
 import { formatDisplayDate } from '../lib/dateUtils';
@@ -41,22 +43,30 @@ export function SessionCard({ session }) {
   const price = session.price_inr !== undefined ? session.price_inr : session.price || 0;
   const isFree = price === 0;
 
-  // Track payment status for this session
+  // Track payment status and record for this session
   const [paymentStatus, setPaymentStatus] = useState(() => {
     return getPaymentStatus(session.id, user?.id);
+  });
+  const [paymentRecord, setPaymentRecord] = useState(() => {
+    return getPaymentRecord(session.id, user?.id);
   });
 
   // Sync payment status when session registrations or storage update
   useEffect(() => {
     const syncStatus = () => {
       const localSt = getPaymentStatus(session.id, user?.id);
+      const rec = getPaymentRecord(session.id, user?.id);
+      setPaymentRecord(rec);
+
       const reg = (session.registrations || []).find(
         (r) => (user?.id && r.student_id === user.id) || r.student_id === 'demo-student-id'
       );
-      if (reg?.payment_status === 'paid' || localSt === 'paid') {
-        setPaymentStatus('paid');
-      } else if (reg?.payment_status === 'pending_verification' || localSt === 'pending_verification') {
-        setPaymentStatus('pending_verification');
+      if (reg?.payment_status === 'verified' || reg?.payment_status === 'paid' || localSt === 'verified' || localSt === 'paid') {
+        setPaymentStatus('verified');
+      } else if (reg?.payment_status === 'rejected' || localSt === 'rejected') {
+        setPaymentStatus('rejected');
+      } else if (reg?.payment_status === 'pending' || reg?.payment_status === 'pending_verification' || localSt === 'pending') {
+        setPaymentStatus('pending');
       } else if (localSt && localSt !== 'none') {
         setPaymentStatus(localSt);
       }
@@ -67,7 +77,10 @@ export function SessionCard({ session }) {
     const handlePaymentUpdated = (e) => {
       if (!e.detail || e.detail.sessionId === session.id) {
         if (e.detail?.status) {
-          setPaymentStatus(e.detail.status);
+          const s = e.detail.status === 'paid' ? 'verified' : e.detail.status;
+          setPaymentStatus(s);
+          const rec = getPaymentRecord(session.id, user?.id);
+          setPaymentRecord(rec);
         } else {
           syncStatus();
         }
@@ -110,12 +123,13 @@ export function SessionCard({ session }) {
   };
 
   // Handler for student submitting payment
-  const handleConfirmPaid = async () => {
+  const handleConfirmPaid = async (submittedTxRef) => {
     await submitStudentPayment({
       sessionId: session.id,
       user,
       profile,
-      sessionObj: session
+      sessionObj: session,
+      transactionRef: submittedTxRef
     });
 
     if (!isRegistered && registerForSession) {
@@ -123,9 +137,13 @@ export function SessionCard({ session }) {
     }
 
     setIsPayModalOpen(false);
-    setPaymentStatus('pending_verification');
-    setFeedbackToast('Thanks! Your access will be confirmed after the admin verifies your payment.');
-    setTimeout(() => setFeedbackToast(null), 5000);
+    setPaymentStatus('pending');
+    setFeedbackToast(
+      isTamil
+        ? 'கட்டணம் சமர்ப்பிக்கப்பட்டது (சரிபார்ப்பில் உள்ளது). நிர்வாகி சரிபார்த்த பிறகு அணுகல் உறுதி செய்யப்படும்.'
+        : 'Payment submitted (pending verification). Access will be confirmed after admin verifies your payment.'
+    );
+    setTimeout(() => setFeedbackToast(null), 6000);
   };
 
   // Handler for free session seat registration / cancellation
@@ -150,10 +168,15 @@ export function SessionCard({ session }) {
     }
   };
 
+  // Payment status flags
+  const isVerified = paymentStatus === 'verified' || paymentStatus === 'paid';
+  const isPending = paymentStatus === 'pending' || paymentStatus === 'pending_verification';
+  const isRejected = paymentStatus === 'rejected';
+
   // Should the meeting link be released?
   // For free sessions: released once registered.
-  // For paid sessions: released ONLY once registered AND admin verified payment (paymentStatus === 'paid').
-  const canAccessMeetingLink = isRegistered && (isFree || paymentStatus === 'paid');
+  // For paid sessions: released ONLY once registered AND admin verified payment (isVerified).
+  const canAccessMeetingLink = isRegistered && (isFree || isVerified);
 
   return (
     <div
@@ -249,8 +272,8 @@ export function SessionCard({ session }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#166534', fontWeight: 700, fontSize: '0.825rem', marginBottom: '0.4rem' }}>
               <CheckCircle2 size={16} />
               <span>
-                {paymentStatus === 'paid'
-                  ? (isTamil ? 'கட்டணம் சரிபார்க்கப்பட்டது • இருக்கை உறுதியானது' : 'Payment Verified • Seat Confirmed')
+                {isVerified
+                  ? (isTamil ? 'கட்டணம் சரிபார்க்கப்பட்டது — உங்கள் அமர்வு அணுகல் உறுதியானது.' : 'Payment verified — Your session access is confirmed.')
                   : sessLang.alreadyRegistered || (isTamil ? 'உங்கள் பதிவு உறுதியானது' : 'Seat Confirmed')}
               </span>
             </div>
@@ -286,27 +309,81 @@ export function SessionCard({ session }) {
         )}
 
         {/* Pending Verification Notice for Paid Sessions */}
-        {!isFree && isRegistered && paymentStatus === 'pending_verification' && (
+        {!isFree && isRegistered && isPending && (
           <div
             style={{
               fontSize: '0.8rem',
               color: '#92400e',
               background: '#fffbeb',
-              padding: '0.65rem 0.85rem',
+              padding: '0.75rem 0.9rem',
               borderRadius: '6px',
               marginBottom: '1rem',
-              border: '1px solid #fde68a',
+              border: '1.5px solid #fde68a',
               display: 'flex',
-              alignItems: 'center',
-              gap: '0.45rem'
+              alignItems: 'flex-start',
+              gap: '0.5rem'
             }}
           >
-            <Clock size={16} color="#d97706" style={{ flexShrink: 0 }} />
-            <span>
+            <Clock size={16} color="#d97706" style={{ flexShrink: 0, marginTop: '2px' }} />
+            <div>
+              <div style={{ fontWeight: 700, color: '#b45309', marginBottom: '0.2rem' }}>
+                {isTamil ? 'கட்டணம் சமர்ப்பிக்கப்பட்டது (சரிபார்ப்பில் உள்ளது)' : 'Payment submitted (pending verification)'}
+              </div>
+              <div style={{ fontSize: '0.76rem', color: '#78350f', lineHeight: 1.45 }}>
+                {isTamil
+                  ? 'நிர்வாகி உங்கள் கட்டணத்தை சரிபார்த்த பிறகு அணுகல் உறுதி செய்யப்படும்.'
+                  : 'Access will be confirmed after admin verifies your payment.'}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Payment Rejected Notice for Paid Sessions */}
+        {!isFree && isRegistered && isRejected && (
+          <div
+            style={{
+              fontSize: '0.8rem',
+              color: '#991b1b',
+              background: '#fef2f2',
+              padding: '0.75rem 0.9rem',
+              borderRadius: '6px',
+              marginBottom: '1rem',
+              border: '1.5px solid #fca5a5'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, color: '#b91c1c', marginBottom: '0.25rem' }}>
+              <AlertCircle size={16} color="#dc2626" />
+              <span>{isTamil ? 'கட்டணம் நிராகரிக்கப்பட்டது' : 'Payment Verification Unsuccessful'}</span>
+            </div>
+            <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.78rem', color: '#7f1d1d', lineHeight: 1.45 }}>
+              {paymentRecord?.rejection_reason || paymentRecord?.rejectionReason
+                ? `${isTamil ? 'காரணம்:' : 'Reason:'} ${paymentRecord.rejection_reason || paymentRecord.rejectionReason}`
+                : (isTamil ? 'பரிவர்த்தனை விவரங்களை உறுதிப்படுத்த முடியவில்லை.' : 'Transaction details could not be verified.')}
+            </p>
+            <p style={{ margin: '0 0 0.65rem 0', fontSize: '0.75rem', color: '#991b1b' }}>
               {isTamil
-                ? 'கட்டண சரிபார்ப்பு நிலுவையில் உள்ளது. நிர்வாகி சரிபார்த்த பின் கூகுள் மீட் இணைப்பு வெளியிடப்படும்.'
-                : 'Payment submitted (pending verification). Access will be confirmed after admin verifies your payment.'}
-            </span>
+                ? 'உங்கள் பதிவு நீக்கப்படவில்லை. சரியான UTR விவரங்களுடன் மீண்டும் சமர்ப்பிக்கலாம் அல்லது உதவி மையத்தை அணுகலாம்.'
+                : 'Your registration is preserved. You can resubmit with corrected payment details or contact support.'}
+            </p>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => setIsPayModalOpen(true)}
+                className="btn btn-sm"
+                style={{ fontSize: '0.76rem', padding: '0.35rem 0.75rem', minHeight: '32px', background: '#dc2626', borderColor: '#b91c1c', color: '#ffffff' }}
+              >
+                <RotateCcw size={12} style={{ marginRight: '0.3rem' }} />
+                <span>{isTamil ? 'மீண்டும் சமர்ப்பிக்க' : 'Resubmit Payment'}</span>
+              </button>
+              <a
+                href="/contact"
+                className="btn btn-sm btn-outline"
+                style={{ fontSize: '0.76rem', padding: '0.35rem 0.75rem', minHeight: '32px', borderColor: '#fca5a5', color: '#991b1b', background: '#ffffff', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+              >
+                <HelpCircle size={12} />
+                <span>{isTamil ? 'உதவி மையத்தை அணுகுக' : 'Contact Support'}</span>
+              </a>
+            </div>
           </div>
         )}
       </div>
@@ -361,13 +438,12 @@ export function SessionCard({ session }) {
         ) : (
           /* Paid Sessions: Pay Button for logged-in students viewing or registered for session */
           user ? (
-            paymentStatus === 'paid' ? (
-              <button
-                type="button"
-                disabled
-                className="btn btn-sm"
-                aria-label="Payment verified"
+            isVerified ? (
+              <div
                 style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
                   fontSize: '0.825rem',
                   fontWeight: 700,
                   minHeight: '44px',
@@ -375,30 +451,49 @@ export function SessionCard({ session }) {
                   background: '#dcfce7',
                   color: '#166534',
                   border: '1.5px solid #86efac',
-                  cursor: 'default'
+                  borderRadius: 'var(--radius-md)'
                 }}
               >
-                ✓ {isTamil ? 'கட்டணம் செலுத்தப்பட்டது' : 'Paid'}
-              </button>
-            ) : paymentStatus === 'pending_verification' ? (
-              <button
-                type="button"
-                disabled
-                className="btn btn-sm btn-outline"
-                aria-label="Payment submitted pending verification"
+                <CheckCircle2 size={16} />
+                <span>{isTamil ? 'கட்டணம் சரிபார்க்கப்பட்டது' : 'Payment Verified'}</span>
+              </div>
+            ) : isPending ? (
+              <div
                 style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
                   fontSize: '0.8rem',
                   fontWeight: 600,
                   minHeight: '44px',
                   padding: '0.4rem 0.85rem',
-                  opacity: 0.9,
-                  cursor: 'not-allowed',
                   color: '#b45309',
-                  borderColor: '#fcd34d',
-                  background: '#fffbeb'
+                  border: '1.5px solid #fcd34d',
+                  background: '#fffbeb',
+                  borderRadius: 'var(--radius-md)'
                 }}
               >
-                Payment submitted (pending verification)
+                <Clock size={14} />
+                <span>{isTamil ? 'சரிபார்ப்பில் உள்ளது' : 'Pending Verification'}</span>
+              </div>
+            ) : isRejected ? (
+              <button
+                type="button"
+                onClick={() => setIsPayModalOpen(true)}
+                className="btn btn-sm"
+                aria-label={`Resubmit payment ₹${price}`}
+                style={{
+                  fontSize: '0.825rem',
+                  fontWeight: 700,
+                  minHeight: '44px',
+                  padding: '0.4rem 1rem',
+                  backgroundColor: '#dc2626',
+                  borderColor: '#b91c1c',
+                  color: '#ffffff'
+                }}
+              >
+                <RotateCcw size={14} style={{ marginRight: '0.35rem' }} />
+                <span>{isTamil ? 'மீண்டும் கட்டணம் செலுத்த' : 'Resubmit Payment'}</span>
               </button>
             ) : (
               <button

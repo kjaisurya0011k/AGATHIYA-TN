@@ -139,6 +139,30 @@ export function AdminDashboard() {
           </Link>
 
           <Link
+            to="/admin/payments"
+            className="btn btn-outline"
+            style={{ padding: '0.45rem 0.9rem', fontSize: '0.84rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600 }}
+          >
+            <CreditCard size={15} />
+            <span>{isTamil ? 'கட்டண சரிபார்ப்பு' : 'Payment Verification'}</span>
+            {stats.pendingPaymentsCount > 0 && (
+              <span
+                style={{
+                  background: '#ea580c',
+                  color: '#ffffff',
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  padding: '0.1rem 0.45rem',
+                  borderRadius: '999px',
+                  lineHeight: 1
+                }}
+              >
+                {stats.pendingPaymentsCount}
+              </span>
+            )}
+          </Link>
+
+          <Link
             to="/profile"
             className="btn btn-outline"
             style={{ padding: '0.45rem 0.9rem', fontSize: '0.84rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600 }}
@@ -260,7 +284,7 @@ export function AdminDashboard() {
 
         {/* 4. Pending Payment Registrations */}
         <Link
-          to="/admin/sessions"
+          to="/admin/payments"
           className="card"
           style={{
             padding: '1.25rem',
@@ -283,7 +307,7 @@ export function AdminDashboard() {
             {stats.pendingPaymentsCount}
           </div>
           <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.45rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-            <span>{isTamil ? 'பதிவுகளைக் காண்க' : 'Audit registrations'}</span>
+            <span>{isTamil ? 'சரிபார்க்க கிளிக் செய்க' : 'Review & verify payments'}</span>
             <ArrowRight size={12} />
           </div>
         </Link>

@@ -33,22 +33,22 @@ export function MentorEditSessionPage() {
   const hub = t?.mentorHub || {};
 
   const existingSession = mentorSessions.find((s) => s.id === id) || {
-    id: id || 'sess-101',
-    title_en: 'TNEA Counseling 2026: Strategy for Top 50 Engineering Colleges',
-    title_ta: 'TNEA கலந்தாய்வு 2026: சிறந்த 50 பொறியியல் கல்லூரிகளைத் தேர்ந்தெடுப்பது எப்படி?',
-    description_en: 'Complete walkthrough on branch vs college selection, single-window counselling rank trends, and first-generation graduate waiver claims.',
-    description_ta: 'கல்லூரி vs படிப்பு முன்னுரிமை, ஒற்றைச் சாளர கலந்தாய்வு இட ஒதுக்கீடு மற்றும் முதல் பட்டதாரி சலுகை குறித்த நேரலை வழிகாட்டல்.',
+    id: id || '',
+    title_en: '',
+    title_ta: '',
+    description_en: '',
+    description_ta: '',
     topic: 'Engineering & TNEA',
     target_audience: 'Both',
     language: 'Tamil & English',
-    session_date: '2026-07-20',
+    session_date: '',
     start_time: '10:00',
     end_time: '11:30',
     capacity: 100,
     price_inr: 0,
-    status: 'approved',
+    status: 'draft',
     admin_note: null,
-    meeting_link: 'https://meet.google.com/eee-tnea-2026'
+    meeting_link: ''
   };
 
   const [formData, setFormData] = useState({
