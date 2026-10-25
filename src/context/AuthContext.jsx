@@ -1668,6 +1668,55 @@ export function AuthProvider({ children }) {
     return { success: true };
   };
 
+  const removeUserAvatar = async () => {
+    if (!user) throw new Error('User must be authenticated to remove avatar.');
+    const filePath = `${user.id}/avatar.webp`;
+    const nowIso = new Date().toISOString();
+
+    try {
+      if (supabase?.storage?.from) {
+        await supabase.storage.from('avatars').remove([filePath]);
+      }
+      if (supabase?.from) {
+        await supabase
+          .from('profiles')
+          .update({
+            avatar_path: null,
+            avatar_updated_at: nowIso
+          })
+          .eq('id', user.id);
+      }
+    } catch (err) {
+      console.warn('Supabase remove note:', err);
+    }
+
+    localStorage.removeItem(`eee_tn_avatar_${user.id}`);
+    avatarUrlCache.delete(`${filePath}:${profile?.avatar_updated_at || ''}`);
+
+    setProfile((prev) => ({
+      ...prev,
+      avatar_path: null,
+      avatar_updated_at: nowIso
+    }));
+
+    // Update stored demo session if active
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_USER);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.profile) {
+          parsed.profile.avatar_path = null;
+          parsed.profile.avatar_updated_at = nowIso;
+          localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(parsed));
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    return { success: true };
+  };
+
   const userRole = profile?.role || (user ? 'student' : null);
 
   return (
