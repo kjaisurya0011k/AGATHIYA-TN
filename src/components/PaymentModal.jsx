@@ -5,6 +5,7 @@ import './PaymentModal.css';
 
 export function PaymentModal({ isOpen, onClose, session, onConfirmPaid, isTamil }) {
   const [qrError, setQrError] = useState(false);
+  const [transactionRef, setTransactionRef] = useState('');
   const modalRef = useRef(null);
   const closeButtonRef = useRef(null);
 
@@ -157,6 +158,37 @@ export function PaymentModal({ isOpen, onClose, session, onConfirmPaid, isTamil 
             : 'Scan with any UPI app (GPay, PhonePe, Paytm) or tap below to open directly.'}
         </p>
 
+        {/* Transaction Reference / UTR Input */}
+        <div style={{ margin: '0.75rem 0', textAlign: 'left' }}>
+          <label
+            htmlFor="payment-tx-ref"
+            style={{
+              display: 'block',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              color: '#334155',
+              marginBottom: '0.35rem'
+            }}
+          >
+            {isTamil ? 'UPI பரிவர்த்தனை எண் / UTR எண்:' : 'UPI Transaction ID / UTR Number:'}
+          </label>
+          <input
+            id="payment-tx-ref"
+            type="text"
+            value={transactionRef}
+            onChange={(e) => setTransactionRef(e.target.value)}
+            placeholder={isTamil ? 'எ.கா: 12-இலக்க UTR எண்' : 'e.g. 12-digit UTR or Bank Ref No.'}
+            style={{
+              width: '100%',
+              padding: '0.55rem 0.75rem',
+              fontSize: '0.85rem',
+              borderRadius: '6px',
+              border: '1.5px solid #cbd5e1',
+              boxSizing: 'border-box'
+            }}
+          />
+        </div>
+
         {/* Action Buttons */}
         <div className="payment-actions-group">
           {/* 1. Open UPI App Button */}
@@ -183,7 +215,7 @@ export function PaymentModal({ isOpen, onClose, session, onConfirmPaid, isTamil 
           {/* 3. "I have paid" Button */}
           <button
             type="button"
-            onClick={onConfirmPaid}
+            onClick={() => onConfirmPaid(transactionRef)}
             className="payment-btn-paid"
             aria-label="Confirm payment completed"
           >

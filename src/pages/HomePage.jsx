@@ -55,33 +55,29 @@ export function HomePage() {
   const copyTimeoutRef = useRef(null);
 
   // Next Live Workshop teaser for mobile hero
-  const [nextSession, setNextSession] = useState({
-    id: 'sess-101',
-    title_en: 'TNEA Counseling 2026: Strategy for Top 50 Engineering Colleges',
-    title_ta: 'TNEA கலந்தாய்வு 2026: சிறந்த 50 பொறியியல் கல்லூரிகளைத் தேர்ந்தெடுப்பது எப்படி?',
-    session_date: '2026-10-25',
-    start_time: '10:00',
-    end_time: '11:30',
-    price_inr: 100,
-    mentor_name: 'Er. K. Senthil Nathan',
-    mentor_headline: 'Senior Lead Systems Engineer @ Zoho'
-  });
+  const [nextSession, setNextSession] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
     async function loadNextSession() {
       try {
+        const today = new Date().toISOString().split('T')[0];
         const { data, error } = await supabase
-          .from('mentor_sessions')
-          .select('*')
+          .from('sessions')
+          .select('*, profiles:mentor_id(full_name)')
           .eq('status', 'approved')
+          .gte('session_date', today)
           .order('session_date', { ascending: true })
           .limit(1);
         if (!error && data && data.length > 0 && isMounted) {
-          setNextSession(data[0]);
+          const item = data[0];
+          setNextSession({
+            ...item,
+            mentor_name: item.profiles?.full_name || item.mentor_name || 'Mentor'
+          });
         }
       } catch (err) {
-        // Fallback to default session
+        // No session
       }
     }
     loadNextSession();

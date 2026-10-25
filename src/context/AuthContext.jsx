@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { initialSessions } from '../data/appData';
+import {
+  adminFetchAllPayments,
+  adminVerifyPayment,
+  adminRejectPayment
+} from '../lib/payments';
 
 const AuthContext = createContext();
 
@@ -116,161 +120,8 @@ const INITIAL_ACHIEVEMENTS = [
   }
 ];
 
-const INITIAL_ADMIN_USERS = [
-  {
-    id: 'demo-admin-id',
-    full_name: 'EEE-TN Platform Administrator',
-    email: 'director.admin@eeetn.org',
-    role: 'admin',
-    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-    created_at: '2026-05-10T08:00:00Z'
-  },
-  {
-    id: 'demo-mentor-id',
-    full_name: 'Er. K. Senthil Nathan',
-    email: 'senthil.mentor@eeetn.org',
-    role: 'mentor',
-    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-    created_at: '2026-06-01T09:30:00Z'
-  },
-  {
-    id: 'mentor-priya-id',
-    full_name: 'Dr. Priya Anbarasan',
-    email: 'priya.medical@eeetn.org',
-    role: 'mentor',
-    avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
-    created_at: '2026-06-15T11:00:00Z'
-  },
-  {
-    id: 'demo-student-id',
-    full_name: 'K. Muthu Kumar',
-    email: 'muthu.student@eeetn.org',
-    role: 'student',
-    created_at: '2026-07-01T10:15:00Z'
-  },
-  {
-    id: 'stu-anitha-id',
-    full_name: 'S. Anitha',
-    email: 'anitha.new@eeetn.org',
-    role: 'student',
-    created_at: '2026-07-04T12:00:00Z'
-  }
-];
-
-const INITIAL_MENTOR_SESSIONS = [
-  {
-    id: 'sess-101',
-    mentor_id: 'demo-mentor-id',
-    mentor_name: 'Er. K. Senthil Nathan',
-    mentor_avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-    mentor_headline: 'Senior Lead Systems Engineer @ Zoho Corporation',
-    title_en: 'TNEA Counseling 2026: Strategy for Top 50 Engineering Colleges',
-    title_ta: 'TNEA கலந்தாய்வு 2026: சிறந்த 50 பொறியியல் கல்லூரிகளைத் தேர்ந்தெடுப்பது எப்படி?',
-    description_en: 'Complete walkthrough on branch vs college selection, single-window counselling rank trends, and first-generation graduate waiver claims.',
-    description_ta: 'கல்லூரி vs படிப்பு முன்னுரிமை, ஒற்றைச் சாளர கலந்தாய்வு இட ஒதுக்கீடு மற்றும் முதல் பட்டதாரி சலுகை குறித்த நேரலை வழிகாட்டல்.',
-    topic: 'Engineering & TNEA',
-    target_audience: 'Both',
-    language: 'Tamil & English',
-    session_date: '2026-10-25',
-    start_time: '10:00',
-    end_time: '11:30',
-    mode: 'online',
-    capacity: 100,
-    price_inr: 100,
-    status: 'approved',
-    admin_note: 'Verified credentials and approved for Class 11 & 12 students across Tamil Nadu.',
-    reviewed_by: 'demo-admin-id',
-    reviewed_at: '2026-07-01T10:00:00Z',
-    created_at: '2026-06-25T08:00:00Z',
-    updated_at: '2026-07-01T10:00:00Z',
-    meeting_link: 'https://meet.google.com/eee-tnea-2026',
-    registrations: [
-      { id: 'reg-2', student_id: 'stu-2', student_name: 'S. Anitha', status: 'registered', payment_status: 'paid', registered_at: '2026-07-03T11:30:00Z' },
-      { id: 'reg-3', student_id: 'stu-3', student_name: 'R. Karthikeyan', status: 'registered', payment_status: 'paid', registered_at: '2026-07-04T14:20:00Z' }
-    ]
-  },
-  {
-    id: 'sess-102',
-    mentor_id: 'demo-mentor-id',
-    mentor_name: 'Er. K. Senthil Nathan',
-    mentor_headline: 'Senior Lead Systems Engineer @ Zoho Corporation',
-    title_en: 'Software Engineering Careers & Tech Company Interview Guidance',
-    title_ta: 'மென்பொருள் பொறியியல் & தயாரிப்பு நிறுவன நேர்காணல் வழிகாட்டல்',
-    description_en: 'Roadmap for students from non-metro TN towns to build strong programming foundations, prepare for campus placements, and crack product interviews.',
-    description_ta: 'கிராமப்புற மற்றும் சிறுநகர மாணவர்கள் நிரலாக்கம் (Coding) கற்று தயாரிப்பு நிறுவனங்களில் அதிக ஊதிய வேலைவாய்ப்பு பெறுவதற்கான வழிகாட்டி.',
-    topic: 'Software & IT Careers',
-    target_audience: 'Class 12',
-    language: 'Tamil',
-    session_date: '2026-10-30',
-    start_time: '16:00',
-    end_time: '17:30',
-    mode: 'online',
-    capacity: 80,
-    price_inr: 0,
-    status: 'pending',
-    admin_note: null,
-    reviewed_by: null,
-    reviewed_at: null,
-    created_at: '2026-07-05T09:00:00Z',
-    updated_at: '2026-07-05T09:00:00Z',
-    meeting_link: 'https://meet.google.com/eee-soft-career',
-    registrations: []
-  },
-  {
-    id: 'sess-103',
-    mentor_id: 'demo-mentor-id',
-    mentor_name: 'Er. K. Senthil Nathan',
-    mentor_headline: 'Senior Lead Systems Engineer @ Zoho Corporation',
-    title_en: 'GATE Preparation & Higher Education Scholarships Abroad',
-    title_ta: 'GATE தேர்வு தயாரிப்பு மற்றும் வெளிநாட்டு உயர்கல்வி உதவித்தொகைகள்',
-    description_en: 'Guidance on Master degrees in IITs/IISc, stipend opportunities, and international fully-funded scholarships for Tamil Nadu graduates.',
-    description_ta: 'ஐஐடி / என்ஐடி-ல் எம்.இ/எம்.டெக் படிப்பதற்கான கேட் தேர்வு தயாரிப்பு மற்றும் உதவித்தொகைகள்.',
-    topic: 'Higher Education Abroad',
-    target_audience: 'Both',
-    language: 'English',
-    session_date: '2026-11-05',
-    start_time: '18:00',
-    end_time: '19:00',
-    mode: 'online',
-    capacity: 50,
-    price_inr: 0,
-    status: 'draft',
-    admin_note: null,
-    reviewed_by: null,
-    reviewed_at: null,
-    created_at: '2026-07-08T12:00:00Z',
-    updated_at: '2026-07-08T12:00:00Z',
-    meeting_link: 'https://meet.google.com/eee-gate-scholar',
-    registrations: []
-  },
-  {
-    id: 'sess-104',
-    mentor_id: 'demo-mentor-id',
-    mentor_name: 'Er. K. Senthil Nathan',
-    mentor_headline: 'Senior Lead Systems Engineer @ Zoho Corporation',
-    title_en: 'Government College Lateral Entry & Diploma Student Roadmap',
-    title_ta: 'டிப்ளமோ மாணவர்களுக்கான அரசு பொறியியல் கல்லூரி நேரடி சேர்க்கை',
-    description_en: 'Detailed advice on direct 2nd-year B.E admission, cutoffs for government engineering colleges, and syllabus transition.',
-    description_ta: 'டிப்ளமோ முடித்த மாணவர்களுக்கான அண்ணா பல்கலைக்கழக நேரடி இரண்டாம் ஆண்டு சேர்க்கை வழிகாட்டி.',
-    topic: 'Engineering & TNEA',
-    target_audience: 'Class 12',
-    language: 'Tamil',
-    session_date: '2026-11-12',
-    start_time: '11:00',
-    end_time: '12:30',
-    mode: 'online',
-    capacity: 60,
-    price_inr: 0,
-    status: 'needs_changes',
-    admin_note: 'Please provide more details on syllabus bridge course resources for polytechnic students.',
-    reviewed_by: 'demo-admin-id',
-    reviewed_at: '2026-07-10T15:30:00Z',
-    created_at: '2026-07-09T10:00:00Z',
-    updated_at: '2026-07-10T15:30:00Z',
-    meeting_link: 'https://meet.google.com/eee-lateral-entry',
-    registrations: []
-  }
-];
+const INITIAL_ADMIN_USERS = [];
+const INITIAL_MENTOR_SESSIONS = [];
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
@@ -295,18 +146,18 @@ export function AuthProvider({ children }) {
 
   const [registeredSessions, setRegisteredSessions] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY_SESSIONS) || '["tnea-choice-filling"]');
+      return JSON.parse(localStorage.getItem(STORAGE_KEY_SESSIONS) || '[]');
     } catch {
-      return ['tnea-choice-filling'];
+      return [];
     }
   });
 
   const [mentorSessions, setMentorSessions] = useState(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY_MENTOR_SESSIONS);
-      return stored ? JSON.parse(stored) : INITIAL_MENTOR_SESSIONS;
+      return stored ? JSON.parse(stored) : [];
     } catch {
-      return INITIAL_MENTOR_SESSIONS;
+      return [];
     }
   });
 
@@ -322,9 +173,9 @@ export function AuthProvider({ children }) {
   const [adminUsers, setAdminUsers] = useState(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY_ADMIN_USERS);
-      return stored ? JSON.parse(stored) : INITIAL_ADMIN_USERS;
+      return stored ? JSON.parse(stored) : [];
     } catch {
-      return INITIAL_ADMIN_USERS;
+      return [];
     }
   });
 
@@ -373,32 +224,9 @@ export function AuthProvider({ children }) {
         // live session check note
       }
 
-      // Check simulated local session (useful for offline preview and role testing)
+      // Ensure no leftover testing sessions persist in local storage
       try {
-        const stored = localStorage.getItem(STORAGE_KEY_USER);
-        if (stored && mounted) {
-          const parsed = JSON.parse(stored);
-          setSession({ user: parsed.user, access_token: 'demo_token' });
-          setUser(parsed.user);
-          setProfile(parsed.profile);
-          if (parsed.studentDetails && parsed.studentDetails.consent_given) {
-            setStudentDetails(parsed.studentDetails);
-            setIsProfileComplete(true);
-          } else {
-            setStudentDetails(null);
-            setIsProfileComplete(false);
-          }
-          if (parsed.mentorDetails) {
-            setMentorDetails(parsed.mentorDetails);
-          } else {
-            setMentorDetails(null);
-          }
-          if (parsed.adminDetails) {
-            setAdminDetails(parsed.adminDetails);
-          } else {
-            setAdminDetails(null);
-          }
-        }
+        localStorage.removeItem(STORAGE_KEY_USER);
       } catch {
         // ignore
       }
@@ -416,14 +244,11 @@ export function AuthProvider({ children }) {
         setUser(newSession.user);
         await fetchOrInitUserData(newSession.user);
       } else {
-        const stored = localStorage.getItem(STORAGE_KEY_USER);
-        if (!stored) {
-          setSession(null);
-          setUser(null);
-          setProfile(null);
-          setStudentDetails(null);
-          setIsProfileComplete(false);
-        }
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        setStudentDetails(null);
+        setIsProfileComplete(false);
       }
       setLoading(false);
     }) || { data: { subscription: { unsubscribe: () => {} } } };
@@ -720,133 +545,7 @@ export function AuthProvider({ children }) {
     setStudentDetails((prev) => (prev ? { ...prev, delete_requested: true, delete_requested_at: requestedAt } : null));
   };
 
-  // One-click demo role switcher for testing roles
-  const loginAsDemoRole = (roleType = 'student') => {
-    const demoConfigs = {
-      new_student: {
-        user: { id: 'demo-new-student-id', email: 'anitha.new@eeetn.org', user_metadata: { full_name: 'S. Anitha' } },
-        profile: {
-          id: 'demo-new-student-id',
-          email: 'anitha.new@eeetn.org',
-          full_name: 'S. Anitha',
-          role: 'student',
-          district: 'Ariyalur'
-        },
-        studentDetails: null
-      },
-      student: {
-        user: { id: 'demo-student-id', email: 'muthu.student@eeetn.org', user_metadata: { full_name: 'K. Muthu Kumar' } },
-        profile: {
-          id: 'demo-student-id',
-          email: 'muthu.student@eeetn.org',
-          full_name: 'K. Muthu Kumar',
-          role: 'student',
-          district: 'Dharmapuri',
-          school_type: 'Government Higher Secondary School'
-        },
-        studentDetails: {
-          id: 'demo-student-id',
-          full_name: 'K. Muthu Kumar',
-          date_of_birth: '2007-06-15',
-          age: 18,
-          phone_number: '9842100000',
-          district: 'Dharmapuri',
-          town: 'Palacode',
-          current_status: 'Passed Class 12',
-          school_name: 'Govt Higher Secondary School, Palacode',
-          school_board: 'State Board',
-          group_stream: 'Maths-Physics-Chemistry-Biology',
-          community_category: 'MBC',
-          maths_marks: 88,
-          physics_marks: 82,
-          chemistry_marks: 85,
-          total_percentage: 85.5,
-          cutoff_marks: 172.5,
-          annual_income_range: 'below_1_lakh',
-          interests: ['Engineering', 'AI and technology'],
-          preferred_language: 'ta',
-          consent_given: true
-        }
-      },
-      mentor: {
-        user: { id: 'demo-mentor-id', email: 'senthil.mentor@eeetn.org', user_metadata: { full_name: 'Er. K. Senthil Nathan' } },
-        profile: {
-          id: 'demo-mentor-id',
-          email: 'senthil.mentor@eeetn.org',
-          full_name: 'Er. K. Senthil Nathan',
-          role: 'mentor',
-          district: 'Coimbatore',
-          designation: 'Senior Lead Systems Engineer',
-          avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80'
-        },
-        mentorDetails: {
-          id: 'demo-mentor-id',
-          phone: '9840123456',
-          headline: 'Senior Lead Systems Engineer & Career Mentor',
-          organisation: 'Zoho Corporation',
-          expertise: ['Engineering', 'Software & IT', 'Higher Education Abroad', 'Interview Preparation'],
-          years_of_experience: 8.5,
-          qualifications: 'B.E. (EEE) College of Engineering Guindy, M.S. Software Engineering',
-          languages: ['Tamil', 'English'],
-          bio: 'First-generation graduate from Salem district. Guiding students in engineering choices, career readiness, and competitive technical interviews.',
-          linkedin_url: 'https://linkedin.com/in/senthil-mentor-eeetn',
-          status: 'approved',
-          review_note: 'Verified CEG alumni credentials and tech mentoring experience.',
-          reviewed_by: 'demo-admin-id',
-          reviewed_at: '2026-09-01T10:00:00Z'
-        }
-      },
-      admin: {
-        user: { id: 'demo-admin-id', email: 'director.admin@eeetn.org', user_metadata: { full_name: 'EEE-TN Platform Administrator' } },
-        profile: {
-          id: 'demo-admin-id',
-          email: 'director.admin@eeetn.org',
-          full_name: 'EEE-TN Platform Administrator',
-          role: 'admin',
-          district: 'Chennai',
-          avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'
-        },
-        adminDetails: {
-          id: 'demo-admin-id',
-          phone: '9444001122',
-          designation: 'State Higher Education Coordinator & Review Lead'
-        }
-      }
-    };
 
-    const selected = demoConfigs[roleType] || demoConfigs.student;
-
-    // Check if user has an uploaded custom avatar in local storage
-    const customAvatar = localStorage.getItem(`eee_tn_avatar_${selected.user.id}`);
-    if (customAvatar) {
-      selected.profile.avatar_path = `${selected.user.id}/avatar.webp`;
-      selected.profile.avatar_updated_at = new Date().toISOString();
-    }
-    setSession({ user: selected.user, access_token: 'demo_token' });
-    setUser(selected.user);
-    setProfile(selected.profile);
-    if (selected.studentDetails && selected.studentDetails.consent_given) {
-      setStudentDetails(selected.studentDetails);
-      setIsProfileComplete(true);
-    } else if (selected.profile?.role === 'mentor' || selected.profile?.role === 'admin') {
-      setStudentDetails(null);
-      setIsProfileComplete(true);
-    } else {
-      setStudentDetails(null);
-      setIsProfileComplete(false);
-    }
-    if (selected.mentorDetails) {
-      setMentorDetails(selected.mentorDetails);
-    } else {
-      setMentorDetails(null);
-    }
-    if (selected.adminDetails) {
-      setAdminDetails(selected.adminDetails);
-    } else {
-      setAdminDetails(null);
-    }
-    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(selected));
-  };
 
   const signOut = async () => {
     try {
@@ -1063,64 +762,7 @@ export function AuthProvider({ children }) {
       if (error) throw error;
       return { data: data || [], error: null };
     } catch (err) {
-      // Fallback demo mentors list for testing and preview
-      return {
-        data: [
-          {
-            id: 'demo-mentor-id-1',
-            profiles: { full_name: 'Er. K. Senthil Nathan', email: 'senthil.mentor@eeetn.org', avatar_url: null },
-            headline: 'Senior Lead Systems Engineer',
-            organisation: 'Zoho Corporation',
-            expertise: ['Engineering', 'Software & IT', 'Higher Education Abroad', 'Interview Preparation'],
-            years_of_experience: 8.5,
-            qualifications: 'B.E. (EEE) CEG Anna Univ, M.S.',
-            languages: ['Tamil', 'English'],
-            bio: 'First-generation graduate from Salem district. Passionate about mentoring students in software engineering careers and interview readiness.',
-            linkedin_url: 'https://linkedin.com/in/senthil-mentor-eeetn',
-            status: 'pending_review',
-            review_note: null,
-            created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-            updated_at: new Date(Date.now() - 3600000 * 4).toISOString()
-          },
-          {
-            id: 'demo-mentor-id-2',
-            profiles: { full_name: 'Dr. Priya Anbarasan', email: 'priya.medical@eeetn.org', avatar_url: null },
-            headline: 'Assistant Professor of Pediatrics',
-            organisation: 'Madras Medical College',
-            expertise: ['Medicine', 'NEET Guidance', 'Government College Admissions'],
-            years_of_experience: 12,
-            qualifications: 'MBBS, MD (Pediatrics), DNB',
-            languages: ['Tamil', 'English'],
-            bio: 'Guiding rural government school students in medical admission procedures, NEET preparation strategy, and 7.5% preferential quota matching.',
-            linkedin_url: 'https://linkedin.com/in/dr-priya-anbarasan',
-            status: 'approved',
-            review_note: 'Credentials verified with MMC alumni registry.',
-            reviewed_by: 'demo-admin-id',
-            reviewed_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-            created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
-            updated_at: new Date(Date.now() - 86400000 * 2).toISOString()
-          },
-          {
-            id: 'demo-mentor-id-3',
-            profiles: { full_name: 'M. Anand Kumar', email: 'anand.civil@eeetn.org', avatar_url: null },
-            headline: 'Assistant Executive Engineer & Civil Services Guide',
-            organisation: 'Tamil Nadu Public Works Department (PWD)',
-            expertise: ['Civil Services', 'TNPSC Guidance', 'Interview Preparation'],
-            years_of_experience: 6,
-            qualifications: 'B.E. Civil Engineering, M.E.',
-            languages: ['Tamil', 'English'],
-            bio: 'Mentoring TN students from rural backgrounds for TNPSC Combined Engineering and Group 1 examinations.',
-            linkedin_url: 'https://linkedin.com/in/anand-pwd',
-            status: 'needs_changes',
-            review_note: 'Please provide official department verification document or working ID reference.',
-            reviewed_by: 'demo-admin-id',
-            reviewed_at: new Date(Date.now() - 86400000 * 1).toISOString(),
-            created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-            updated_at: new Date(Date.now() - 86400000 * 1).toISOString()
-          }
-        ],
-        error: null
-      };
+      return { data: [], error: err };
     }
   };
 
@@ -1394,7 +1036,7 @@ export function AuthProvider({ children }) {
         .order('session_date', { ascending: true });
 
       if (error) throw error;
-      if (data && data.length > 0) {
+      if (data) {
         const merged = data.map((d) => {
           const localMatch = (mentorSessions || []).find((m) => m.id === d.id);
           return localMatch ? { ...d, ...localMatch } : d;
@@ -1408,26 +1050,11 @@ export function AuthProvider({ children }) {
       // Fallback
     }
 
-    // Merge approved mentor sessions with initial catalog guidance sessions
     const today = new Date().toISOString().split('T')[0];
-    const approvedFromMentor = mentorSessions.filter(
+    const approvedFromMentor = (mentorSessions || []).filter(
       (s) => s.status === 'approved' && (!s.session_date || s.session_date >= today)
     );
-    const combined = [...approvedFromMentor];
-    initialSessions.forEach((initSess) => {
-      if (!combined.some((c) => c.id === initSess.id)) {
-        combined.push({
-          ...initSess,
-          status: 'approved',
-          session_date: initSess.date,
-          price_inr: initSess.price || 0,
-          capacity: initSess.seats_total || 100,
-          topic: initSess.topics_en?.[0] ? initSess.title_en.split(':')[0] : 'Career Guidance',
-          meeting_link: 'https://meet.google.com/eee-tn-live'
-        });
-      }
-    });
-    return { data: combined, error: null };
+    return { data: approvedFromMentor, error: null };
   };
 
   // Register for a session (Student)
@@ -1435,7 +1062,7 @@ export function AuthProvider({ children }) {
     const studentName = profile?.full_name || studentDetails?.full_name || user?.user_metadata?.full_name || 'TN Student';
     const regItem = {
       id: `reg-${Date.now()}`,
-      student_id: user?.id || 'demo-student-id',
+      student_id: user?.id || '',
       student_name: studentName,
       status: 'registered',
       payment_status: (sessionObj?.price_inr || sessionObj?.price) > 0 ? 'pending' : 'not_required',
@@ -1708,12 +1335,12 @@ export function AuthProvider({ children }) {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      if (data && data.length > 0) {
+      if (data) {
         return { data, error: null };
       }
     } catch {}
 
-    return { data: mentorSessions, error: null };
+    return { data: mentorSessions || [], error: null };
   };
 
   // Admin Edit Any Session Field
@@ -1814,17 +1441,17 @@ export function AuthProvider({ children }) {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      if (data && data.length > 0) {
+      if (data) {
         return { data, error: null };
       }
     } catch {}
 
-    return { data: adminUsers, error: null };
+    return { data: adminUsers || [], error: null };
   };
 
   // Admin Set User Role via Security-Definer function admin_set_role
   const adminSetUserRole = async (targetUserId, newRole) => {
-    const callerId = user?.id || 'demo-admin-id';
+    const callerId = user?.id || '';
     if (targetUserId === callerId) {
       throw new Error('Security Policy: You cannot modify your own administrative role.');
     }
@@ -1882,7 +1509,7 @@ export function AuthProvider({ children }) {
 
       const regRes = await supabase.from('session_registrations').select('id, payment_status');
       if (regRes.data) {
-        pendingPaymentsCount = regRes.data.filter((r) => r.payment_status === 'pending').length;
+        pendingPaymentsCount = regRes.data.filter((r) => r.payment_status === 'pending' || r.payment_status === 'pending_verification').length;
       }
 
       const profRes = await supabase.from('profiles').select('id');
@@ -1898,9 +1525,29 @@ export function AuthProvider({ children }) {
       publishedAchievementsCount = achievements.filter((a) => a.status === 'published').length;
     }
     if (pendingPaymentsCount === 0) {
-      pendingPaymentsCount = mentorSessions.reduce((acc, s) => {
-        return acc + (s.registrations || []).filter((r) => r.payment_status === 'pending').length;
+      const msPending = mentorSessions.reduce((acc, s) => {
+        return acc + (s.registrations || []).filter((r) => r.payment_status === 'pending' || r.payment_status === 'pending_verification').length;
       }, 0);
+
+      let detailsPending = 0;
+      try {
+        const raw = localStorage.getItem('agathiya_session_payment_details');
+        if (raw) {
+          const map = JSON.parse(raw);
+          const uniqueIds = new Set();
+          Object.values(map).forEach(item => {
+            if (item && (item.payment_status === 'pending' || item.status === 'pending' || item.payment_status === 'pending_verification')) {
+              const k = item.id || `${item.session_id}_${item.student_id}`;
+              if (!uniqueIds.has(k)) {
+                uniqueIds.add(k);
+                detailsPending++;
+              }
+            }
+          });
+        }
+      } catch {}
+
+      pendingPaymentsCount = Math.max(msPending, detailsPending);
     }
     if (totalUsersCount === 0) {
       totalUsersCount = adminUsers.length;
@@ -2018,70 +1665,6 @@ export function AuthProvider({ children }) {
       avatar_updated_at: nowIso
     }));
 
-    // Update stored demo session if active
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY_USER);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed?.profile) {
-          parsed.profile.avatar_path = filePath;
-          parsed.profile.avatar_updated_at = nowIso;
-          localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(parsed));
-        }
-      }
-    } catch {
-      // ignore
-    }
-
-    return { success: true, path: filePath };
-  };
-
-  const removeUserAvatar = async () => {
-    if (!user) return;
-    const filePath = `${user.id}/avatar.webp`;
-    const nowIso = new Date().toISOString();
-
-    try {
-      if (supabase?.storage?.from) {
-        await supabase.storage.from('avatars').remove([filePath]);
-      }
-      if (supabase?.from) {
-        await supabase
-          .from('profiles')
-          .update({
-            avatar_path: null,
-            avatar_updated_at: nowIso
-          })
-          .eq('id', user.id);
-      }
-    } catch (err) {
-      console.warn('Supabase remove note:', err);
-    }
-
-    localStorage.removeItem(`eee_tn_avatar_${user.id}`);
-    avatarUrlCache.delete(`${filePath}:${profile?.avatar_updated_at || ''}`);
-
-    setProfile((prev) => ({
-      ...prev,
-      avatar_path: null,
-      avatar_updated_at: nowIso
-    }));
-
-    // Update stored demo session if active
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY_USER);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed?.profile) {
-          parsed.profile.avatar_path = null;
-          parsed.profile.avatar_updated_at = nowIso;
-          localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(parsed));
-        }
-      }
-    } catch {
-      // ignore
-    }
-
     return { success: true };
   };
 
@@ -2106,7 +1689,6 @@ export function AuthProvider({ children }) {
         signInWithGoogle,
         saveStudentDetails,
         requestDataDeletion,
-        loginAsDemoRole,
         signOut,
         savedOpportunities,
         toggleSaveOpportunity,
@@ -2143,6 +1725,9 @@ export function AuthProvider({ children }) {
         adminUpdateSession,
         adminReviewSession,
         adminUpdateRegistrationPayment,
+        adminFetchAllPayments,
+        adminVerifyPayment,
+        adminRejectPayment,
         adminUsers,
         fetchAdminUsers,
         adminSetUserRole,

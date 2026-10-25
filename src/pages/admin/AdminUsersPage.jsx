@@ -57,7 +57,7 @@ export function AdminUsersPage() {
     };
   }, [fetchAdminUsers, adminUsers]);
 
-  const callerId = user?.id || 'demo-admin-id';
+  const callerId = user?.id || '';
 
   // Handle Role Change
   const handleRoleChange = async (targetUser, newRole) => {

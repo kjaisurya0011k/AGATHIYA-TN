@@ -6,6 +6,7 @@ import { SessionCard } from '../components/SessionCard';
 import { brand } from '../data/brand';
 import { SkeletonLoader } from '../components/SkeletonLoader';
 import { PaymentModal } from '../components/PaymentModal';
+import { submitStudentPayment } from '../lib/payments';
 import {
   Calendar,
   Users,
@@ -22,7 +23,7 @@ import {
 
 export function SessionsPage() {
   const { lang, t } = useLanguage();
-  const { registeredSessions, fetchApprovedSessions, mentorSessions, user } = useAuth();
+  const { registeredSessions, fetchApprovedSessions, mentorSessions, user, profile, registerForSession } = useAuth();
   
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -392,9 +393,23 @@ export function SessionsPage() {
           isOpen={Boolean(stickyPaySession)}
           onClose={() => setStickyPaySession(null)}
           session={stickyPaySession}
-          onConfirmPaid={() => {
+          onConfirmPaid={async (transactionRef) => {
+            await submitStudentPayment({
+              sessionId: stickyPaySession.id,
+              user,
+              profile,
+              sessionObj: stickyPaySession,
+              transactionRef
+            });
+            if (!registeredSessions.includes(stickyPaySession.id) && registerForSession) {
+              await registerForSession(stickyPaySession.id, stickyPaySession);
+            }
             setStickyPaySession(null);
-            window.dispatchEvent(new CustomEvent('agathiya-payment-updated', { detail: { sessionId: stickyPaySession.id } }));
+            window.dispatchEvent(
+              new CustomEvent('agathiya-payment-updated', {
+                detail: { sessionId: stickyPaySession.id, status: 'pending' }
+              })
+            );
           }}
           isTamil={isTamil}
         />

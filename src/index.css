@@ -5973,51 +5973,6 @@ textarea:focus-visible {
   box-shadow: 0 20px 45px -15px rgba(0, 6, 102, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
 }
 
-.login-demo-roles-panel {
-  margin-top: 2rem;
-  width: 100%;
-  text-align: center;
-}
-
-.demo-roles-hint {
-  font-size: 0.76rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.65rem;
-  display: block;
-}
-
-.demo-roles-pills {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.demo-pill-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.75rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  background: #FFFFFF;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  color: var(--navy-900);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
-}
-
-.demo-pill-btn:hover {
-  background: var(--navy-50);
-  border-color: var(--cyan-600);
-  transform: translateY(-1px);
-}
-
 /*==========================================================================
    Email & Password Auth Form Styles
    ==========================================================================*/

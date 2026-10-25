@@ -32,6 +32,7 @@ const MentorEditSessionPage = lazy(() => import('./pages/mentor/MentorEditSessio
 const AdminSessionsPage = lazy(() => import('./pages/admin/AdminSessionsPage').then(m => ({ default: m.AdminSessionsPage })));
 const AdminAchievementsPage = lazy(() => import('./pages/admin/AdminAchievementsPage').then(m => ({ default: m.AdminAchievementsPage })));
 const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })));
+const AdminPaymentsPage = lazy(() => import('./pages/admin/AdminPaymentsPage').then(m => ({ default: m.AdminPaymentsPage })));
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RoleRoute } from './components/RoleRoute';
@@ -244,6 +245,15 @@ export function App() {
             element={
               <RoleRoute allowedRoles={['admin']}>
                 <AdminUsersPage />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/admin/payments"
+            element={
+              <RoleRoute allowedRoles={['admin']}>
+                <AdminPaymentsPage />
               </RoleRoute>
             }
           />
