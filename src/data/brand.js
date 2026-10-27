@@ -1,7 +1,7 @@
 export const brand = {
   name: 'AGATHIYA',
   logo: '/brand/logo.png',
-  tagline: ''
+  tagline: 'Where Learning Evolves.'
 };
 
 export const BRAND_NAME = brand.name;

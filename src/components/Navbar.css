@@ -35,20 +35,32 @@
   flex-shrink: 0;
 }
 
-.brand-logo-cap-box {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #1d4ed8 0%, #4338ca 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
-  transition: transform 0.2s ease;
+.navbar-brand-logo-img {
+  height: 42px;
+  width: auto;
+  max-width: 150px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.navbar-brand-pill:hover .brand-logo-cap-box {
-  transform: translateY(-1px) scale(1.02);
+.navbar-brand-pill:hover .navbar-brand-logo-img {
+  transform: translateY(-1px) scale(1.03);
+}
+
+.mobile-drawer-logo-img {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .navbar-brand-logo-img {
+    height: 36px;
+  }
 }
 
 .brand-name-group {
