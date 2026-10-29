@@ -104,8 +104,8 @@ export function Navbar() {
           {!logoError && (
             <img
               src={brand.logo}
-              alt="AGATHIYA logo"
-              style={{ height: '40px', width: 'auto', objectFit: 'contain' }}
+              alt="AGATHIYA — Where Learning Evolves."
+              className="navbar-brand-logo-img"
               onError={() => setLogoError(true)}
             />
           )}
@@ -307,8 +307,8 @@ export function Navbar() {
                 {!logoError && (
                   <img
                     src={brand.logo}
-                    alt="AGATHIYA logo"
-                    style={{ height: '32px', width: 'auto', objectFit: 'contain' }}
+                    alt="AGATHIYA — Where Learning Evolves."
+                    className="mobile-drawer-logo-img"
                     onError={() => setLogoError(true)}
                   />
                 )}

@@ -291,15 +291,8 @@ export function LoginPage({ initialTab = 'login' }) {
               {!logoError && (
                 <img
                   src={brand.logo}
-                  alt="AGATHIYA logo"
-                  style={{
-                    height: '42px',
-                    width: 'auto',
-                    objectFit: 'contain',
-                    background: '#ffffff',
-                    padding: '2px 6px',
-                    borderRadius: '8px'
-                  }}
+                  alt="AGATHIYA — Where Learning Evolves."
+                  className="login-brand-logo-img"
                   onError={() => setLogoError(true)}
                 />
               )}

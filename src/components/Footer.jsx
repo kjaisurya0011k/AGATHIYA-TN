@@ -51,15 +51,8 @@ export function Footer() {
             {!logoError && (
               <img
                 src={brand.logo}
-                alt="AGATHIYA logo"
-                style={{
-                  height: '38px',
-                  width: 'auto',
-                  objectFit: 'contain',
-                  background: '#ffffff',
-                  padding: '3px 6px',
-                  borderRadius: '6px'
-                }}
+                alt="AGATHIYA — Where Learning Evolves."
+                className="footer-brand-logo-img"
                 onError={() => setLogoError(true)}
               />
             )}
