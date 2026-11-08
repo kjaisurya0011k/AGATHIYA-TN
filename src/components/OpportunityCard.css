@@ -22,6 +22,7 @@
 .opp-card {
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .opp-header {
@@ -136,12 +137,167 @@
   align-items: center;
   padding-top: 0.85rem;
   border-top: 1px solid var(--border-subtle);
+  gap: 0.65rem;
+  box-sizing: border-box;
 }
 
 .opp-deadline {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   font-size: 0.785rem;
   color: var(--text-muted);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.opp-deadline-icon {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.opp-deadline-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.opp-deadline-label {
+  color: var(--text-muted);
+  font-size: 0.785rem;
+  font-weight: 500;
+}
+
+.opp-deadline-date {
+  color: var(--navy-900);
+  font-size: 0.785rem;
+  font-weight: 700;
+}
+
+.opp-card-actions-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.opp-card-actions-row .view-detail-btn,
+.opp-card-actions-row .apply-btn {
+  flex: 1;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   RESPONSIVE ALIGNMENT (Tablet, Mobile, Narrow Screens)
+   ========================================================================== */
+
+/* Tablet & Mobile (<= 768px) */
+@media (max-width: 768px) {
+  .opp-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    padding-top: 0.75rem;
+  }
+
+  .opp-deadline {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+
+  .opp-deadline-icon {
+    margin-top: 2px;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .opp-deadline-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 3px 6px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .opp-deadline-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .opp-deadline-date {
+    font-size: 0.82rem;
+    color: var(--navy-900);
+    font-weight: 700;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .opp-card-actions-row {
+    width: 100%;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .opp-card-actions-row .view-detail-btn,
+  .opp-card-actions-row .apply-btn {
+    flex: 1;
+    min-height: 42px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.85rem;
+    box-sizing: border-box;
+    justify-content: center;
+  }
+}
+
+/* Narrow Mobile Screens (<= 360px - e.g. 320px) */
+@media (max-width: 360px) {
+  .opp-footer {
+    gap: 0.55rem;
+    padding-top: 0.65rem;
+  }
+
+  .opp-deadline {
+    gap: 0.35rem;
+  }
+
+  /* Stack deadline label and date neatly on narrow screens */
+  .opp-deadline-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    width: 100%;
+  }
+
+  .opp-deadline-label {
+    font-size: 0.74rem;
+    line-height: 1.25;
+  }
+
+  .opp-deadline-date {
+    font-size: 0.78rem;
+    line-height: 1.3;
+  }
+
+  .opp-card-actions-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .opp-card-actions-row .view-detail-btn,
+  .opp-card-actions-row .apply-btn {
+    width: 100%;
+    min-height: 40px;
+    font-size: 0.82rem;
+  }
 }

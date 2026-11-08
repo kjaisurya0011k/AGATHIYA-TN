@@ -6,9 +6,9 @@ const LanguageContext = createContext();
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState(() => {
     try {
-      return localStorage.getItem('eee_tn_lang') || 'ta';
+      return localStorage.getItem('eee_tn_lang') || 'en';
     } catch {
-      return 'ta';
+      return 'en';
     }
   });
 

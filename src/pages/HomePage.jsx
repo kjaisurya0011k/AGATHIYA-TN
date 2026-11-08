@@ -275,48 +275,41 @@ export function HomePage() {
         <div className="container hp-hero-container">
           {/* Left Column: Hero Text */}
           <div className="hp-hero-content">
-            {/* Hero Brand Block matching reference screenshot */}
+            {/* Hero Brand Block */}
             <BrandIdentity variant="hero" />
 
-            <span className="eee-hero-badge">
-              <GraduationCap size={15} />
-              {t.hero.badge}
-            </span>
+            <div className="hp-hero-badge-wrap">
+              <span className="hp-hero-badge eee-hero-badge">
+                <Sparkles size={14} className="hp-badge-icon" aria-hidden="true" />
+                <span>Learn · Build · Discover</span>
+              </span>
+            </div>
 
             <h1 className="hp-hero-title">
-              {t.hero.heading}{' '}
-              <span className="hp-gradient-highlight">{t.hero.headingHighlight}</span>
+              Your Future Starts With What You Learn Today.
             </h1>
 
+            <h2 className="hp-hero-subheading">
+              <span className="hp-gradient-highlight">
+                Explore Technology. Discover Opportunities. Take Your Next Step.
+              </span>
+            </h2>
+
             <p className="hp-hero-description">
-              {t.hero.desc}
+              From understanding programming fundamentals to exploring entrepreneurship, scholarships, and government support schemes, Agathiya helps students access the knowledge and opportunities they need to move forward with confidence.
             </p>
 
             <div className="hp-hero-actions">
-              {/* Desktop primary button */}
-              <Link to="/opportunities" className="hp-btn-primary hp-btn-desktop-only">
-                <Compass size={18} />
-                <span>{t.hero.exploreBtn || (isTamil ? 'படிப்பு வாய்ப்புகளைப் பாருங்கள்' : 'Explore My Options')}</span>
-                <ArrowRight size={17} />
+              <Link to="/opportunities" className="hp-btn-primary">
+                <span>Explore Opportunities →</span>
               </Link>
 
-              {/* Desktop secondary button */}
               <Link
                 to="/sessions"
-                className="hp-btn-secondary hp-btn-desktop-only"
+                className="hp-btn-secondary"
               >
-                <GraduationCap size={18} />
+                <GraduationCap size={18} aria-hidden="true" />
                 <span>{isTamil ? 'நேரலை வழிகாட்டல் அமர்வுகள்' : 'Live Guidance Sessions'}</span>
-              </Link>
-
-              {/* Mobile one main button */}
-              <Link
-                to="/sessions"
-                className="hp-btn-primary hp-btn-mobile-hero"
-              >
-                <Sparkles size={18} />
-                <span>{isTamil ? 'அடுத்த பயிலரங்கில் இணையுங்கள்' : 'Join the next workshop'}</span>
-                <ArrowRight size={17} />
               </Link>
             </div>
 
@@ -541,7 +534,7 @@ export function HomePage() {
                 ))}
               </div>
 
-              <div className="hp-checklist-footer" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div className="hp-checklist-footer">
                 <a
                   href="https://www.tneaonline.org"
                   target="_blank"
@@ -661,10 +654,22 @@ export function HomePage() {
                   key={res.id}
                   href={res.link}
                   download={res.fileName || true}
-                  className="btn btn-sm btn-outline"
+                  className="lr-resource-card"
+                  title={`${isTamil && res.title_ta ? res.title_ta : res.title_en} — ${isTamil && res.subtitle_ta ? res.subtitle_ta : res.subtitle_en}`}
                 >
-                  <Download size={14} />
-                  <span>{isTamil ? res.title_ta : res.title_en}</span>
+                  <div className="lr-resource-icon-wrap" aria-hidden="true">
+                    <Download size={16} className="lr-download-icon" />
+                  </div>
+                  <div className="lr-resource-content">
+                    <strong className="lr-resource-title">
+                      {isTamil && res.title_ta ? res.title_ta : res.title_en}
+                    </strong>
+                    {(res.subtitle_en || res.subtitle_ta) && (
+                      <span className="lr-resource-subtitle">
+                        {isTamil && res.subtitle_ta ? res.subtitle_ta : res.subtitle_en}
+                      </span>
+                    )}
+                  </div>
                 </a>
               ))}
             </div>
@@ -796,13 +801,13 @@ export function HomePage() {
 
               <div className="hp-contact-list">
                 {helpline.phones.map((phone, idx) => (
-                  <div key={phone.tel} className="hp-contact-item">
+                  <div key={phone.tel} className="hp-contact-item hp-phone-item">
                     <a
                       href={`tel:${phone.tel}`}
                       className="hp-contact-link hp-tel-link"
                       aria-label={`Call ${phone.display}`}
                     >
-                      <PhoneCall size={16} aria-hidden="true" />
+                      <PhoneCall size={16} aria-hidden="true" className="hp-contact-icon" />
                       <span className="hp-phone-num">{phone.display}</span>
                     </a>
                     <button

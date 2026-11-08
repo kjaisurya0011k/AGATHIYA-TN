@@ -206,6 +206,14 @@
   transition: color 0.15s ease;
 }
 
+.contact-real-link svg {
+  flex-shrink: 0;
+}
+
+.contact-number-text {
+  white-space: nowrap;
+}
+
 .contact-real-link:hover {
   color: #00a6bf;
 }
@@ -216,11 +224,19 @@
   border-radius: 4px;
 }
 
+.email-real-link {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .email-real-link .contact-number-text {
   font-size: 0.85rem;
   letter-spacing: -0.01em;
   color: #000666;
-  white-space: nowrap;
+  min-width: 0;
+  max-width: 100%;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 
 .contact-copy-btn {
@@ -862,19 +878,73 @@
   .email-item-row {
     flex-direction: column;
     align-items: stretch;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .email-real-link {
+    display: flex;
+    align-items: flex-start;
     gap: 8px;
-    padding: 10px;
+    width: 100%;
+    min-width: 0;
+    justify-content: flex-start;
+    min-height: unset;
+    padding: 2px 0;
+  }
+
+  .email-real-link svg {
+    flex-shrink: 0;
+    margin-top: 3px;
+    width: 15px;
+    height: 15px;
   }
 
   .email-real-link .contact-number-text {
     white-space: normal;
-    word-break: break-all;
+    word-break: normal;
     overflow-wrap: anywhere;
+    font-size: clamp(0.8rem, 3.4vw, 0.88rem);
+    line-height: 1.45;
+    min-width: 0;
+    max-width: 100%;
+    display: block;
+    flex: 1;
   }
 
   .email-item-row .contact-copy-btn {
     width: 100%;
+    min-height: 44px;
+    justify-content: center;
+    box-sizing: border-box;
   }
+
+@media (max-width: 360px) {
+  .email-item-row {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .email-real-link {
+    gap: 6px;
+  }
+
+  .email-real-link svg {
+    margin-top: 2px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .email-real-link .contact-number-text {
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+  .email-item-row .contact-copy-btn {
+    min-height: 42px;
+    font-size: 0.78rem;
+  }
+}
 
   .faq-question-btn {
     padding: 16px;

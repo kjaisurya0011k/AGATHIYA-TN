@@ -142,18 +142,21 @@ export function OpportunityCard({ opportunity }) {
       {/* Bottom Footer: Deadline & Action Buttons */}
       <div className="opp-footer">
         <div className="opp-deadline">
-          <Calendar size={14} />
-          <span>
-            {lang === 'ta' ? 'கடைசி தேதி: ' : 'Deadline: '}
-            <strong>{deadline}</strong>
-          </span>
+          <Calendar size={14} className="opp-deadline-icon" />
+          <div className="opp-deadline-info">
+            <span className="opp-deadline-label">
+              {lang === 'ta' ? 'கடைசி தேதி:' : 'Deadline:'}
+            </span>
+            <strong className="opp-deadline-date">
+              {deadline}
+            </strong>
+          </div>
         </div>
 
-        <div className="opp-card-actions-row" style={{ display: 'flex', gap: '0.5rem', marginTop: '0.6rem' }}>
+        <div className="opp-card-actions-row">
           <Link
             to={`/opportunities/${opportunity.id}`}
             className="btn btn-sm btn-outline view-detail-btn"
-            style={{ flex: 1, justifyContent: 'center' }}
           >
             <span>{lang === 'ta' ? 'முழு விபரம்' : 'View Details'}</span>
             <ArrowRight size={14} />
@@ -165,7 +168,6 @@ export function OpportunityCard({ opportunity }) {
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-sm btn-primary apply-btn"
-              style={{ flex: 1, justifyContent: 'center', textDecoration: 'none' }}
               title={lang === 'ta' ? 'அதிகாரப்பூர்வ இணையதளத்தில் விண்ணப்பிக்கவும்' : 'Apply on official portal'}
             >
               <span>{lang === 'ta' ? 'விண்ணப்பி' : 'Apply'}</span>

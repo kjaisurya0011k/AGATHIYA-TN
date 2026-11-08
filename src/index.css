@@ -1775,14 +1775,164 @@ input[type="radio"] {
   align-items: center;
   padding-top: 0.85rem;
   border-top: 1px solid var(--border-subtle);
+  gap: 0.65rem;
+  box-sizing: border-box;
 }
 
 .opp-deadline {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   font-size: 0.785rem;
   color: var(--text-muted);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.opp-deadline-icon {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.opp-deadline-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.opp-deadline-label {
+  color: var(--text-muted);
+  font-size: 0.785rem;
+  font-weight: 500;
+}
+
+.opp-deadline-date {
+  color: var(--navy-900);
+  font-size: 0.785rem;
+  font-weight: 700;
+}
+
+.opp-card-actions-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.opp-card-actions-row .view-detail-btn,
+.opp-card-actions-row .apply-btn {
+  flex: 1;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* Tablet & Mobile (<= 768px) */
+@media (max-width: 768px) {
+  .opp-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    padding-top: 0.75rem;
+  }
+
+  .opp-deadline {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+
+  .opp-deadline-icon {
+    margin-top: 2px;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .opp-deadline-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 3px 6px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .opp-deadline-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .opp-deadline-date {
+    font-size: 0.82rem;
+    color: var(--navy-900);
+    font-weight: 700;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .opp-card-actions-row {
+    width: 100%;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .opp-card-actions-row .view-detail-btn,
+  .opp-card-actions-row .apply-btn {
+    flex: 1;
+    min-height: 42px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.85rem;
+    box-sizing: border-box;
+    justify-content: center;
+  }
+}
+
+/* Narrow Mobile Screens (<= 360px - e.g. 320px) */
+@media (max-width: 360px) {
+  .opp-footer {
+    gap: 0.55rem;
+    padding-top: 0.65rem;
+  }
+
+  .opp-deadline {
+    gap: 0.35rem;
+  }
+
+  .opp-deadline-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    width: 100%;
+  }
+
+  .opp-deadline-label {
+    font-size: 0.74rem;
+    line-height: 1.25;
+  }
+
+  .opp-deadline-date {
+    font-size: 0.78rem;
+    line-height: 1.3;
+  }
+
+  .opp-card-actions-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .opp-card-actions-row .view-detail-btn,
+  .opp-card-actions-row .apply-btn {
+    width: 100%;
+    min-height: 40px;
+    font-size: 0.82rem;
+  }
 }
 
 /*==========================================================================
@@ -3631,7 +3781,7 @@ input[type="radio"] {
    Hero Brand Block (Acronym, Divider, Full Form)
    ==========================================================================*/
 .hero-brand-block {
-  margin-bottom: 1.35rem;
+  margin-bottom: 0.85rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -3639,10 +3789,10 @@ input[type="radio"] {
 
 .hero-brand-title {
   font-family: var(--font-brand);
-  font-size: clamp(3rem, 6.5vw, 5rem);
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
   font-weight: 900;
-  line-height: 1.02;
-  letter-spacing: -0.04em;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
   background: linear-gradient(135deg, var(--navy-900) 0%, #09236d 38%, var(--cyan-700) 78%, var(--cyan-600) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -3653,48 +3803,53 @@ input[type="radio"] {
 }
 
 .hero-brand-divider {
-  width: min(100%, 160px);
+  width: min(100%, 120px);
   height: 3px;
   border-radius: var(--radius-full);
   background: linear-gradient(90deg, var(--navy-900) 0%, var(--purple-600) 50%, var(--cyan-600) 100%);
-  margin: 0.55rem 0 0.55rem 0;
+  margin: 0.45rem 0 0.45rem 0;
 }
 
 .hero-brand-subtitle {
-  font-size: clamp(0.85rem, 1.8vw, 1.05rem);
-  font-weight: 600;
+  font-size: clamp(0.78rem, 1.4vw, 0.92rem);
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--cyan-700);
-  line-height: 1.45;
+  line-height: 1.35;
   max-width: 620px;
   margin: 0;
 }
 
 .hero-brand-subtitle[lang="ta"],
 [lang="ta"] .hero-brand-subtitle {
-  text-transform: none;
-  letter-spacing: 0.025em;
-  font-family: var(--font-tamil);
-  color: var(--navy-800);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-family: var(--font-base);
+  color: var(--cyan-700);
   font-weight: 700;
 }
 
 @media (max-width: 640px) {
   .hero-brand-block {
-    margin-bottom: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero-brand-title {
+    font-size: clamp(1.6rem, 5.8vw, 2.1rem);
+    line-height: 1.1;
   }
 
   .hero-brand-divider {
-    width: 120px;
+    width: 80px;
     height: 2.5px;
-    margin: 0.45rem 0 0.45rem 0;
+    margin: 0.35rem 0 0.35rem 0;
   }
 
   .hero-brand-subtitle {
-    font-size: 0.825rem;
-    letter-spacing: 0.05em;
-    line-height: 1.4;
+    font-size: 0.76rem;
+    letter-spacing: 0.06em;
+    line-height: 1.35;
   }
 }
 
@@ -9342,6 +9497,8 @@ button,
   padding: clamp(24px, 4vw, 36px);
   max-width: 900px;
   margin: 0 auto;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .ednova-robot-stage {
@@ -9349,6 +9506,8 @@ button,
   align-items: center;
   gap: clamp(20px, 4vw, 40px);
   margin-bottom: 24px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 720px) {
@@ -9356,6 +9515,8 @@ button,
     flex-direction: column;
     align-items: center;
     text-align: center;
+    gap: 16px;
+    margin-bottom: 20px;
   }
 }
 
@@ -9572,6 +9733,8 @@ button,
   box-shadow: 0 8px 24px rgba(16, 45, 79, 0.06);
   flex: 1;
   text-align: left;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .ednova-bubble-badge {
@@ -9581,18 +9744,23 @@ button,
   font-size: 0.78rem;
   font-weight: 750;
   color: #087F8C;
-  background: #e6f6f5;
+  background: rgba(8, 127, 140, 0.1);
   padding: 3px 10px;
   border-radius: 999px;
   margin-bottom: 8px;
+  border: 1px solid rgba(19, 168, 168, 0.25);
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .ednova-bubble-text {
   margin: 0;
-  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  font-size: clamp(0.96rem, 1.3vw, 1.15rem);
   color: #102D4F;
   font-weight: 650;
   line-height: 1.6;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 /* Response Card */
@@ -9603,6 +9771,10 @@ button,
   padding: 16px 20px;
   margin-bottom: 18px;
   animation: slideDown 0.25s ease-out;
+  box-sizing: border-box;
+  width: 100%;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .response-header {
@@ -9613,16 +9785,24 @@ button,
   color: #066873;
 }
 
+.response-header svg {
+  flex-shrink: 0;
+}
+
 .ednova-response-card p {
   margin: 0;
   font-size: 0.94rem;
   color: #18324B;
   line-height: 1.65;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 /* Prompts Tray */
 .ednova-prompts-tray {
   margin-bottom: 18px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .ednova-tray-label {
@@ -9633,18 +9813,22 @@ button,
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .ednova-prompts-list {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .ednova-prompt-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   padding: 8px 14px;
   background: #FFFFFF;
   border: 1px solid #d0dee8;
@@ -9655,6 +9839,27 @@ button,
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
+  box-sizing: border-box;
+  max-width: 100%;
+  text-align: left;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+}
+
+.ednova-prompt-chip svg {
+  flex-shrink: 0;
+  color: #087F8C;
+  transition: color 0.2s ease;
+}
+
+.ednova-prompt-chip span {
+  flex: 1;
+  min-width: 0;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  text-align: left;
 }
 
 .ednova-prompt-chip:hover,
@@ -9665,19 +9870,24 @@ button,
   transform: translateY(-1px);
 }
 
+.ednova-prompt-chip:hover svg,
+.ednova-prompt-chip.active svg {
+  color: #066873;
+}
+
+/* Input Row */
 .ednova-input-row {
   display: flex;
   gap: 10px;
-}
-
-@media (max-width: 600px) {
-  .ednova-input-row {
-    flex-direction: column;
-  }
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .ednova-input {
   flex: 1;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
   padding: 12px 18px;
   border: 1.5px solid #d0dee8;
   border-radius: 12px;
@@ -9685,7 +9895,13 @@ button,
   font-family: inherit;
   color: #102D4F;
   outline: none;
-  transition: border-color 0.2s ease;
+  background: #FFFFFF;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ednova-input::placeholder {
+  color: #7b91a6;
+  opacity: 1;
 }
 
 .ednova-input:focus {
@@ -9699,7 +9915,8 @@ button,
   justify-content: center;
   gap: 7px;
   padding: 12px 22px;
-  background: linear-gradient(135deg, #102D4F, #087F8C);
+  min-height: 46px;
+  background: var(--brand-gradient, linear-gradient(110deg, #102A83 0%, #087F8C 28%, #13A8A8 48%, #3478F6 74%, #7546E8 100%));
   color: #FFFFFF;
   border: none;
   border-radius: 12px;
@@ -9708,11 +9925,201 @@ button,
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
+  box-shadow: 0 4px 14px rgba(8, 127, 140, 0.28);
+  flex-shrink: 0;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+}
+
+.ednova-send-btn svg {
+  flex-shrink: 0;
 }
 
 .ednova-send-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(8, 127, 140, 0.3);
+  background: var(--brand-gradient-hover, linear-gradient(110deg, #123094 0%, #0a91a0 28%, #16bebe 48%, #4484fa 74%, #8255ec 100%));
+  box-shadow: 0 6px 18px rgba(8, 127, 140, 0.38), 0 0 10px rgba(117, 70, 232, 0.25);
+}
+
+/* ==========================================================================
+   EDNOVA RESPONSIVE BREAKPOINTS (Tablet, Mobile, Small Screen)
+   ========================================================================== */
+
+/* Tablet (<= 768px) */
+@media (max-width: 768px) {
+  .ednova-card {
+    padding: clamp(20px, 3.5vw, 28px);
+    border-radius: 20px;
+  }
+
+  .ednova-prompts-list {
+    gap: 8px;
+  }
+
+  .ednova-prompt-chip {
+    padding: 8px 12px;
+    font-size: 0.82rem;
+  }
+}
+
+/* Mobile (<= 600px) - Clean single-column layout */
+@media (max-width: 600px) {
+  .ednova-card {
+    padding: 18px 14px;
+    border-radius: 18px;
+  }
+
+  .ednova-robot-stage {
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+
+  .ednova-bubble {
+    padding: 14px 14px;
+    border-radius: 14px;
+  }
+
+  .ednova-bubble-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .ednova-response-card {
+    padding: 13px 14px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+  }
+
+  .ednova-response-card p {
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  .ednova-prompts-tray {
+    margin-bottom: 16px;
+  }
+
+  .ednova-tray-label {
+    margin-bottom: 8px;
+    font-size: 0.76rem;
+  }
+
+  /* Single-column questions layout on mobile */
+  .ednova-prompts-list {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .ednova-prompt-chip {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    text-align: left;
+    padding: 10px 14px;
+    border-radius: 12px;
+    min-height: 44px;
+    font-size: 0.84rem;
+    box-sizing: border-box;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .ednova-prompt-chip svg {
+    margin-top: 3px;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .ednova-prompt-chip span {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.42;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* Stacked input and button */
+  .ednova-input-row {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .ednova-input {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    font-size: 16px; /* Prevents auto-zoom on mobile browsers */
+    padding: 12px 14px;
+    border-radius: 10px;
+    min-height: 46px;
+  }
+
+  .ednova-send-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    box-sizing: border-box;
+    font-size: 0.95rem;
+  }
+}
+
+/* Small Mobile (<= 360px - e.g. iPhone SE 320px/360px) */
+@media (max-width: 360px) {
+  .ednova-card {
+    padding: 14px 10px;
+    border-radius: 14px;
+  }
+
+  .ednova-robot {
+    transform: scale(0.9);
+  }
+
+  .ednova-bubble {
+    padding: 12px 10px;
+    border-radius: 12px;
+  }
+
+  .ednova-bubble-badge {
+    font-size: 0.72rem;
+    padding: 2px 8px;
+  }
+
+  .ednova-bubble-text {
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .ednova-prompt-chip {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    gap: 6px;
+    border-radius: 10px;
+  }
+
+  .ednova-prompt-chip svg {
+    margin-top: 2px;
+    width: 13px;
+    height: 13px;
+  }
+
+  .ednova-input {
+    padding: 10px 12px;
+    font-size: 15px;
+    min-height: 44px;
+  }
+
+  .ednova-send-btn {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
 }
 
 /* --- Section 5.2: Find Your College Layout --- */

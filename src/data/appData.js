@@ -273,20 +273,10 @@ export const initialSessions = [];
 export const learningResources = [
   {
     id: "res-1",
-    title_ta: "12-ஆம் வகுப்பு பொதுத்தேர்வு கட்-ஆஃப் & கவுன்சிலிங் கையேடு 2026",
-    title_en: "Class 12 Board Exam Cutoff & Single-Window Counseling Handbook 2026",
-    type_ta: "வழிகாட்டி கையேடு (PDF)",
-    type_en: "Handbook (PDF)",
-    category: "counseling",
-    link: tneaCutoffPdf,
-    fileName: "tnea-cutoff-counselling-2026.pdf",
-    tag_ta: "இலவச பதிவிறக்கம்",
-    tag_en: "Free Download"
-  },
-  {
-    id: "res-2",
-    title_ta: "தமிழ்நாடு 38 மாவட்ட அரசு & அரசு உதவிபெறும் பொறியியல் கல்லூரிகள் பட்டியல்",
-    title_en: "Directory of Govt & Govt-Aided Engineering Colleges across 38 TN Districts",
+    title_ta: "தமிழ்நாடு பொறியியல் கல்லூரிகள் அடைவு",
+    subtitle_ta: "அரசு & அரசு உதவிபெறும் கல்லூரிகள்",
+    title_en: "TN Engineering College Directory",
+    subtitle_en: "Government & Government-Aided Colleges",
     type_ta: "அதிகாரப்பூர்வ பட்டியல்",
     type_en: "Official Directory",
     category: "directory",
@@ -294,6 +284,20 @@ export const learningResources = [
     fileName: "tamil-nadu-engineering-colleges.pdf",
     tag_ta: "TNEA அங்கீகரிக்கப்பட்டது",
     tag_en: "TNEA Approved"
+  },
+  {
+    id: "res-2",
+    title_ta: "12-ஆம் வகுப்பு கலந்தாய்வு கையேடு 2026",
+    subtitle_ta: "கட்-ஆஃப் & ஒற்றைச் சாளர சேர்க்கை வழிகாட்டி",
+    title_en: "Class 12 Counselling Handbook 2026",
+    subtitle_en: "Cutoff & Single-Window Admission Guide",
+    type_ta: "வழிகாட்டி கையேடு (PDF)",
+    type_en: "Handbook (PDF)",
+    category: "counseling",
+    link: tneaCutoffPdf,
+    fileName: "tnea-cutoff-counselling-2026.pdf",
+    tag_ta: "இலவச பதிவிறக்கம்",
+    tag_en: "Free Download"
   },
   {
     id: "res-3",
